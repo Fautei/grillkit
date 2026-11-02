@@ -1,0 +1,477 @@
+category: "CV Fundamentals"
+track: "deep learning"
+level: "junior"
+
+description: "Practical computer vision basics: image classification, object detection, and segmentation for junior engineers"
+
+questions:
+  - id: "dlj-cv-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["computer vision", "classification", "pipeline"]
+    question:
+      text:
+        en: "What is a typical image classification pipeline: data, augmentation, model, training, evaluation?"
+        ru: "Каков типичный конвейер классификации изображений: данные, аугментация, модель, обучение, оценка?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do we need train, validation, and test splits in a classification project?"
+      ru:
+        - "Зачем нужны разделения на обучающую, валидационную и тестовую выборки в проекте по классификации?"
+    expected_points:
+      - "Collect and label images per class and check the class balance"
+      - "Preprocess (resize, normalize) and apply data augmentation to reduce overfitting"
+      - "Choose a model (for example a CNN) and split data into train, validation, and test sets"
+      - "Train with a loss like cross-entropy while monitoring validation accuracy"
+      - "Evaluate on the held-out test set using accuracy, precision, recall, and a confusion matrix"
+
+  - id: "dlj-cv-002"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["cnn", "architecture", "mnist"]
+    question:
+      text:
+        en: "Describe the structure of a minimal CNN for MNIST and the role of each layer type."
+        ru: "Опишите структуру минимальной CNN для MNIST и роль каждого типа слоя."
+      code: null
+    follow_ups:
+      en:
+        - "Why do we use pooling after convolutional layers?"
+        - "What happens if we skip the final dense layers?"
+      ru:
+        - "Зачем мы используем пулинг после сверточных слоев?"
+        - "Что произойдет, если пропустить последние dense-слои?"
+    expected_points:
+      - "Convolutional layers extract local spatial features (edges, textures) using filters"
+      - "Pooling layers reduce spatial size and add translational invariance"
+      - "Dense (fully connected) layers combine the learned features for the final decision"
+      - "A softmax output layer converts scores into class probabilities"
+      - "Batch normalization and dropout help stabilize training and reduce overfitting"
+
+  - id: "dlj-cv-003"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["bounding box", "object detection"]
+    question:
+      text:
+        en: "What is a bounding box and how is it represented (x, y, w, h vs corner coordinates)?"
+        ru: "Что такое bounding box и как он представляется (x, y, w, h или координаты углов)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between a top-left origin and center-based (x, y, w, h) box encoding?"
+      ru:
+        - "В чём разница между началом координат в левом верхнем углу и центрированным кодированием (x, y, w, h)?"
+    expected_points:
+      - "A bounding box is a rectangle that tightly encloses an object in an image"
+      - "Common encodings are top-left (x, y, w, h) or center (cx, cy, w, h)"
+      - "Corner encodings give two opposite corners (x1, y1, x2, y2)"
+      - "Detectors often predict offsets from anchor boxes rather than absolute coordinates"
+      - "A consistent coordinate convention matters for loss computation and NMS"
+
+  - id: "dlj-cv-004"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["iou", "object detection", "metrics"]
+    question:
+      text:
+        en: "What is IoU (intersection over union) and how is it used in object detection?"
+        ru: "Что такое IoU (intersection over union) и как он используется в обнаружении объектов?"
+      code: null
+    follow_ups:
+      en:
+        - "What IoU threshold is commonly used to call a detection a true positive?"
+        - "How is IoU used during training of detectors?"
+      ru:
+        - "Какой порог IoU обычно используется, чтобы считать детекцию true positive?"
+        - "Как IoU используется при обучении детекторов?"
+    expected_points:
+      - "IoU is the area of intersection divided by the area of union of two boxes"
+      - "It ranges from 0 (no overlap) to 1 (perfect match)"
+      - "It is used to match predicted boxes to ground truth during training and evaluation"
+      - "A common threshold is IoU greater than or equal to 0.5 for a true positive"
+      - "It is also used by NMS to decide whether boxes overlap too much"
+
+  - id: "dlj-cv-005"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["map", "object detection", "metrics"]
+    question:
+      text:
+        en: "What is mAP and why is it the standard metric for object detection?"
+        ru: "Что такое mAP и почему это стандартная метрика для обнаружения объектов?"
+      code: null
+    follow_ups:
+      en:
+        - "What does 0.5:0.95 in mAP@0.5:0.95 mean?"
+      ru:
+        - "Что означает 0.5:0.95 в mAP@0.5:0.95?"
+    expected_points:
+      - "AP (average precision) measures the precision-recall tradeoff for one class"
+      - "mAP averages AP over all classes"
+      - "It accounts for both localization quality (via IoU) and classification confidence"
+      - "It ranks detections by score and computes precision at each recall point"
+      - "mAP@0.5:0.95 averages mAP across multiple IoU thresholds for a stricter measure"
+      - "A single accuracy number cannot capture localization plus multiple classes plus confidence, so mAP is preferred"
+
+  - id: "dlj-cv-006"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["segmentation", "computer vision"]
+    question:
+      text:
+        en: "Explain the difference between semantic and instance segmentation at a basic level."
+        ru: "Объясните разницу между семантической и instance-сегментацией на базовом уровне."
+      code: null
+    follow_ups:
+      en:
+        - "What task sits between them and is called panoptic segmentation?"
+      ru:
+        - "Какая задача находится между ними и называется паноптической сегментацией?"
+    expected_points:
+      - "Semantic segmentation assigns a class label to every pixel"
+      - "It does not distinguish between individual objects of the same class"
+      - "Instance segmentation labels each object instance separately, even within the same class"
+      - "Panoptic segmentation combines both by segmenting things (instances) and stuff (semantics)"
+
+  - id: "dlj-cv-007"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["anchors", "object detection", "r-cnn"]
+    question:
+      text:
+        en: "What are anchor boxes and why do detectors use them?"
+        ru: "Что такое anchor box и почему детекторы их используют?"
+      code: null
+    follow_ups:
+      en:
+        - "How are positive and negative anchors assigned to ground truth boxes?"
+      ru:
+        - "Как positive и negative якоря назначаются по отношению к ground truth?"
+    expected_points:
+      - "Anchor boxes are predefined reference boxes at various sizes and aspect ratios"
+      - "They are placed across the image at each feature map location"
+      - "The network predicts offsets to refine anchor positions and sizes"
+      - "They let a single head cover many object shapes and scales"
+      - "Anchors are matched to ground truth by IoU to create training labels"
+
+  - id: "dlj-cv-008"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["nms", "object detection"]
+    question:
+      text:
+        en: "What is Non-Maximum Suppression (NMS) and why is it needed?"
+        ru: "Что такое Non-Maximum Suppression (NMS) и зачем оно нужно?"
+      code: null
+    follow_ups:
+      en:
+        - "What is a typical NMS IoU threshold and what happens if it is set too high?"
+      ru:
+        - "Каков типичный порог IoU в NMS и что произойдет, если он будет слишком высоким?"
+    expected_points:
+      - "NMS removes duplicate detections of the same object"
+      - "It keeps the highest-scoring box and suppresses boxes with high IoU overlap with it"
+      - "It iterates until no overlapping boxes remain above the threshold"
+      - "Without NMS, detectors produce many redundant boxes per object"
+      - "It is usually applied per class so different overlapping objects are not suppressed"
+
+  - id: "dlj-cv-009"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["face detection", "object detection"]
+    question:
+      text:
+        en: "How does a face detection model work at a high level?"
+        ru: "Как на высшем уровне работает модель обнаружения лиц?"
+      code: null
+    follow_ups:
+      en:
+        - "What additional outputs might a face model provide besides the box?"
+      ru:
+        - "Какие дополнительные выводы может давать модель, кроме bounding box?"
+    expected_points:
+      - "It uses a CNN backbone to extract features from the image"
+      - "It predicts face bounding boxes together with confidence scores"
+      - "It often includes an alignment step that refines the box coordinates"
+      - "It may jointly regress facial landmarks such as eyes, nose, and mouth"
+      - "It is trained on large face datasets with labeled boxes and keypoints"
+
+  - id: "dlj-cv-010"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["ocr", "text recognition"]
+    question:
+      text:
+        en: "What is OCR and how are modern OCR systems typically built?"
+        ru: "Что такое OCR и как обычно строятся современные OCR-системы?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is a sequence model (like CTC or attention) used in the recognition stage?"
+      ru:
+        - "Зачем на этапе распознавания используется модель последовательностей (например, CTC или attention)?"
+    expected_points:
+      - "OCR (optical character recognition) converts text in images into machine-encoded text"
+      - "Modern pipelines typically split into text detection and text recognition"
+      - "Detection finds the regions containing text as boxes or polygons"
+      - "Recognition converts each region into a string, usually with a CNN backbone plus a sequence decoder (CTC or attention)"
+      - "It is trained on large datasets of labeled text images"
+
+  - id: "dlj-cv-011"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["transfer learning", "backbone", "fine-tuning"]
+    question:
+      text:
+        en: "How do you choose a pre-trained backbone for a small image classification dataset?"
+        ru: "Как выбрать pretrained backbone для небольшого датасета классификации изображений?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between fine-tuning all layers and freezing the backbone?"
+      ru:
+        - "В чём разница между дообучением всех слоев и замораживанием backbone?"
+    expected_points:
+      - "Start from a backbone pre-trained on a large dataset like ImageNet"
+      - "Replace the final classification head with one matching the new number of classes"
+      - "Freeze early layers and fine-tune later layers, or fine-tune the whole network with a small learning rate"
+      - "Use data augmentation and regularization (dropout, weight decay) to avoid overfitting"
+      - "Consider a lighter backbone if deployment constraints matter"
+      - "Validate on a proper hold-out set and compare against baselines"
+
+  - id: "dlj-cv-012"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["cam", "interpretability", "cnn"]
+    question:
+      text:
+        en: "What is class activation mapping (CAM) and how does it help interpret a CNN?"
+        ru: "Что такое class activation mapping (CAM) и как она помогает интерпретировать CNN?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does Grad-CAM use gradients instead of only the final layer weights?"
+      ru:
+        - "Почему Grad-CAM использует градиенты, а не только веса последнего слоя?"
+    expected_points:
+      - "CAM highlights the image regions most important for a predicted class"
+      - "Original CAM uses a linear combination of the last convolutional features weighted by global average pooling"
+      - "Grad-CAM uses the gradients of the target class flowing into a conv feature map"
+      - "It produces a coarse heatmap that overlays the input image"
+      - "It helps debug whether the model focuses on the right object or on spurious cues"
+
+  - id: "dlj-cv-013"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["preprocessing", "resize", "padding"]
+    question:
+      text:
+        en: "How do you handle a dataset with images of different sizes?"
+        ru: "Как работать с датасетом, в котором изображения имеют разные размеры?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the trade-offs of resizing to a square versus letterbox padding?"
+      ru:
+        - "Каковы компромиссы между ресайзом до квадрата и letterbox-заполнением?"
+    expected_points:
+      - "Resize to a fixed size the model expects, or resize the short side and pad (letterbox)"
+      - "Preserving aspect ratio avoids distorting objects"
+      - "Letterbox padding keeps aspect ratio by adding neutral border pixels"
+      - "Batching requires uniform tensor shapes, so all images in a batch must be the same size"
+      - "Stay consistent between training, validation, and inference"
+
+  - id: "dlj-cv-014"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["augmentation", "object detection"]
+    question:
+      text:
+        en: "Which data augmentations are safe for object detection and which are not?"
+        ru: "Какие аугментации безопасны для обнаружения объектов, а какие нет?"
+      code: null
+    follow_ups:
+      en:
+        - "Why must bounding boxes be transformed together with the image?"
+      ru:
+        - "Почему bounding box нужно трансформировать вместе с изображением?"
+    expected_points:
+      - "Geometric transforms (flip, rotation, translation) are safe if boxes are updated consistently"
+      - "Color and brightness jitter is usually safe because classes are appearance-invariant"
+      - "Cutout or random erasing is risky because it may remove the object or its box"
+      - "Resizing is safe if box coordinates are scaled proportionally"
+      - "Augmentations that change object identity (mixup of unrelated images) are generally not safe for detection"
+      - "Always keep the image and box annotations in sync"
+
+  - id: "dlj-cv-015"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["super-resolution", "image restoration"]
+    question:
+      text:
+        en: "How does an image super-resolution model work at a high level?"
+        ru: "Как на высшем уровне работает модель супер-разрешения изображений?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is a pixel-level loss like L1 common in super-resolution training?"
+      ru:
+        - "Почему при обучении супер-разрешения часто используют посимвольный (pixel-level) loss, например L1?"
+    expected_points:
+      - "It takes a low-resolution input and predicts a higher-resolution image"
+      - "It upscales using transposed convolutions or learned upsampling"
+      - "It is trained with paired low and high resolution images"
+      - "The loss combines a reconstruction term (L1 or L2) with a perceptual or adversarial term"
+      - "It deals with an ill-posed inverse problem, so results are plausible reconstructions rather than exact ones"
+
+  - id: "dlj-cv-016"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["inpainting", "image restoration"]
+    question:
+      text:
+        en: "What is image inpainting and where is it used?"
+        ru: "Что такое inpainting изображений и где он применяется?"
+      code: null
+    follow_ups:
+      en:
+        - "How is a mask used in the inpainting training setup?"
+      ru:
+        - "Как маска используется при настройке обучения inpainting?"
+    expected_points:
+      - "Inpainting fills in missing or masked regions of an image plausibly"
+      - "It takes the image plus a mask indicating the region to fill"
+      - "It is used for object removal, scratch or artifact repair, and content completion"
+      - "Modern models (diffusion-based) generate contextually consistent fillings"
+      - "It is evaluated on how natural and coherent the filled region is"
+
+  - id: "dlj-cv-017"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["segmentation", "metrics", "dice"]
+    question:
+      text:
+        en: "How do you evaluate a segmentation model (IoU, Dice score)?"
+        ru: "Как оценивать модель сегментации (IoU, Dice score)?"
+      code: null
+    follow_ups:
+      en:
+        - "How is Dice related to IoU, and when is one preferred over the other?"
+      ru:
+        - "Как Dice связан с IoU, и когда одна метрика предпочтительнее другой?"
+    expected_points:
+      - "Pixel-level IoU (Jaccard) is the intersection divided by the union of predicted and ground truth masks"
+      - "Dice score is 2 times the intersection over the sum of prediction and ground truth, equivalent to F1 at pixel level"
+      - "mIoU averages IoU over all classes"
+      - "Dice is more robust when one class is small or rare"
+      - "Report both per-class and mean metrics"
+
+  - id: "dlj-cv-018"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["annotation", "coco", "yolo"]
+    question:
+      text:
+        en: "What are common object detection annotation formats (COCO, VOC, YOLO)?"
+        ru: "Каковы распространённые форматы аннотаций для обнаружения объектов (COCO, VOC, YOLO)?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the YOLO format normalize box coordinates?"
+      ru:
+        - "Как формат YOLO нормализует координаты bounding box?"
+    expected_points:
+      - "COCO uses JSON with image, annotation, and category fields, with boxes as x, y, w, h"
+      - "VOC (PASCAL) uses XML files with one object entry per instance"
+      - "YOLO uses one text file per image with the class id and normalized center coordinates"
+      - "Formats differ in coordinate convention, normalization, and file structure"
+      - "Choosing one affects tooling and conversion between datasets"
+
+  - id: "dlj-cv-019"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["fpn", "object detection", "multi-scale"]
+    question:
+      text:
+        en: "Why do detectors use feature pyramids (FPN) at a basic level?"
+        ru: "Почему детекторы используют пирамиды признаков (FPN) на базовом уровне?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do small objects tend to be detected better on higher-resolution feature levels?"
+      ru:
+        - "Почему маленькие объекты обычно лучше детектируются на уровнях с высоким разрешением?"
+    expected_points:
+      - "Objects appear at different scales within a single image"
+      - "Early layers capture fine detail (good for small objects) while later layers capture semantics (good for large objects)"
+      - "FPN fuses multi-level features into a pyramid for detection at multiple scales"
+      - "It combines top-down semantics with bottom-up detail via lateral connections"
+      - "It improves detection of both small and large objects"
+
+  - id: "dlj-cv-020"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["pipeline", "classification", "deployment"]
+    question:
+      text:
+        en: "How do you build a simple end-to-end pipeline from raw photos to classification labels?"
+        ru: "Как построить простой конвейер от сырых фотографий до классификационных меток?"
+      code: null
+    follow_ups:
+      en:
+        - "How would you monitor the model in production for drift?"
+      ru:
+        - "Как бы вы отслеживали модель в production и дрейф?"
+    expected_points:
+      - "Ingest the raw photos and store them"
+      - "Preprocess by resizing and normalizing to match training"
+      - "Run inference to get class probabilities"
+      - "Post-process by applying a confidence threshold and mapping to a label"
+      - "Return the label with metadata and log outputs for monitoring"
+      - "Keep preprocessing identical to training to avoid train-serve skew"
+
+  - id: "dlj-cv-021"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["classification", "object detection", "training"]
+    question:
+      text:
+        en: "What are the main differences between training a classifier and training a detector?"
+        ru: "Каковы основные различия между обучением классификатора и обучением детектора?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does a detector need both classification and regression losses?"
+      ru:
+        - "Почему детектору нужны и классификационный, и регрессионный loss?"
+    expected_points:
+      - "A classifier labels the whole image while a detector finds and labels multiple objects"
+      - "Detectors need box coordinate regression in addition to classification"
+      - "Detectors handle a varying number of objects per image (variable output)"
+      - "Detectors use anchor matching or a similar scheme to assign ground truth to predictions"
+      - "Annotation is heavier (boxes vs image-level labels) and the data imbalance is more complex"
+      - "Evaluation uses mAP and IoU rather than plain accuracy"
+
+  - id: "dlj-cv-022"
+    type: "scenario"
+    difficulty: 2
+    tags: ["object detection", "debugging", "map"]
+    question:
+      text:
+        en: "Your detector finds objects but mAP is low. List the most likely causes and how to check them."
+        ru: "Ваш детектор находит объекты, но mAP низкий. Перечислите наиболее вероятные причины и как их проверить."
+      code: null
+    follow_ups:
+      en:
+        - "How would you inspect a few low-mAP images to localize the problem?"
+      ru:
+        - "Как бы вы проверили несколько изображений с низким mAP, чтобы локализовать проблему?"
+    expected_points:
+      - "Check localization by visualizing predicted versus ground truth boxes to see the IoU gaps"
+      - "Check annotation quality for mislabeled, truncated, or missing boxes"
+      - "Check class imbalance and rare classes dragging the overall mAP down"
+      - "Verify the evaluation setup matches training (IoU threshold and metric definition)"
+      - "Inspect confidence calibration, the decision threshold, and the score distribution"
+      - "Check for data leakage or a mismatch between train and evaluation distributions"

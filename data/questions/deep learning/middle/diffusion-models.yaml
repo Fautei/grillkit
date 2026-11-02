@@ -1,0 +1,468 @@
+category: "Diffusion Models"
+track: "deep learning"
+level: "middle"
+
+description: "Diffusion-based generation: DDPM, score matching, latent diffusion, and Stable Diffusion"
+
+questions:
+  - id: "dlm-diff-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["diffusion", "ddpm", "generative"]
+    question:
+      text:
+        en: "What is a diffusion model at a high level (forward noising, reverse denoising)?"
+        ru: "Что такое diffusion модель высокоуровнево (forward noising, reverse denoising)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the forward and reverse processes called?"
+      ru:
+        - "Как называются прямой и обратный процессы?"
+    expected_points:
+      - "Forward process gradually adds Gaussian noise to data"
+      - "Reverse process learns to denoise step by step"
+      - "Model is a neural network predicting noise at each timestep"
+      - "Training: noise data, predict noise, MSE loss"
+      - "Sampling: start from pure noise, iteratively denoise"
+
+  - id: "dlm-diff-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["ddpm", "training", "objective"]
+    question:
+      text:
+        en: "Explain the DDPM training objective: predicting the added noise (epsilon)"
+        ru: "Объясните цель обучения DDPM: предсказание добавленного шума (epsilon)"
+      code: null
+    follow_ups:
+      en:
+        - "What loss function is used?"
+      ru:
+        - "Какая функция потерь используется?"
+    expected_points:
+      - "Forward: q(x_t | x_0) adds noise according to a variance schedule"
+      - "Reverse: p_theta(x_{t-1} | x_t) parameterized by a neural network"
+      - "Target is the noise epsilon added to x_0 to get x_t"
+      - "Loss: MSE between true epsilon and epsilon_theta(x_t, t)"
+      - "Simplified objective, no KL terms needed thanks to reparameterization"
+
+  - id: "dlm-diff-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["score-matching", "sml", "connection"]
+    question:
+      text:
+        en: "What is the connection between diffusion models and score matching?"
+        ru: "Какая связь между diffusion моделями и score matching?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the score function?"
+      ru:
+        - "Что такое score function?"
+    expected_points:
+      - "Score function is the gradient of log data density: grad_x log p(x)"
+      - "Denoising score matching estimates this score from noisy data"
+      - "DDPM's noise prediction approximates the score up to scaling"
+      - "SMLD / annealed score matching trains on multiple noise levels"
+      - "Diffusion sampling can be viewed as Langevin dynamics on the score"
+
+  - id: "dlm-diff-004"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["sampling", "scheduler", "ddim"]
+    question:
+      text:
+        en: "Why does diffusion sampling take many steps, and how do schedulers reduce this?"
+        ru: "Почему семплирование diffusion занимает много шагов, и как schedulers снижают это?"
+      code: null
+    follow_ups:
+      en:
+        - "What does DDIM do differently?"
+      ru:
+        - "Чем отличается DDIM?"
+    expected_points:
+      - "DDPM uses a fixed Markov chain of hundreds or thousands of small denoising steps"
+      - "Each step is a neural network evaluation, which makes sampling slow"
+      - "Schedulers (DDIM, DPM-Solver, etc.) take larger, smarter steps"
+      - "DDIM: deterministic, non-Markovian, can sample in 10-50 steps"
+      - "DPM-Solver: higher-order ODE solver, few steps with good quality"
+
+  - id: "dlm-diff-005"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cfg", "guidance", "text-to-image"]
+    question:
+      text:
+        en: "What is classifier-free guidance and how does the guidance scale affect output?"
+        ru: "Что такое classifier-free guidance и как влияет guidance scale на вывод?"
+      code: null
+    follow_ups:
+      en:
+        - "How is the conditional and unconditional prediction combined?"
+      ru:
+        - "Как комбинируются условный и безусловный предсказания?"
+    expected_points:
+      - "Train with dropout on the conditioning (text) to learn both conditional and unconditional models"
+      - "At inference, extrapolate along the conditional direction"
+      - "Guidance scale (w) controls how strongly conditioning influences the output"
+      - "Low w: diverse but less prompt-aligned; high w: more aligned but oversaturated"
+      - "No separate classifier model needed"
+
+  - id: "dlm-diff-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["ldm", "vae", "latent"]
+    question:
+      text:
+        en: "How does a latent diffusion model (LDM) work, and why use a VAE?"
+        ru: "Как работает LDM и зачем использовать VAE?"
+      code: null
+    follow_ups:
+      en:
+        - "Where does the diffusion happen in LDM?"
+      ru:
+        - "Где происходит diffusion в LDM?"
+    expected_points:
+      - "VAE encodes images into a compact latent space; diffusion runs in latents"
+      - "Decoder maps denoised latents back to image space"
+      - "Much cheaper than diffusion in pixel space"
+      - "Latent space keeps perceptual detail while removing redundant pixel info"
+      - "Stable Diffusion is an LDM"
+
+  - id: "dlm-diff-007"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["stable-diffusion", "pipeline", "unet"]
+    question:
+      text:
+        en: "Describe the Stable Diffusion pipeline: text encoder, UNet, VAE, scheduler"
+        ru: "Опишите пайплайн Stable Diffusion: text encoder, UNet, VAE, scheduler"
+      code: null
+    follow_ups:
+      en:
+        - "What is the order of components during generation?"
+      ru:
+        - "Каков порядок компонентов при генерации?"
+    expected_points:
+      - "Text encoder (CLIP) turns the prompt into text embeddings"
+      - "UNet denoises latents conditioned on text via cross-attention"
+      - "Scheduler picks timesteps and computes the denoised latent"
+      - "VAE decoder converts final latent to a pixel image"
+      - "Training: encode image once with VAE encoder, freeze it"
+
+  - id: "dlm-diff-008"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["cross-attention", "unet", "conditioning"]
+    question:
+      text:
+        en: "What is the role of the UNet cross-attention with text embeddings?"
+        ru: "Какая роль cross-attention UNet с текстовыми эмбеддингами?"
+      code: null
+    follow_ups:
+      en:
+        - "Where does cross-attention happen in the UNet?"
+      ru:
+        - "Где происходит cross-attention в UNet?"
+    expected_points:
+      - "Cross-attention injects text conditioning into the image UNet"
+      - "Queries come from image features, keys and values from text embeddings"
+      - "Lets spatial image locations attend to relevant text tokens"
+      - "Reshape text embeddings across spatial dimensions via attention"
+      - "Primary mechanism for prompt control in Stable Diffusion"
+
+  - id: "dlm-diff-009"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["scheduler", "euler", "dpm-solver"]
+    question:
+      text:
+        en: "What are the common sampling schedulers (DDIM, Euler, DPM-Solver) and how do they differ?"
+        ru: "Каковы распространённые schedulers семплирования (DDIM, Euler, DPM-Solver) и чем они отличаются?"
+      code: null
+    follow_ups:
+      en:
+        - "Which is fastest vs best quality trade-off?"
+      ru:
+        - "Какой даёт лучший баланс скорости и качества?"
+    expected_points:
+      - "DDIM: deterministic, non-Markovian, good in 10-50 steps"
+      - "Euler: simple ODE solver step, fast, baseline in many implementations"
+      - "DPM-Solver: higher-order solver, high quality in very few steps (5-20)"
+      - "Trade-off: more steps usually better quality, but diminishing returns"
+      - "Scheduler choice changes timesteps and update math, not the model"
+
+  - id: "dlm-diff-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["training", "text-to-image", "captions"]
+    question:
+      text:
+        en: "How do you train a text-to-image model end to end (data, captions, objectives)?"
+        ru: "Как обучать text-to-image модель end to end (данные, подписи к изображениям, цели)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why are image captions needed?"
+      ru:
+        - "Зачем нужны подписи к изображениям?"
+    expected_points:
+      - "Data: image-text pairs with high-quality captions"
+      - "Captioning: use a captioning model (BLIP, etc.) to generate or refine captions"
+      - "Train UNet to predict noise from latents plus text embeddings"
+      - "Objective: same DDPM noise prediction MSE, conditioned on text"
+      - "Filter low-quality pairs, deduplicate, balance concepts"
+
+  - id: "dlm-diff-011"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["img2img", "denoising-strength"]
+    question:
+      text:
+        en: "What is img2img and how does the denoising strength control it?"
+        ru: "Что такое img2img и как denoising strength управляет этим?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens at strength 1.0?"
+      ru:
+        - "Что происходит при strength 1.0?"
+    expected_points:
+      - "Start from a source image plus noise instead of pure noise"
+      - "Add noise to the source image up to a timestep, then denoise"
+      - "Denoising strength: how much noise is added before denoising"
+      - "Low strength: stays close to source; high strength: more creative change"
+      - "At 1.0, full denoising from near-pure noise (like txt2img)"
+
+  - id: "dlm-diff-012"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["inpainting", "mask"]
+    question:
+      text:
+        en: "What is inpainting in diffusion models and how does the attention mask work?"
+        ru: "Что такое inpainting в diffusion моделях и как работает attention mask?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the mask used for?"
+      ru:
+        - "Для чего используется маска?"
+    expected_points:
+      - "Inpainting: fill in masked regions of an image while keeping the rest"
+      - "Masked image plus mask are concatenated or added as conditioning to UNet"
+      - "Cross-attention or extra input channels inject mask information"
+      - "During sampling, unmasked areas can be fixed or re-blended each step"
+      - "Used for object removal, face repair, background changes"
+
+  - id: "dlm-diff-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["controlnet", "spatial-conditioning"]
+    question:
+      text:
+        en: "What is ControlNet and how does it add spatial conditioning?"
+        ru: "Что такое ControlNet и как он добавляет пространственную кондицию?"
+      code: null
+    follow_ups:
+      en:
+        - "What kinds of spatial conditions does ControlNet use?"
+      ru:
+        - "Какие типы пространственных условий использует ControlNet?"
+    expected_points:
+      - "ControlNet: duplicate UNet blocks with zero-convolution layers"
+      - "Takes spatial conditioning input (edges, depth, pose, segmentation)"
+      - "Trainable copy learns condition while the main UNet stays frozen"
+      - "Zero-convs start at zero so training begins from the pretrained model"
+      - "Precise control over layout, structure, and composition"
+
+  - id: "dlm-diff-014"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["lora", "adapters", "fine-tuning"]
+    question:
+      text:
+        en: "How do LoRA adapters adapt diffusion models cheaply?"
+        ru: "Как LoRA адаптеры дешевно адаптируют diffusion модели?"
+      code: null
+    follow_ups:
+      en:
+        - "Where is LoRA applied in a diffusion UNet?"
+      ru:
+        - "Где применяется LoRA в diffusion UNet?"
+    expected_points:
+      - "Freeze the base model; train small low-rank matrices injected into layers"
+      - "Applied to attention projections (Q, K, V) and sometimes FFN"
+      - "Only the adapter weights are stored and trained (few MB)"
+      - "Multiple LoRAs (style, character) can be mixed at inference"
+      - "Much cheaper than full fine-tuning; fast to train and share"
+
+  - id: "dlm-diff-015"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["sampling", "scheduler", "ddim"]
+    question:
+      text:
+        en: "What are the common sampling schedulers (DDIM, Euler, DPM-Solver) and how do they differ?"
+        ru: "Каковы распространённые schedulers семплирования (DDIM, Euler, DPM-Solver) и чем они отличаются?"
+      code: null
+    follow_ups:
+      en:
+        - "Which scheduler is best for few steps vs many steps?"
+      ru:
+        - "Какой scheduler лучше для нескольких шагов против многих?"
+    expected_points:
+      - "DDIM: deterministic, non-Markovian scheduler, good quality in 10-50 steps"
+      - "Euler: simple first-order ODE solver step, fast baseline"
+      - "DPM-Solver: higher-order ODE solver, high quality in very few steps (5-20)"
+      - "More steps usually improve quality but with diminishing returns"
+      - "Scheduler changes timesteps and update math, not the diffusion model"
+
+  - id: "dlm-diff-016"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["training", "text-to-image", "captions"]
+    question:
+      text:
+        en: "How do you train a text-to-image model end to end (data, captions, objectives)?"
+        ru: "Как обучать text-to-image модель end to end (данные, подписи к изображениям, цели)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why are image captions needed?"
+      ru:
+        - "Зачем нужны подписи к изображениям?"
+    expected_points:
+      - "Data: image-text pairs with high-quality captions"
+      - "Captions: generate or refine with a captioning model (BLIP, etc.)"
+      - "Train UNet to predict noise from latents conditioned on text embeddings"
+      - "Objective: DDPM noise prediction MSE conditioned on text"
+      - "Filter low-quality pairs, deduplicate, balance concepts"
+
+  - id: "dlm-diff-017"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["img2img", "denoising-strength"]
+    question:
+      text:
+        en: "What is img2img and how does the denoising strength control it?"
+        ru: "Что такое img2img и как denoising strength управляет этим?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens at strength 1.0?"
+      ru:
+        - "Что происходит при strength 1.0?"
+    expected_points:
+      - "Start from a source image plus noise instead of pure noise"
+      - "Add noise to the source up to a timestep, then denoise"
+      - "Denoising strength: how much noise is added before denoising"
+      - "Low strength stays close to source; high strength changes more"
+      - "At 1.0, full denoising from near-pure noise (like txt2img)"
+
+  - id: "dlm-diff-018"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["inpainting", "mask"]
+    question:
+      text:
+        en: "What is inpainting in diffusion models and how does the attention mask work?"
+        ru: "Что такое inpainting в diffusion моделях и как работает attention mask?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the mask used for?"
+      ru:
+        - "Для чего используется маска?"
+    expected_points:
+      - "Inpainting fills masked regions while keeping the rest of the image"
+      - "Masked image and mask are fed to the UNet as conditioning"
+      - "Mask information injected via extra input channels or cross-attention"
+      - "During sampling, unmasked areas are fixed or re-blended each step"
+      - "Used for object removal, face repair, background changes"
+
+  - id: "dlm-diff-019"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["controlnet", "spatial-conditioning"]
+    question:
+      text:
+        en: "What is ControlNet and how does it add spatial conditioning?"
+        ru: "Что такое ControlNet и как он добавляет пространственную кондицию?"
+      code: null
+    follow_ups:
+      en:
+        - "What kinds of spatial conditions does ControlNet use?"
+      ru:
+        - "Какие типы пространственных условий использует ControlNet?"
+    expected_points:
+      - "ControlNet duplicates UNet blocks with zero-convolution layers"
+      - "Takes spatial conditioning input (edges, depth, pose, segmentation)"
+      - "Trainable copy learns the condition while the main UNet stays frozen"
+      - "Zero-convs start at zero so training begins from the pretrained model"
+      - "Precise control over layout, structure, and composition"
+
+  - id: "dlm-diff-020"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["lora", "adapters", "fine-tuning"]
+    question:
+      text:
+        en: "How do LoRA adapters adapt diffusion models cheaply?"
+        ru: "Как LoRA адаптеры дешевно адаптируют diffusion модели?"
+      code: null
+    follow_ups:
+      en:
+        - "Where is LoRA applied in a diffusion UNet?"
+      ru:
+        - "Где применяется LoRA в diffusion UNet?"
+    expected_points:
+      - "Freeze the base model; train small low-rank matrices injected into layers"
+      - "Applied to attention projections (Q, K, V) and sometimes FFN"
+      - "Only adapter weights are stored and trained (few MB)"
+      - "Multiple LoRAs (style, character) can be mixed at inference"
+      - "Much cheaper than full fine-tuning; fast to train and share"
+
+  - id: "dlm-diff-021"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["fid", "evaluation", "metrics"]
+    question:
+      text:
+        en: "What is FID and why is it the standard generation metric?"
+        ru: "Что такое FID и почему это стандартная метрика генерации?"
+      code: null
+    follow_ups:
+      en:
+        - "What does FID compare?"
+      ru:
+        - "Чем сравнивает FID?"
+    expected_points:
+      - "FID: Fréchet Inception Distance between real and generated image distributions"
+      - "Computes Inception features and compares Gaussian means and covariances"
+      - "Lower FID means generated images are closer to real data distribution"
+      - "Captures both quality and diversity, not just single-image scores"
+      - "Standard because it correlates with human perception and is model-agnostic"
+
+  - id: "dlm-diff-022"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["evaluation", "clip-score", "human-eval"]
+    question:
+      text:
+        en: "How do you evaluate diffusion models beyond FID (CLIP score, human eval)?"
+        ru: "Как оценивать diffusion модели помимо FID (CLIP score, человеческая оценка)?"
+      code: null
+    follow_ups:
+      en:
+        - "What does CLIP score measure?"
+      ru:
+        - "Что измеряет CLIP score?"
+    expected_points:
+      - "CLIP score measures alignment between generated image and text prompt"
+      - "Human eval: raters judge quality, prompt alignment, and realism"
+      - "Diversity metrics check that outputs cover different concepts and styles"
+      - "Benchmark suites (GenEval, DPG-Bench) test structured prompt following"
+      - "Use multiple metrics together since no single score captures everything"

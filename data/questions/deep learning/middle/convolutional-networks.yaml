@@ -1,0 +1,848 @@
+category: "Convolutional Neural Networks"
+track: "deep learning"
+level: "middle"
+
+description: "CNN architectures, object detection, segmentation, and advanced vision topics"
+
+questions:
+  - id: "dlm-cnn-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cnn", "convolution", "kernel"]
+    question:
+      text:
+        en: "How does a 2D convolution work? Explain stride, padding, and how they affect output size."
+        ru: "Как работает 2D-свёртка? Объясните stride, padding и как они влияют на размер вывода."
+      code: null
+    follow_ups:
+      en:
+        - "Derive the output size formula for given input, kernel, stride, padding."
+      ru:
+        - "Выведите формулу размера вывода для заданных input, kernel, stride, padding."
+    expected_points:
+      - "Conv: slide kernel over input, compute dot product, add bias"
+      - "Stride: step size; padding: add zeros at borders"
+      - "Output size: O = (I + 2P - K)/S + 1"
+      - "Stride>1 downsamples spatially; padding preserves size"
+      - "Each output channel = independent filter stack"
+
+  - id: "dlm-cnn-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cnn", "filters", "channels"]
+    question:
+      text:
+        en: "What is a filter/kernel in CNN and why do networks learn more complex filters in deeper layers?"
+        ru: "Что такое фильтр/ядро в CNN и почему сеть учит более сложные фильтры в глубоких слоях?"
+      code: null
+    follow_ups:
+      en:
+        - "What do early vs late conv layers typically detect?"
+      ru:
+        - "Что обычно детектят ранние и поздние conv-слои?"
+    expected_points:
+      - "Kernel: 3D weight tensor (C_in, K, K) producing one output channel"
+      - "Weight sharing: same kernel across spatial positions"
+      - "Early layers: edges, colors, textures (local features)"
+      - "Deeper layers: object parts, whole objects (composite features)"
+      - "Hierarchical feature composition is the core of CNNs"
+
+  - id: "dlm-cnn-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cnn", "pooling", "downsampling"]
+    question:
+      text:
+        en: "What are max pooling and average pooling? Why do they help CNNs?"
+        ru: "Что такое max pooling и average pooling? Почему они полезны в CNN?"
+      code: null
+    follow_ups:
+      en:
+        - "What is global average pooling and why is it used?"
+      ru:
+        - "Что такое global average pooling и зачем он используется?"
+    expected_points:
+      - "Pooling: reduce spatial size, keep most important values"
+      - "Max pooling: take maximum over a window (feature presence)"
+      - "Average pooling: mean over window (smoother)"
+      - "Provides translation invariance and reduces compute"
+      - "Global Average Pooling: one value per channel, replaces FC, fewer params"
+
+  - id: "dlm-cnn-004"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cnn", "vgg", "alexnet"]
+    question:
+      text:
+        en: "Compare VGG, AlexNet, and GoogLeNet design philosophies. What was each famous for?"
+        ru: "Сравните философии VGG, AlexNet и GoogLeNet. Чем каждая была знаменита?"
+      code: null
+    follow_ups:
+      en:
+        - "Why did VGG use many small 3x3 convolutions instead of large ones?"
+      ru:
+        - "Почему VGG использовала множество маленьких 3x3 сверток вместо больших?"
+    expected_points:
+      - "AlexNet (2012): first deep CNN to win ImageNet, ReLU, Dropout, GPU"
+      - "VGG (2014): deep (19 layers), uniform 3x3 convs, simple but strong"
+      - "GoogLeNet (2014): Inception modules, multi-scale, efficient"
+      - "Two 3x3 convs = same receptive field as 5x5 with more nonlinearity + fewer params"
+      - "Marked the shift to deeper, more efficient architectures"
+
+  - id: "dlm-cnn-005"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["resnet", "skip", "residual"]
+    question:
+      text:
+        en: "Explain the ResNet residual block and why it solved the degradation problem."
+        ru: "Объясните residual-блок ResNet и почему он решил проблему деградации."
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between basic and bottleneck ResNet blocks?"
+      ru:
+        - "Чем базовый блок ResNet отличается от bottleneck?"
+    expected_points:
+      - "Residual block: output = F(x) + x (skip/shortcut connection)"
+      - "Network learns residual H(x)-x, easier than H(x) directly"
+      - "Identity shortcut preserves gradient flow to early layers"
+      - "Enables training of 50/100+ layer networks without degradation"
+      - "Basic: two 3x3 convs; bottleneck: 1x1-3x3-1x1 (reduces params)"
+
+  - id: "dlm-cnn-006"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["resnet", "bottleneck", "1x1"]
+    question:
+      text:
+        en: "What is the purpose of 1x1 convolutions in ResNet and other architectures?"
+        ru: "Каково назначение сверток 1x1 в ResNet и других архитектурах?"
+      code: null
+    follow_ups:
+      en:
+        - "How does a 1x1 conv change the number of channels?"
+      ru:
+        - "Как свёртка 1x1 меняет число каналов?"
+    expected_points:
+      - "1x1 conv: cross-channel linear combination, no spatial mixing"
+      - "Reduces channel dim (bottleneck) then expands it"
+      - "Cuts compute: cheaper to operate in low channel space"
+      - "Adds nonlinearity between projections"
+      - "Used in Inception, ResNet bottleneck, efficient nets"
+
+  - id: "dlm-cnn-007"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["cnn", "inception", "multi-scale"]
+    question:
+      text:
+        en: "How do Inception modules capture multi-scale features?"
+        ru: "Как модули Inception улавливают признаки разных масштабов?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do Inception modules use 1x1 convs before larger convs?"
+      ru:
+        - "Почему Inception-модули используют 1x1 свёртки перед большими?"
+    expected_points:
+      - "Parallel branches with different kernel sizes (1x1, 3x3, 5x5, pooling)"
+      - "Each branch captures features at a different receptive field"
+      - "Concatenate outputs to combine multi-scale representations"
+      - "1x1 convs reduce channel count to keep cost manageable"
+      - "Allows the network to learn optimal feature mix"
+
+  - id: "dlm-cnn-008"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["efficientnet", "mobilenet", "efficiency"]
+    question:
+      text:
+        en: "How do MobileNet and EfficientNet achieve efficiency? What are depthwise separable convolutions?"
+        ru: "Как MobileNet и EfficientNet достигают эффективности? Что такое depthwise separable convolutions?"
+      code: null
+    follow_ups:
+      en:
+        - "How many FLOPs does a depthwise separable conv save vs a standard conv?"
+      ru:
+        - "Сколько FLOPs экономит depthwise separable conv против стандартной?"
+    expected_points:
+      - "Depthwise separable: per-channel spatial conv (depthwise) + 1x1 pointwise"
+      - "Decouples spatial and channel mixing — drastically fewer FLOPs"
+      - "Saves ~8-9x compute vs standard conv for typical channel counts"
+      - "MobileNet: depthwise separable convs for mobile efficiency"
+      - "EfficientNet: compound scaling (depth, width, resolution) via NAS"
+
+  - id: "dlm-cnn-009"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["cnn", "receptive-field"]
+    question:
+      text:
+        en: "What is the receptive field and how do you compute it for a stack of conv layers?"
+        ru: "Что такое рецептивное поле и как его вычислить для стопки conv-слоёв?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do dilated convolutions expand the receptive field?"
+      ru:
+        - "Почему разряженные (dilated) свёртки расширяют рецептивное поле?"
+    expected_points:
+      - "Receptive field: input region influencing one output unit"
+      - "Grows with depth and kernel size; pooling/stride also expand it"
+      - "Dilated (atrous) conv: insert zeros in kernel, larger field without losing resolution"
+      - "Dilation rate r: kernel covers (K-1)*r+1 input points"
+      - "Large receptive field = better context, but needs many layers to grow"
+
+  - id: "dlm-cnn-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["dilated", "atrous", "segmentation"]
+    question:
+      text:
+        en: "How do dilated (atrous) convolutions help in semantic segmentation?"
+        ru: "Как разряженные (atrous) свёртки помогают в семантической сегментации?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the aliasing problem with dilated convs and how is it addressed?"
+      ru:
+        - "Какова проблема алиасинга у dilated свёрок и как она решается?"
+    expected_points:
+      - "Dilation captures large context without downsampling"
+      - "Keeps full spatial resolution for pixel-wise prediction"
+      - "ASPP (Atrous Spatial Pyramid): multi-rate dilations capture context at scales"
+      - "Aliasing: high-rate dilations can create artifacts; multi-rate mixes fix it"
+      - "Used in DeepLab family for accurate segmentation maps"
+
+  - id: "dlm-cnn-011"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["segmentation", "unet", "encoder-decoder"]
+    question:
+      text:
+        en: "Explain the encoder-decoder architecture and the U-Net design. Why are skip connections important for segmentation?"
+        ru: "Объясните архитектуру encoder-decoder и дизайн U-Net. Почему skip connections важны для сегментации?"
+      code: null
+    follow_ups:
+      en:
+        - "How does U-Net handle different-sized images?"
+      ru:
+        - "Как U-Net обрабатывает изображения разного размера?"
+    expected_points:
+      - "Encoder downsamples (features), decoder upsamples (spatial resolution)"
+      - "U-Net: symmetric encoder-decoder with skip connections between levels"
+      - "Skip connections fuse high-res details with high-level semantics"
+      - "Essential for precise boundaries in segmentation"
+      - "Transposed conv (or upsample) in decoder increases spatial size"
+
+  - id: "dlm-cnn-012"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["segmentation", "loss", "dice"]
+    question:
+      text:
+        en: "What losses are used for semantic segmentation and why is plain cross-entropy insufficient for imbalanced classes?"
+        ru: "Какие функции потерь используются для семантической сегментации и почему обычная кросс-энтропия недостаточна при несбалансированных классах?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the Dice coefficient and why is it a good metric for segmentation?"
+      ru:
+        - "Что такое коэффициент Дайса и почему он хороший метрик для сегментации?"
+    expected_points:
+      - "Cross-entropy per pixel; but background dominates"
+      - "Class weights / focal loss reweight rare classes"
+      - "Dice loss: 2*|A∩B| / (|A|+|B|), robust to class imbalance"
+      - "Combined CE+Dice common for medical segmentation"
+      - "Background-heavy images need boundary-aware losses"
+
+  - id: "dlm-cnn-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "rcnn"]
+    question:
+      text:
+        en: "Describe the evolution from R-CNN to Fast R-CNN to Faster R-CNN. What problem did each solve?"
+        ru: "Опишите эволюцию от R-CNN к Fast R-CNN к Faster R-CNN. Какую проблему решал каждый этап?"
+      code: null
+    follow_ups:
+      en:
+        - "What is region proposal and why was it the bottleneck?"
+      ru:
+        - "Что такое region proposal и почему это было узким местом?"
+    expected_points:
+      - "R-CNN: selective search proposals + CNN features + SVM (slow)"
+      - "Fast R-CNN: shared CNN over whole image, RoI pooling, end-to-end (faster)"
+      - "Faster R-CNN: Region Proposal Network (RPN) learns proposals (much faster)"
+      - "Two-stage: propose regions, then classify/regress each"
+      - "RoI pooling aligns variable-size regions to fixed size"
+
+  - id: "dlm-cnn-014"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "anchor"]
+    question:
+      text:
+        en: "What are anchor boxes in object detection and how are positive/negative samples assigned?"
+        ru: "Что такое anchor boxes в детекции объектов и как назначаются positive/negative сэмплы?"
+      code: null
+    follow_ups:
+      en:
+        - "How does IoU-based matching work?"
+      ru:
+        - "Как работает матчинг по IoU?"
+    expected_points:
+      - "Anchors: predefined boxes at scales/aspect ratios per location"
+      - "Ground-truth matched to anchor by IoU threshold"
+      - "IoU > high threshold -> positive; below low -> negative"
+      - "Anchor-free approaches (FCOS, RetinaNet) predict boxes directly"
+      - "Balance of pos/neg via mining (focal loss in RetinaNet)"
+
+  - id: "dlm-cnn-015"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "focal-loss", "retinanet"]
+    question:
+      text:
+        en: "What is the focal loss and why did RetinaNet need it for a single-stage detector?"
+        ru: "Что такое focal loss и почему он нужен RetinaNet для single-stage детектора?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the gamma parameter of focal loss affect training?"
+      ru:
+        - "Как параметр gamma focal loss влияет на обучение?"
+    expected_points:
+      - "Single-stage detectors generate many anchors -> extreme pos/neg imbalance"
+      - "Focal loss: FL = -(1-p)^gamma * log(p), down-weights easy negatives"
+      - "gamma (e.g., 2) focuses learning on hard examples"
+      - "alpha balances pos/neg class weights"
+      - "Enables single-stage accuracy rivaling two-stage detectors"
+
+  - id: "dlm-cnn-016"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "yolo", "single-stage"]
+    question:
+      text:
+        en: "How does YOLO detect objects? What is its grid-based prediction scheme?"
+        ru: "Как YOLO детектирует объекты? Какова его grid-схема предсказания?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the main trade-off of YOLO vs two-stage detectors?"
+      ru:
+        - "Каков основной компромисс YOLO против two-stage детекторов?"
+    expected_points:
+      - "Divides image into S x S grid; each cell predicts B boxes + class probs"
+      - "Single forward pass -> real-time (end-to-end regression)"
+      - "Predicts bbox coordinates, confidence, class probabilities"
+      - "NMS (non-max suppression) removes duplicate detections"
+      - "Trade-off: speed over precision on small/occluded objects"
+
+  - id: "dlm-cnn-017"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "nms"]
+    question:
+      text:
+        en: "What is Non-Maximum Suppression (NMS) and why is it needed in detection?"
+        ru: "Что такое Non-Maximum Suppression (NMS) и зачем он нужен в детекции?"
+      code: null
+    follow_ups:
+      en:
+        - "How does soft-NMS differ from hard-NMS?"
+      ru:
+        - "Чем soft-NMS отличается от hard-NMS?"
+    expected_points:
+      - "Multiple anchors/cells detect the same object -> duplicates"
+      - "NMS: keep highest-confidence box, suppress overlapping boxes (IoU > threshold)"
+      - "Applied per class (class-aware NMS)"
+      - "Soft-NMS: reduces score instead of deleting, keeps partially overlapping boxes"
+      - "Threshold choice affects recall vs duplicates"
+
+  - id: "dlm-cnn-018"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "faster-rcnn", "roi"]
+    question:
+      text:
+        en: "What is RoI (Region of Interest) pooling and how does it differ from RoI Align?"
+        ru: "Что такое RoI pooling и чем он отличается от RoI Align?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does quantization in RoI pooling hurt detection of small objects?"
+      ru:
+        - "Почему квантизация в RoI pooling вредит детекции мелких объектов?"
+    expected_points:
+      - "RoI pooling: map variable-size region to fixed grid, pool each cell"
+      - "Quantizes region boundaries to integer pixels -> misalignment"
+      - "RoI Align: bilinear interpolation, no quantization -> more precise"
+      - "Critical for accurate box regression and small objects"
+      - "Standard in Mask R-CNN and modern detectors"
+
+  - id: "dlm-cnn-019"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["mask-rcnn", "instance-segmentation"]
+    question:
+      text:
+        en: "How does Mask R-CNN extend Faster R-CNN to instance segmentation?"
+        ru: "Как Mask R-CNN расширяет Faster R-CNN до instance segmentation?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between semantic and instance segmentation?"
+      ru:
+        - "Чем семантическая сегментация отличается от instance segmentation?"
+    expected_points:
+      - "Adds a mask prediction branch (parallel to bbox and class)"
+      - "Each RoI predicts a binary mask (per-class)"
+      - "Instance segmentation: separate mask per object instance"
+      - "Semantic: class per pixel, no instance identity"
+      - "Mask branch uses RoI Align features + deconv layers"
+
+  - id: "dlm-cnn-020"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detection", "transformers", "deformable"]
+    question:
+      text:
+        en: "How do DETR and Deformable DETR replace anchors and NMS with attention and bipartite matching?"
+        ru: "Как DETR и Deformable DETR заменяют anchors и NMS вниманием и двусторонним матчингом?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is DETR slow to converge and how does Deformable DETR fix it?"
+      ru:
+        - "Почему DETR долго сходится и как Deformable DETR это чинит?"
+    expected_points:
+      - "DETR: transformer encoder-decoder with object queries, no NMS"
+      - "Set prediction: each query predicts one object; Hungarian matching for loss"
+      - "No anchors, no NMS — end-to-end set prediction"
+      - "Slow convergence (many epochs) due to global attention cost"
+      - "Deformable DETR: sparse deformable attention -> much faster convergence"
+
+  - id: "dlm-cnn-021"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["detection", "hungarian", "matching"]
+    question:
+      text:
+        en: "Explain the Hungarian algorithm and why DETR uses it for matching predictions to ground truth."
+        ru: "Объясните венгерский алгоритм и почему DETR использует его для матчинга предсказаний с ground truth."
+      code: null
+    follow_ups:
+      en:
+        - "What is the matching cost composed of?"
+      ru:
+        - "Из чего состоит стоимость матчинга?"
+    expected_points:
+      - "Solves assignment problem: min-cost bijection between predictions and GT"
+      - "Needed because set prediction has no fixed order"
+      - "Cost = classification loss + L1 box loss + GIoU loss"
+      - "Avoids NMS by making each GT match one unique prediction"
+      - "One-to-one matching enforces set structure, prevents duplicates"
+
+  - id: "dlm-cnn-022"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision-transformer", "patch"]
+    question:
+      text:
+        en: "How does a Vision Transformer (ViT) process an image? What are patches and patch embeddings?"
+        ru: "Как Vision Transformer (ViT) обрабатывает изображение? Что такое патчи и patch embeddings?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the [CLS] token in ViT and why is it added?"
+      ru:
+        - "Что такое [CLS] токен в ViT и зачем он добавляется?"
+    expected_points:
+      - "Image split into non-overlapping patches (e.g., 16x16)"
+      - "Each patch linearly projected to embedding + positional encoding"
+      - "Standard transformer encoder processes the sequence of patch tokens"
+      - "[CLS] token: global representation for classification"
+      - "ViT needs large data (pre-train on JFT/ImageNet) to match CNNs"
+
+  - id: "dlm-cnn-023"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["vision-transformer", "scaling", "cnn"]
+    question:
+      text:
+        en: "Why do Vision Transformers initially underperform CNNs on ImageNet but win with large-scale pre-training?"
+        ru: "Почему Vision Transformers сначала уступают CNN на ImageNet, но выигрывают при крупномасштабном предобучении?"
+      code: null
+    follow_ups:
+      en:
+        - "What inductive biases do CNNs have that ViT lacks?"
+      ru:
+        - "Какие индуктивные bias есть у CNN, но нет у ViT?"
+    expected_points:
+      - "CNNs have strong inductive bias: locality, translation equivariance, weight sharing"
+      - "ViT is more data-hungry; needs more data to learn spatial structure"
+      - "With large pre-training (JFT-300M), ViT's flexibility pays off"
+      - "Self-attention captures long-range dependencies CNNs struggle with"
+      - "Scales better with compute/data (scaling laws)"
+
+  - id: "dlm-cnn-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "position", "encoding"]
+    question:
+      text:
+        en: "Why do Vision Transformers need positional encodings and what types exist?"
+        ru: "Почему Vision Transformers нужны позиционные кодировки и какие типы существуют?"
+      code: null
+    follow_ups:
+      en:
+        - "How does ViT handle images of different sizes at inference?"
+      ru:
+        - "Как ViT обрабатывает изображения разных размеров при инференсе?"
+    expected_points:
+      - "Self-attention is permutation-invariant -> loses spatial order"
+      - "Positional encodings inject location info (learned or sinusoidal)"
+      - "ViT: learned 1D position embeddings; can be interpolated for new sizes"
+      - "2D position encodings (separable) better preserve grid structure"
+      - "Without position info, patches lose spatial relationships"
+
+  - id: "dlm-cnn-025"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "depth", "monocular"]
+    question:
+      text:
+        en: "What is monocular depth estimation and what are its main challenges?"
+        ru: "Что такое монокулярная оценка глубины и каковы её основные проблемы?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the ambiguity in single-image depth?"
+      ru:
+        - "Какова неоднозначность при оценке глубины по одному изображению?"
+    expected_points:
+      - "Predict per-pixel depth from a single RGB image"
+      - "Ill-posed: scale ambiguity (size vs distance), textureless regions"
+      - "Approaches: regression, ordinal/ordinal regression, self-supervised video"
+      - "Used in robotics, AR, 3D reconstruction"
+      - "Deep supervision and multi-scale help precision"
+
+  - id: "dlm-cnn-026"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "super-resolution"]
+    question:
+      text:
+        en: "How do deep super-resolution networks (SRCNN, ESRGAN) work? Why is perceptual loss important?"
+        ru: "Как работают deep-сети супер-разрешения (SRCNN, ESRGAN) и почему важна perceptual loss?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between PSNR and perceptual quality?"
+      ru:
+        - "Чем PSNR отличается от perceptual quality?"
+    expected_points:
+      - "Upsample low-res to high-res via learned mapping (CNN + upsample)"
+      - "L1/L2 pixel loss -> blurry results (regression to mean)"
+      - "Perceptual (VGG) loss: match feature maps, sharper results"
+      - "GAN (ESRGAN): adversarial loss adds realistic high-frequency detail"
+      - "Trade-off: PSNR vs perceptual sharpness"
+
+  - id: "dlm-cnn-027"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "style", "transfer"]
+    question:
+      text:
+        en: "How does neural style transfer work (Gatys method)?"
+        ru: "Как работает нейронный перенос стиля (метод Гатэса)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are Gram matrices and why do they capture style?"
+      ru:
+        - "Что такое матрицы Грама и почему они кодируют стиль?"
+    expected_points:
+      - "Optimize an image to match content loss (deep layer) + style loss (feature correlations)"
+      - "Content: match activations of a content layer"
+      - "Style: match Gram matrices (correlations) of style layers"
+      - "Iterative gradient descent on the generated image"
+      - "Real-time variants use a dedicated CNN (fast style transfer)"
+
+  - id: "dlm-cnn-028"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "face", "recognition"]
+    question:
+      text:
+        en: "How do face recognition systems work (embedding + metric learning)? What loss functions are used?"
+        ru: "Как работают системы распознавания лиц (эмбеддинги + метрическое обучение)? Какие функции потерь используются?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the idea behind triplet loss?"
+      ru:
+        - "Какова идея triplet loss?"
+    expected_points:
+      - "Map faces to an embedding space; same person close, different far"
+      - "Metric learning: learn a distance-meaningful representation"
+      - "Triplet loss: d(anchor, positive) + margin < d(anchor, negative)"
+      - "ArcFace/CosFace: add angular margin to softmax for better separation"
+      - "Inference: cosine similarity / nearest neighbor in embedding space"
+
+  - id: "dlm-cnn-029"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "action", "video"]
+    question:
+      text:
+        en: "How do 3D convolutions and two-stream networks handle video action recognition?"
+        ru: "Как 3D-свёртки и two-stream сети обрабатывают распознавание действий на видео?"
+      code: null
+    follow_ups:
+      en:
+        - "What do the spatial and temporal streams capture?"
+      ru:
+        - "Что улавливают пространственный и временной потоки?"
+    expected_points:
+      - "3D conv: kernel spans space and time (captures motion)"
+      - "Two-stream: spatial (appearance frames) + temporal (optical flow)"
+      - "3D CNN (I3D): unified, learns spatiotemporal features"
+      - "Temporal convolutions / slow-fast networks model different speeds"
+      - "Motion modeling is key for action recognition"
+
+  - id: "dlm-cnn-030"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "optical-flow"]
+    question:
+      text:
+        en: "What is optical flow and how do deep methods (FlowNet, PWC-Net) estimate it?"
+        ru: "Что такое оптический поток и как deep-методы (FlowNet, PWC-Net) его оценивают?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the occlusion problem in optical flow?"
+      ru:
+        - "Какова проблема окклюзии в оптическом потоке?"
+    expected_points:
+      - "Per-pixel motion vector between consecutive frames"
+      - "Deep: CNN encodes frames, correlation volume matches displacements"
+      - "PWC-Net: pyramid, warping, coarse-to-fine refinement"
+      - "Occlusion: pixels disappear/appear, no valid flow"
+      - "Applications: action recognition, 3D, tracking"
+
+  - id: "dlm-cnn-031"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "pose", "heatmap"]
+    question:
+      text:
+        en: "How do pose estimation models (HRNet, AlphaPose) predict keypoints?"
+        ru: "Как модели оценки позы (HRNet, AlphaPose) предсказывают ключевые точки?"
+      code: null
+    follow_ups:
+      en:
+        - "Why use heatmaps instead of direct coordinate regression?"
+      ru:
+        - "Зачем использовать heatmaps вместо прямой регрессии координат?"
+    expected_points:
+      - "Predict a heatmap per keypoint; peak location = keypoint position"
+      - "Heatmaps handle localization as a dense classification problem"
+      - "HRNet: high-resolution representations preserved throughout"
+      - "Direct regression struggles with multi-modal keypoint positions"
+      - "Post-processing: NMS on heatmaps, topology/graph constraints"
+
+  - id: "dlm-cnn-032"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "normalization", "batchnorm"]
+    question:
+      text:
+        en: "Why is BatchNorm in CNNs sensitive to batch size, and what is SyncBatchNorm?"
+        ru: "Почему BatchNorm в CNN чувствителен к размеру батча и что такое SyncBatchNorm?"
+      code: null
+    follow_ups:
+      en:
+        - "What problems arise with small batches in BatchNorm?"
+      ru:
+        - "Какие проблемы возникают с маленькими батчами у BatchNorm?"
+    expected_points:
+      - "BatchNorm stats computed per batch -> noisy with small batches"
+      - "Small batches degrade accuracy (unreliable mean/var)"
+      - "InstanceNorm/GroupNorm: per-sample stats, batch-size independent"
+      - "SyncBatchNorm: aggregates stats across GPUs in distributed training"
+      - "GroupNorm popular for GANs and low-batch training"
+
+  - id: "dlm-cnn-033"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "backbone", "fpn"]
+    question:
+      text:
+        en: "What is a Feature Pyramid Network (FPN) and why is it important for multi-scale object detection?"
+        ru: "Что такое Feature Pyramid Network (FPN) и почему он важен для multi-scale детекции?"
+      code: null
+    follow_ups:
+      en:
+        - "How does FPN help detect small objects?"
+      ru:
+        - "Как FPN помогает детектировать мелкие объекты?"
+    expected_points:
+      - "Builds a multi-scale feature pyramid from the backbone"
+      - "Top-down pathway + lateral connections fuse semantic and spatial info"
+      - "Each pyramid level assigned to objects of a size range"
+      - "High-level = strong semantics, low-level = precise location"
+      - "Critical for detecting objects of very different sizes"
+
+  - id: "dlm-cnn-034"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["vision", "nas", "architecture"]
+    question:
+      text:
+        en: "What is Neural Architecture Search (NAS) and how do modern NAS methods avoid brute-force search?"
+        ru: "Что такое Neural Architecture Search (NAS) и как современные методы NAS избегают перебора?"
+      code: null
+    follow_ups:
+      en:
+        - "What is DARTS and how does it make search differentiable?"
+      ru:
+        - "Что такое DARTS и как он делает поиск дифференцируемым?"
+    expected_points:
+      - "Automatically search for optimal network architecture"
+      - "Brute-force infeasible -> use RL, evolutionary, or differentiable search"
+      - "DARTS: continuous relaxation, jointly optimize architecture + weights"
+      - "ProxylessNAS: one-shot supernet, sample sub-nets"
+      - "Search space + controller + evaluation loop"
+      - "Aim: best accuracy/efficiency trade-off for a constraint"
+
+  - id: "dlm-cnn-035"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "pruning", "quantization"]
+    question:
+      text:
+        en: "How do pruning and quantization reduce CNN model size? What are their accuracy trade-offs?"
+        ru: "Как pruning и quantization уменьшают размер CNN-модели? Каковы их компромиссы по точности?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between structured and unstructured pruning?"
+      ru:
+        - "Чем structured pruning отличается от unstructured?"
+    expected_points:
+      - "Pruning: remove redundant weights/filters (sparsity)"
+      - "Unstructured: individual weights; structured: whole filters/channels"
+      - "Structured pruning gives real speedup on hardware; unstructured needs sparse libs"
+      - "Quantization: fp32 -> int8 (weights/activations), 4x smaller"
+      - "Fine-tuning after compression recovers most accuracy"
+      - "Lottery ticket hypothesis: sparse subnetworks can match full net"
+
+  - id: "dlm-cnn-036"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "self-supervised", "contrastive"]
+    question:
+      text:
+        en: "How does self-supervised learning (SimCLR, MoCo) pre-train vision models without labels?"
+        ru: "Как self-supervised обучение (SimCLR, MoCo) предобучает vision-модели без меток?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the contrastive objective in SimCLR?"
+      ru:
+        - "Каков контрастный критерий в SimCLR?"
+    expected_points:
+      - "Create pretext task: learn from data structure, no labels"
+      - "Contrastive: pull together augmented views of same image, push apart others"
+      - "SimCLR: two augmented views, projection head, NT-Xent loss"
+      - "MoCo: momentum encoder + queue for large negative pool"
+      - "Learned features transfer well to downstream classification"
+
+  - id: "dlm-cnn-037"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["vision", "foundation", "clip"]
+    question:
+      text:
+        en: "How does CLIP connect images and text? Why is it a foundation model for vision-language?"
+        ru: "Как CLIP связывает изображения и текст? Почему это foundation model для vision-language?"
+      code: null
+    follow_ups:
+      en:
+        - "How does zero-shot classification work with CLIP?"
+      ru:
+        - "Как работает zero-shot классификация с CLIP?"
+    expected_points:
+      - "Contrastive training on 400M image-text pairs"
+      - "Shared embedding space: image encoder + text encoder align"
+      - "Zero-shot: compare image embedding to text prompt embeddings"
+      - "Generalizes to unseen tasks via prompt engineering"
+      - "Powerful generic visual features, few-shot transfer"
+
+  - id: "dlm-cnn-038"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "data-augmentation", "randaugment"]
+    question:
+      text:
+        en: "What are advanced augmentation strategies (AutoAugment, RandAugment, Mixup, CutMix)?"
+        ru: "Какие существуют продвинутые стратегии аугментации (AutoAugment, RandAugment, Mixup, CutMix)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does Mixup act as a regularizer?"
+      ru:
+        - "Почему Mixup действует как регуляризатор?"
+    expected_points:
+      - "AutoAugment: search optimal augmentation policy via RL"
+      - "RandAugment: random N operations with random magnitude (robust, simple)"
+      - "Mixup: blend two samples and their labels (smooths decision boundary)"
+      - "CutMix: paste a patch from one image onto another, mix labels"
+      - "All improve generalization, especially with limited data"
+
+  - id: "dlm-cnn-039"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "robustness", "adversarial"]
+    question:
+      text:
+        en: "What are adversarial examples and how does adversarial training defend against them?"
+        ru: "Что такое adversarial примеры и как adversarial training защищает от них?"
+      code: null
+    follow_ups:
+      en:
+        - "What is FGSM and how does it craft an adversarial example?"
+      ru:
+        - "Что такое FGSM и как он создаёт adversarial пример?"
+    expected_points:
+      - "Small imperceptible perturbations flip model predictions"
+      - "FGSM: add sign of gradient * epsilon to input"
+      - "PGD: iterative multi-step attack (stronger)"
+      - "Adversarial training: train on adversarial examples (min-max)"
+      - "Trade-off: robustness reduces clean accuracy; robust features"
+
+  - id: "dlm-cnn-040"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["vision", "interpretability", "saliency"]
+    question:
+      text:
+        en: "How do you interpret which image regions a CNN uses to make a decision?"
+        ru: "Как интерпретировать, какие области изображения CNN использует для принятия решения?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the limitations of gradient-based saliency maps?"
+      ru:
+        - "Каковы ограничения gradient-based saliency карт?"
+    expected_points:
+      - "Grad-CAM: class-specific heatmaps from last conv + gradients"
+      - "Saliency/gradient maps: input sensitivity per pixel"
+      - "Occlusion: mask patches, measure accuracy change"
+      - "Limitations: gradients can be unfaithful, local features"
+      - "Combine multiple methods; visualize training data too"

@@ -1,0 +1,389 @@
+category: "Research Practice and Evaluation"
+track: "deep learning"
+level: "senior"
+description: "Experiment design, benchmarks, reproducibility, and model release practices for senior engineers"
+
+questions:
+  - id: "dls-research-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["ablation", "experiment", "design"]
+    question:
+      text:
+        en: "How do you design a good ablation study?"
+        ru: "Как правильно спроектировать исследование абляций?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you decide which components to ablate first?"
+        - "When should you run controlled vs isolated ablations?"
+      ru:
+        - "Как определить, какие компоненты следует аблировать в первую очередь?"
+        - "В каких случаях предпочтительны контролируемые, а в каких - изолированные абляции?"
+    expected_points:
+      - "Define a clear hypothesis for each ablated component"
+      - "Change one factor at a time with matched training conditions"
+      - "Keep data, seeds, architecture scope, and compute fixed"
+      - "Measure effect size with uncertainty or multiple runs"
+      - "Distinguish necessity from sufficiency in conclusions"
+
+  - id: "dls-research-002"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["benchmark", "evaluation", "task"]
+    question:
+      text:
+        en: "What is a benchmark, and how do you choose the right one for a task?"
+        ru: "Что такое бенчмарк и как выбрать подходящий бенчмарк для решаемой задачи?"
+      code: null
+    follow_ups:
+      en:
+        - "When is a public benchmark misleading for your use case?"
+        - "How do you avoid overfitting to a benchmark?"
+      ru:
+        - "В каких случаях публичный бенчмарк может вводить в заблуждение применительно к вашей задаче?"
+        - "Как избежать переобучения на бенчмарке?"
+    expected_points:
+      - "Define benchmark as a standardized test with fixed data and metric"
+      - "Match task distribution, domain, and language to target use case"
+      - "Consider label quality, license, and test set contamination"
+      - "Prefer established baselines and known evaluation protocol"
+      - "Validate with held-out or realistic test data"
+
+  - id: "dls-research-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["benchmark", "saturation", "evaluation"]
+    question:
+      text:
+        en: "What is benchmark saturation, and why is it a problem?"
+        ru: "Что такое насыщение бенчмарка (benchmark saturation) и почему это проблема?"
+      code: null
+    follow_ups:
+      en:
+        - "How can you detect benchmark saturation?"
+        - "What alternatives help when a benchmark is saturated?"
+      ru:
+        - "Как можно обнаружить насыщение бенчмарка?"
+        - "Какие альтернативы можно использовать, если бенчмарк уже насыщен?"
+    expected_points:
+      - "Define saturation as near-ceiling performance with little headroom"
+      - "Explain reduced discriminative power between models"
+      - "Note risk of chasing noise or leaderboard gaming"
+      - "Mention test set leakage and label ambiguity effects"
+      - "Suggest harder splits, error analysis, or new tasks"
+
+  - id: "dls-research-004"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["reproducibility", "seed", "environment"]
+    question:
+      text:
+        en: "How do you ensure reproducibility of an experiment (seeds, environment, data)?"
+        ru: "Как обеспечить воспроизводимость эксперимента (seeds, окружение, данные)?"
+      code: null
+    follow_ups:
+      en:
+        - "What sources of nondeterminism are easiest to miss?"
+        - "How much determinism is practical for large-scale training?"
+      ru:
+        - "Какие источники недетерминизма чаще всего упускают из виду?"
+        - "Насколько детерминизм реалистичен при крупномасштабном обучении?"
+    expected_points:
+      - "Fix random seeds for numpy, torch, and dataloaders"
+      - "Pin environment with dependencies, CUDA, and versions"
+      - "Version data, splits, preprocessing, and checksums"
+      - "Record configs, checkpoints, and training scripts"
+      - "Document known nondeterminism and report variance across runs"
+
+  - id: "dls-research-005"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["compute", "budget", "allocation"]
+    question:
+      text:
+        en: "What is the compute budget problem, and how do you allocate it?"
+        ru: "В чём суть проблемы вычислительного бюджета и как его рационально распределить?"
+      code: null
+    follow_ups:
+      en:
+        - "When should you prefer scaling data vs scaling model?"
+        - "How do you avoid wasting compute on unpromising runs?"
+      ru:
+        - "Когда лучше масштабировать данные, а когда - модель?"
+        - "Как избежать пустой траты вычислительных ресурсов на бесперспективные прогоны?"
+    expected_points:
+      - "Define tradeoff between exploration and final large runs"
+      - "Use scaling laws or pilot experiments to estimate returns"
+      - "Allocate to baselines, ablations, and hyperparameter search first"
+      - "Prefer efficient search (random/ASHA/BO) over brute force"
+      - "Track FLOPs/time and set stopping criteria"
+
+  - id: "dls-research-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["negative", "results", "reporting"]
+    question:
+      text:
+        en: "How do you report negative results and what is their value?"
+        ru: "Как правильно сообщать о негативных результатах и какова их ценность?"
+      code: null
+    follow_ups:
+      en:
+        - "What details must be reported for a negative result to be useful?"
+        - "How do you avoid publishing a failed experiment without insight?"
+      ru:
+        - "Какие детали необходимо привести, чтобы негативный результат был полезен?"
+        - "Как не публиковать просто неудачный эксперимент без выводов?"
+    expected_points:
+      - "Report setup, hypothesis, and what was tested"
+      - "Include baselines, metrics, and number of runs"
+      - "Explain likely causes and constraints discovered"
+      - "Prevent duplication and save compute for others"
+      - "Focus on insights, not just failure"
+
+  - id: "dls-research-007"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["hyperparameter", "search", "asha", "bo"]
+    question:
+      text:
+        en: "What is a hyperparameter search strategy (grid, random, ASHA, BO)?"
+        ru: "Что представляют собой стратегии поиска гиперпараметров (grid, random, ASHA, BO)?"
+      code: null
+    follow_ups:
+      en:
+        - "When is ASHA better than random search?"
+        - "When would you choose Bayesian optimization over ASHA?"
+      ru:
+        - "В каких случаях ASHA лучше случайного поиска?"
+        - "В каких случаях байесовская оптимизация предпочтительнее ASHA?"
+    expected_points:
+      - "Compare grid (exhaustive) vs random (coverage with less cost)"
+      - "Explain ASHA for early stopping of poor trials"
+      - "Explain BO for sample-efficient search with surrogate model"
+      - "Consider search space, budget, and parallelism"
+      - "Recommend starting simple before complex methods"
+
+  - id: "dls-research-008"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["tracking", "wandb", "mlflow", "logging"]
+    question:
+      text:
+        en: "How do you track experiments (W&B, MLflow) and what to log?"
+        ru: "Как организовать трекинг экспериментов (W&B, MLflow) и что логировать?"
+      code: null
+    follow_ups:
+      en:
+        - "What should be logged to debug a regression?"
+        - "How do you organize runs for a large ablation suite?"
+      ru:
+        - "Что стоит логировать для диагностики регрессии?"
+        - "Как организовать прогоны для большого набора абляций?"
+    expected_points:
+      - "Log config, git commit, seeds, and environment"
+      - "Log metrics, losses, learning rate, and system stats"
+      - "Log artifacts like checkpoints, plots, and eval results"
+      - "Use tags/groups for ablations and comparisons"
+      - "Ensure reproducibility and easy comparison across runs"
+
+  - id: "dls-research-009"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["paper", "critical", "reading"]
+    question:
+      text:
+        en: "How do you read a research paper critically (what to check first)?"
+        ru: "Как критически читать научную статью (с чего начать проверку)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you spot hidden assumptions in a method?"
+        - "When should you trust reported gains?"
+      ru:
+        - "Как выявить скрытые допущения в методе?"
+        - "Когда можно доверять заявленному улучшению?"
+    expected_points:
+      - "Check problem statement, novelty, and claimed contribution"
+      - "Inspect baselines, datasets, and evaluation protocol"
+      - "Look for ablations, limitations, and compute details"
+      - "Check reproducibility info and potential data leakage"
+      - "Assess significance vs marginal gains"
+
+  - id: "dls-research-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["baseline", "comparison", "evaluation"]
+    question:
+      text:
+        en: "What is the role of baselines in a paper, and how to pick them?"
+        ru: "Какова роль базовых моделей (baselines) в статье и как их правильно выбрать?"
+      code: null
+    follow_ups:
+      en:
+        - "When is a weak baseline misleading?"
+        - "Should you include strong concurrent baselines?"
+      ru:
+        - "Когда слабый baseline вводит в заблуждение?"
+        - "Стоит ли включать сильные конкурирующие baselines?"
+    expected_points:
+      - "Baselines establish value and isolate contribution"
+      - "Pick standard, well-tuned baselines for the task"
+      - "Match training data and compute as much as possible"
+      - "Include simple and state-of-the-art baselines"
+      - "Justify choices and report tuning details"
+
+  - id: "dls-research-011"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["llm", "evaluation", "probe", "capability"]
+    question:
+      text:
+        en: "How do you evaluate a new LLM capability (designing a probe)?"
+        ru: "Как оценить новое capability у LLM (как спроектировать пробу)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you avoid prompt sensitivity bias?"
+        - "When is a behavioral probe better than a benchmark?"
+      ru:
+        - "Как избежать смещения из-за чувствительности к промпту?"
+        - "В каких случаях поведенческая проба лучше формального бенчмарка?"
+    expected_points:
+      - "Define capability, failure modes, and success criteria"
+      - "Design minimal, controlled prompts with clear labels"
+      - "Use diverse examples and avoid train-test leakage"
+      - "Control for length, format, and system prompts"
+      - "Report variance across seeds/prompts and human check"
+
+  - id: "dls-research-012"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["redteam", "safety", "evaluation"]
+    question:
+      text:
+        en: "What is red-teaming and how do you do it systematically?"
+        ru: "Что такое red-teaming и как проводить его систематически?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you balance coverage and realism?"
+        - "When should you escalate findings?"
+      ru:
+        - "Как сбалансировать полноту покрытия и реалистичность тестов?"
+        - "В каких случаях следует эскалировать найденные уязвимости?"
+    expected_points:
+      - "Define scope, risk categories, and success metrics"
+      - "Use taxonomy-driven attacks with human and automated methods"
+      - "Track prompts, outputs, severity, and reproducibility"
+      - "Include benign and adversarial examples with clear criteria"
+      - "Document mitigations, residual risk, and escalation path"
+
+  - id: "dls-research-013"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["release", "readiness", "checklist"]
+    question:
+      text:
+        en: "How do you decide if a model is ready for release (checklist)?"
+        ru: "Как принять решение о готовности модели к релизу (чек-лист)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is a hard blocker vs a known limitation?"
+        - "When should you do a staged release?"
+      ru:
+        - "В чём разница между блокирующим дефектом и известным ограничением?"
+        - "В каких случаях предпочтителен поэтапный релиз?"
+    expected_points:
+      - "Verify evals on held-out and realistic tasks"
+      - "Check safety, bias, and red-team results"
+      - "Confirm reproducibility, docs, and known limitations"
+      - "Validate license, data use, and compliance constraints"
+      - "Define rollback plan and post-release monitoring"
+
+  - id: "dls-research-014"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["license", "release", "legal"]
+    question:
+      text:
+        en: "What is the role of the license in a model release?"
+        ru: "Какова роль лицензии при релизе модели?"
+      code: null
+    follow_ups:
+      en:
+        - "How does a license affect commercial use?"
+        - "What to consider with weights vs code licensing?"
+      ru:
+        - "Как лицензия влияет на коммерческое использование?"
+        - "В чём отличия лицензирования весов модели и кода?"
+    expected_points:
+      - "Define permissions, conditions, and limitations for use"
+      - "Clarify scope for weights, code, and derivatives"
+      - "Consider attribution, copyleft, and commercial restrictions"
+      - "Address data provenance and acceptable use constraints"
+      - "Ensure clarity to prevent misuse or legal ambiguity"
+
+# __PART2__
+
+  - id: "dls-research-021"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["evaluation", "reporting", "responsible"]
+    question:
+      text:
+        en: "How do you report evaluation results responsibly?"
+        ru: "Как ответственно представлять результаты оценки модели?"
+      code: null
+    follow_ups:
+      en:
+        - "Why avoid cherry-picking benchmarks?"
+      ru:
+        - "Почему важно не выбирать только лучшие бенчмарки?"
+    expected_points:
+      - "Report all benchmarks"
+      - "Include variance/confidence"
+      - "Disclose limitations"
+      - "Avoid selective reporting"
+
+  - id: "dls-research-022"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["open-source", "licensing", "release"]
+    question:
+      text:
+        en: "What is the difference between open weights and open source for models?"
+        ru: "В чем разница между open weights и open source для моделей?"
+      code: null
+    follow_ups:
+      en:
+        - "What is missing in most open weight releases?"
+      ru:
+        - "Чего обычно не хватает в релизах с открытыми весами?"
+    expected_points:
+      - "Open weights: model weights only"
+      - "Open source: data, code, training recipe"
+      - "Licensing considerations"
+      - "Reproducibility differences"
+
+  - id: "dls-research-023"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["privacy", "pii", "data"]
+    question:
+      text:
+        en: "How do you handle PII in training and evaluation data?"
+        ru: "Как обрабатывать персональные данные (PII) при обучении и оценке моделей?"
+      code: null
+    follow_ups:
+      en:
+        - "When can anonymization fail?"
+      ru:
+        - "Когда анонимизация может оказаться неэффективной?"
+    expected_points:
+      - "Detection and redaction"
+      - "Anonymization/pseudonymization"
+      - "Legal/compliance"
+      - "Evaluation without exposing PII"

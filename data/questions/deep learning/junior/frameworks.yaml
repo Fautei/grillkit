@@ -1,0 +1,639 @@
+category: "Frameworks and Model Building"
+track: "deep learning"
+level: "junior"
+
+description: "PyTorch and Keras APIs, building models, transfer learning in practice"
+
+questions:
+  - id: "dlj-fw-001"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "keras", "comparison"]
+    question:
+      text:
+        en: "Compare PyTorch and TensorFlow/Keras: eager vs graph execution, and typical strengths of each."
+        ru: "Сравните PyTorch и TensorFlow/Keras: eager против графовое выполнение, сильные стороны каждого."
+      code: null
+    follow_ups:
+      en:
+        - "Why is PyTorch popular in research and Keras in prototyping?"
+      ru:
+        - "Почему PyTorch популярен в исследованиях, а Keras — в прототипировании?"
+    expected_points:
+      - "PyTorch: eager execution, Pythonic, dynamic graphs, debug-friendly"
+      - "TF/Keras: static graph heritage, TFLite/TFX production ecosystem"
+      - "PyTorch: research standard, flexible control flow"
+      - "TF: strong mobile/edge (TFLite) and Vertex AI integration"
+      - "Both now support tracing/compilation (torch.compile, TF2)"
+
+  - id: "dlj-fw-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "nn-module"]
+    question:
+      text:
+        en: "How do you define a custom model in PyTorch using nn.Module?"
+        ru: "Как определить собственную модель в PyTorch через nn.Module?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the role of super().__init__() and self.parameters()?"
+      ru:
+        - "Какова роль super().__init__() и self.parameters()?"
+    expected_points:
+      - "Subclass nn.Module, define layers in __init__"
+      - "Implement forward(self, x) defining the computation"
+      - "nn.Module tracks parameters automatically (state_dict)"
+      - "Can nest modules (containers like Sequential)"
+      - "forward defines behavior; model is a callable object"
+
+  - id: "dlj-fw-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "layers"]
+    question:
+      text:
+        en: "What are the common building blocks in torch.nn (Linear, Conv2d, LSTM, Embedding, Dropout)?"
+        ru: "Какие основные блоки есть в torch.nn (Linear, Conv2d, LSTM, Embedding, Dropout)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the output shape of Conv2d with given in/out channels, kernel, stride?"
+      ru:
+        - "Какой выходной размер у Conv2d с заданными каналами, kernel, stride?"
+    expected_points:
+      - "Linear: fully connected (in_features, out_features)"
+      - "Conv2d: convolution over 4D inputs (N,C,H,W)"
+      - "LSTM: recurrent cell with hidden+cell state"
+      - "Embedding: lookup table mapping IDs to vectors"
+      - "Dropout, BatchNorm2d, LayerNorm, ReLU as functional blocks"
+      - "Shape of Conv2d: H_out = (H + 2p - k)/s + 1"
+
+  - id: "dlj-fw-004"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["keras", "sequential", "functional"]
+    question:
+      text:
+        en: "What are the ways to build a model in Keras (Sequential vs Functional API)? When is each appropriate?"
+        ru: "Какими способами строят модель в Keras (Sequential vs Functional API)? Когда какой уместен?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you build a multi-input model in Keras?"
+      ru:
+        - "Как построить модель с несколькими входами в Keras?"
+    expected_points:
+      - "Sequential: linear stack of layers, simplest"
+      - "Functional: explicit graph, supports branches/merge/multi-output"
+      - "Subclassing: full control like PyTorch (custom training loops)"
+      - "Multi-input: Keras.Input per branch, Model(inputs=[a,b], outputs=...)"
+      - "Functional needed for residual connections and multi-head models"
+
+  - id: "dlj-fw-005"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["keras", "fit", "callbacks"]
+    question:
+      text:
+        en: "How does model.fit() work in Keras and what are the common callbacks?"
+        ru: "Как работает model.fit() в Keras и какие типовые callbacks?"
+      code: null
+    follow_ups:
+      en:
+        - "What does validation_split do vs a separate validation_data?"
+      ru:
+        - "Что делает validation_split против отдельного validation_data?"
+    expected_points:
+      - "fit(): full training loop with epochs, batch, shuffle"
+      - "EarlyStopping: stop on metric plateau"
+      - "ReduceLROnPlateau: lower LR when validation stalls"
+      - "ModelCheckpoint: save best weights"
+      - "TensorBoard: log scalars and histograms"
+      - "validation_split carves train into train/val automatically"
+
+  - id: "dlj-fw-006"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "optimizer"]
+    question:
+      text:
+        en: "How do you set up an optimizer and a learning rate scheduler in PyTorch?"
+        ru: "Как настроить оптимизатор и планировщик learning rate в PyTorch?"
+      code: null
+    follow_ups:
+      en:
+        - "When should the scheduler step: per batch or per epoch?"
+      ru:
+        - "Когда вызывать step планировщика: на батч или на эпоху?"
+    expected_points:
+      - "Optimizer(model.parameters(), lr=...) e.g., Adam"
+      - "Scheduler wraps optimizer: StepLR, CosineAnnealingLR, ReduceLROnPlateau"
+      - "Step per epoch if metric-based (ReduceLROnPlateau), per batch for step-based"
+      - "scheduler.step() must be called each interval"
+      - "Param groups allow different LRs for different layers"
+
+  - id: "dlj-fw-007"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["transfer", "fine-tuning"]
+    question:
+      text:
+        en: "Walk through the standard fine-tuning procedure for a pre-trained CNN on a small dataset."
+        ru: "Опишите стандартный процесс донастройки предобученной CNN на маленьком датасете."
+      code: null
+    follow_ups:
+      en:
+        - "How do you unfreeze layers gradually?"
+      ru:
+        - "Как постепенно размораживать слои?"
+    expected_points:
+      - "Load pre-trained backbone, freeze all weights"
+      - "Replace/add a task head, train head only first"
+      - "Unfreeze top layers of backbone, train with small LR"
+      - "Use different LR for backbone vs head (discriminative LR)"
+      - "Augment aggressively; small data overfits fast"
+      - "Monitor for catastrophic forgetting of pre-trained features"
+
+  - id: "dlj-fw-008"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["transfer", "features"]
+    question:
+      text:
+        en: "What is feature extraction with a pre-trained model and when is it enough?"
+        ru: "Что такое извлечение признаков (feature extraction) предобученной моделью и когда этого достаточно?"
+      code: null
+    follow_ups:
+      en:
+        - "What do you train in pure feature extraction mode?"
+      ru:
+        - "Что обучается в режиме чистого feature extraction?"
+    expected_points:
+      - "Frozen backbone produces fixed embeddings"
+      - "Train only a linear probe (classifier) on top"
+      - "Fast, low overfit risk, good when data is very small"
+      - "Quality limited by generic features not tuned to task"
+      - "Common: ImageNet ResNet features + logistic regression"
+
+  - id: "dlj-fw-009"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["model-size", "parameters"]
+    question:
+      text:
+        en: "How do you count parameters of a model and what do they cost in memory?"
+        ru: "Как посчитать количество параметров модели и что они стоят по памяти?"
+      code: null
+    follow_ups:
+      en:
+        - "How much memory does training a 1B model in fp32 with Adam need roughly?"
+      ru:
+        - "Сколько памяти примерно нужно для обучения модели 1B в fp32 с Adam?"
+    expected_points:
+      - "Sum of parameter numel over model.parameters()"
+      - "fp32: 4 bytes/param; fp16: 2 bytes"
+      - "Adam: +2 fp32 states (m, v) + master weights ~ 16 bytes/param"
+      - "1B model Adam fp32 training ~ 16GB+ just for optimizer states"
+      - "Plus activations dominate for inference batch memory"
+
+  - id: "dlj-fw-010"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["export", "onnx", "inference"]
+    question:
+      text:
+        en: "How do you export a PyTorch model for inference (TorchScript, ONNX)?"
+        ru: "Как экспортировать PyTorch модель для инференса (TorchScript, ONNX)?"
+      code: null
+    follow_ups:
+      en:
+        - "What limitations does ONNX export have with dynamic control flow?"
+      ru:
+        - "Какие ограничения у ONNX-экспорта с динамическим control flow?"
+    expected_points:
+      - "torch.jit.script/trace for TorchScript (self-contained)"
+      - "torch.onnx.export for ONNX (framework-agnostic graph)"
+      - "Tracing captures one shape; scripting preserves control flow"
+      - "ONNX ops must be supported by the runtime (TensorRT, onnxruntime)"
+      - "Validate exported model outputs vs original before deployment"
+
+  - id: "dlj-fw-011"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["hub", "pretrained"]
+    question:
+      text:
+        en: "What is torch.hub and how does it simplify using pre-trained models?"
+        ru: "Что такое torch.hub и как он упрощает использование предобученных моделей?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the typical preprocessing steps for torchvision models?"
+      ru:
+        - "Какие типовые шаги препроцессинга у torchvision моделей?"
+    expected_points:
+      - "Load models from a hub repo by name: torch.hub.load(...)"
+      - "weights='IMAGENET1K_V1' loads pre-trained checkpoint"
+      - "Each model ships an expected input transform (mean/std)"
+      - "Avoids manual download and architecture wiring"
+      - "Also works for local repos (hubconf.py)"
+
+  - id: "dlj-fw-012"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["functional", "nn"]
+    question:
+      text:
+        en: "What is the difference between torch.nn layers (nn.Linear) and functional API (F.linear)?"
+        ru: "Чем слои torch.nn (nn.Linear) отличаются от функционального API (F.linear)?"
+      code: null
+    follow_ups:
+      en:
+        - "When is the functional style useful?"
+      ru:
+        - "Когда полезен функциональный стиль?"
+    expected_points:
+      - "nn.Linear: module holding weights as parameters"
+      - "F.linear: stateless op on given weights and input"
+      - "Module: automatic parameter tracking, device moves, state_dict"
+      - "Functional: lightweight, for inference/custom loops"
+      - "Same math, different ownership of parameters"
+
+  - id: "dlj-fw-013"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["embedding", "vocabulary"]
+    question:
+      text:
+        en: "How does an nn.Embedding layer work and why is it the first layer in NLP models?"
+        ru: "Как работает nn.Embedding и почему это первый слой в NLP-моделях?"
+      code: null
+    follow_ups:
+      en:
+        - "Why embed rare words with the same or smoothed vectors?"
+      ru:
+        - "Почему редким словам дают те же или сглаженные вектора?"
+    expected_points:
+      - "Lookup table: maps integer IDs to dense vectors"
+      - "Input: token IDs (B, L); output: embeddings (B, L, D)"
+      - "Turns discrete symbols into continuous, learnable space"
+      - "Rare tokens: infrequent_ids or smoothing (modern tokenizers)"
+      - "Embedding dimension affects capacity and memory"
+
+  - id: "dlj-fw-014"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["keras", "preprocessing-layers"]
+    question:
+      text:
+        en: "What are Keras preprocessing layers (Normalization, TextVectorization) and why keep them in the model?"
+        ru: "Что такое preprocessing-слои Keras (Normalization, TextVectorization) и зачем держать их в модели?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is it dangerous to preprocess outside a saved model?"
+      ru:
+        - "Почему опасно препроцессировать данные вне сохраняемой модели?"
+    expected_points:
+      - "Preprocessing as learnable/savable layers in the graph"
+      - "Normalization adapts (adaptive=True) or fixed stats"
+      - "Saved model includes preprocessing -> no pipeline drift"
+      - "TextVectorization: tokenization inside the model"
+      - "Single artifact for serving, easier A/B and versioning"
+
+  - id: "dlj-fw-015"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["pytorch", "hooks"]
+    question:
+      text:
+        en: "What are forward hooks in PyTorch and how can you use them for debugging or feature extraction?"
+        ru: "Что такое forward hooks в PyTorch и как их использовать для отладки или извлечения признаков?"
+      code: null
+    follow_ups:
+      en:
+        - "How to extract intermediate activations for visualization?"
+      ru:
+        - "Как извлекать промежуточные активации для визуализации?"
+    expected_points:
+      - "register_forward_hook: run callback on layer output"
+      - "Capture intermediate features (e.g., penultimate layer)"
+      - "Debug: find first layer producing NaN/inf"
+      - "Also for gradient hooks, input hooks"
+      - "Hooks don't change computation, only observe"
+
+  - id: "dlj-fw-016"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["autograd", "requires-grad"]
+    question:
+      text:
+        en: "What does requires_grad=True mean and what happens when you set a weight to require no grad?"
+        ru: "Что значит requires_grad=True и что произойдёт, если весу запретить градиент?"
+      code: null
+    follow_ups:
+      en:
+        - "How does freezing a backbone in PyTorch look in code?"
+      ru:
+        - "Как выглядит заморозка backbone в PyTorch?"
+    expected_points:
+      - "Track tensor in autograd graph; compute gradient on backward"
+      - "requires_grad=False: no gradient stored, no update"
+      - "Freeze: for p in backbone.parameters(): p.requires_grad = False"
+      - "Optimizer must skip frozen params (pass only trainable)"
+      - "Inference mode also disables graph recording entirely"
+
+  - id: "dlj-fw-017"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["dataset", "collate"]
+    question:
+      text:
+        en: "What is a custom collate function in PyTorch and why do you need it for variable-length sequences?"
+        ru: "Что такое кастомный collate в PyTorch и зачем он нужен для последовательностей переменной длины?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you pad a batch of sequences to the longest one?"
+      ru:
+        - "Как собрать батч последовательностей до длины самой длинной?"
+    expected_points:
+      - "collate_fn: combines a list of samples into one batch tensor"
+      - "Default collate requires uniform shapes"
+      - "Variable-length: pad inputs, build attention masks"
+      - "Common in NLP: pad + mask + (sometimes) sort by length"
+      - "Return a dict of batched tensors"
+
+  - id: "dlj-fw-018"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "inference", "speed"]
+    question:
+      text:
+        en: "How do you make PyTorch inference faster in production?"
+        ru: "Как ускорить PyTorch инференс в продакшене?"
+      code: null
+    follow_ups:
+      en:
+        - "What does torch.compile do under the hood?"
+      ru:
+        - "Что делает torch.compile под капотом?"
+    expected_points:
+      - "torch.no_grad() / inference_mode to skip graph"
+      - "torch.compile: graph capture + operator fusion (Inductor)"
+      - "Half precision (fp16/bf16) where hardware supports"
+      - "ONNX + TensorRT for max GPU inference performance"
+      - "Batching requests, avoid CPU-GPU round trips"
+
+  - id: "dlj-fw-019"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["keras", "subclassing"]
+    question:
+      text:
+        en: "When do you need model subclassing in Keras instead of the Functional API?"
+        ru: "Когда в Keras нужен subclassing вместо Functional API?"
+      code: null
+    follow_ups:
+      en:
+        - "What do you lose with subclassing?"
+      ru:
+        - "Что теряется при subclassing?"
+    expected_points:
+      - "Complex control flow: loops, conditionals over layers"
+      - "Custom training logic (multi-task losses, custom metrics)"
+      - "Research-style code mirroring PyTorch"
+      - "Lose easy config serialization (no layer topology graph)"
+      - "Functional API serializes the full architecture easily"
+
+  - id: "dlj-fw-020"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["mixed-precision", "keras"]
+    question:
+      text:
+        en: "How do you enable mixed precision in Keras and PyTorch?"
+        ru: "Как включить mixed precision в Keras и PyTorch?"
+      code: null
+    follow_ups:
+      en:
+        - "What changes in the model when using a mixed-precision policy?"
+      ru:
+        - "Что меняется в модели при mixed-precision policy?"
+    expected_points:
+      - "Keras: mixed_float16 policy on layers/model"
+      - "PyTorch: torch.autocast + GradScaler for fp16"
+      - "Weights kept fp32, compute fp16 (fp32 master copy)"
+      - "GradScaler for fp16 loss scaling; bf16 needs none"
+      - "Speedup mainly from tensor-core ops and lower memory"
+
+  - id: "dlj-fw-021"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["visualization", "features"]
+    question:
+      text:
+        en: "How do you visualize what a CNN has learned (activations, gradient class activation)?"
+        ru: "Как визуализировать, что выучила CNN (активации, gradient class activation)?"
+      code: null
+    follow_ups:
+      en:
+        - "What does Grad-CAM show?"
+      ru:
+        - "Что показывает Grad-CAM?"
+    expected_points:
+      - "Feature maps: conv layer outputs show edges/textures/objects"
+      - "Grad-CAM: gradient-weighted heatmaps of class importance"
+      - "Activation maximization: inputs that maximize a neuron"
+      - "Sanity check: does the model look where you expect?"
+      - "Tools: torchview, Netron (graph), custom hooks"
+
+  - id: "dlj-fw-022"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "state-dict", "loading"]
+    question:
+      text:
+        en: "How do you load only part of a state_dict (e.g., backbone weights into a different head)?"
+        ru: "Как загрузить часть state_dict (например, веса backbone в другую модель с иным head)?"
+      code: null
+    follow_ups:
+      en:
+        - "What does strict=False hide?"
+      ru:
+        - "Что скрывает strict=False?"
+    expected_points:
+      - "Load full dict then filter keys matching the backbone"
+      - "model.load_state_dict(partial, strict=False)"
+      - "Handle name mismatches (module prefixes, 'model.' wrappers)"
+      - "strict=False silently skips missing/unexpected keys — verify"
+      - "Common for transfer learning and backbone reuse"
+
+  - id: "dlj-fw-023"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["keras", "saving"]
+    question:
+      text:
+        en: "What formats can you save a Keras model in and what do they contain?"
+        ru: "В каких форматах можно сохранить Keras модель и что они содержат?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between save and save_weights_only?"
+      ru:
+        - "Чем save отличается от save_weights_only?"
+    expected_points:
+      - "SavedModel: complete graph + weights (TF2 default)"
+      - ".keras file: new format with architecture+weights+optimizer"
+      - "save_weights_only: weights for a known architecture"
+      - "SavedModel serves directly with TF Serving"
+      - "Export to TFLite for mobile/edge deployment"
+
+  - id: "dlj-fw-024"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["pytorch", "device-mapping"]
+    question:
+      text:
+        en: "Your checkpoint was saved on GPU but you want to load it on CPU. How do you handle this?"
+        ru: "Чекпоинт сохранён на GPU, а грузите на CPU. Как с этим справиться?"
+      code: null
+    follow_ups:
+      en:
+        - "What is map_location in torch.load?"
+      ru:
+        - "Что такое map_location в torch.load?"
+    expected_points:
+      - "torch.load(path, map_location='cpu') remaps device"
+      - "Then move model to target device as needed"
+      - "Prevents CUDA errors on machines without GPU"
+      - "Weights are just tensors; device is metadata"
+      - "Useful for inspection and multi-machine workflows"
+
+  - id: "dlj-fw-025"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["profiling", "pytorch"]
+    question:
+      text:
+        en: "How do you profile a PyTorch model to find slow operations?"
+        ru: "Как профилировать PyTorch модель, чтобы найти медленные операции?"
+      code: null
+    follow_ups:
+      en:
+        - "What does the profiler trace (CPU ops, CUDA kernels) show?"
+      ru:
+        - "Что показывает трассировка профайлера (CPU ops, CUDA kernels)?"
+    expected_points:
+      - "torch.profiler with CUDA activities on"
+      - "Identify top kernels by time; spot Python/CPU gaps"
+      - "Look for small ops, syncs, and data loading stalls"
+      - "Trace viewable in Chrome tracing / Perfetto"
+      - "Profile representative steps, not the first (warmup)"
+
+  - id: "dlj-fw-026"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["mlflow", "experiment-tracking"]
+    question:
+      text:
+        en: "What is experiment tracking (MLflow, W&B) and what do you typically log?"
+        ru: "Что такое experiment tracking (MLflow, W&B) и что обычно логируют?"
+      code: null
+    follow_ups:
+      en:
+        - "How does experiment tracking help team collaboration?"
+      ru:
+        - "Как experiment tracking помогает работе команды?"
+    expected_points:
+      - "Records params, metrics, artifacts, and code version per run"
+      - "Compare runs side by side; reproduce best config"
+      - "Log: hyperparameters, train/val curves, sample predictions"
+      - "Artifact registry: store and version model checkpoints"
+      - "Reduces 'which run was best' ambiguity in teams"
+
+  - id: "dlj-fw-027"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["pytorch", "gradient-checkpointing"]
+    question:
+      text:
+        en: "What is gradient checkpointing (activation recomputation) and when is it worth the cost?"
+        ru: "Что такое gradient checkpointing (перевычисление активаций) и когда он оправдан?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the memory vs compute trade-off?"
+      ru:
+        - "Каков компромисс память против вычислений?"
+    expected_points:
+      - "Store only checkpoint activations; recompute in backward"
+      - "Trades ~30% extra compute for large memory savings"
+      - "Needed for very long sequences or huge batches"
+      - "Applied per block/layer (use_reentrant flag)"
+      - "Common in transformer training to fit long context"
+
+  - id: "dlj-fw-028"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "distributed"]
+    question:
+      text:
+        en: "What is torch.distributed and what are the basic building blocks (process group, rank, backend)?"
+        ru: "Что такое torch.distributed и каковы его базовые элементы (process group, rank, backend)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the role of the NCCL backend?"
+      ru:
+        - "Какова роль NCCL backend?"
+    expected_points:
+      - "API for multi-process/multi-GPU communication"
+      - "init_process_group: set up backend (NCCL for GPU, gloo for CPU)"
+      - "Each process has a rank; world_size = number of processes"
+      - "Collectives: all_reduce, broadcast, all_gather"
+      - "NCCL optimizes GPU-GPU transfers (NVLink, InfiniBand)"
+
+  - id: "dlj-fw-029"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["keras", "tflite", "edge"]
+    question:
+      text:
+        en: "How do you deploy a Keras model to mobile with TFLite and what quantization options exist?"
+        ru: "Как развернуть Keras модель на мобильных с TFLite и какие варианты квантования есть?"
+      code: null
+    follow_ups:
+      en:
+        - "What is post-training quantization vs quantization-aware training?"
+      ru:
+        - "Чем post-training quantization отличается от quantization-aware training?"
+    expected_points:
+      - "Convert to TF SavedModel, then TFLite converter"
+      - "Dynamic range quantization: fp32 -> int8 weights/activations"
+      - "Full quantization: int8 activations too (needs calibration data)"
+      - "Quantization-aware training: simulate int8 in fp32 for best accuracy"
+      - "TFLite interpreter optimized for mobile, small footprint"
+
+  - id: "dlj-fw-030"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["pytorch", "datautils", "vision"]
+    question:
+      text:
+        en: "How do torchvision datasets and transforms work together for an image classification pipeline?"
+        ru: "Как работают torchvision датасеты и трансформы в пайплайне классификации изображений?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you split CIFAR-10 into train/val with a torchvision dataset?"
+      ru:
+        - "Как разделить CIFAR-10 на train/val через torchvision dataset?"
+    expected_points:
+      - "Dataset class provides images+labels; transforms applied in getitem"
+      - "Compose chains transforms (Resize, ToTensor, Normalize)"
+      - "Separate train transforms (augment) vs test transforms (no augment)"
+      - "Subsets for val split; DataLoader wraps everything"
+      - "Download flag fetches and caches the dataset"

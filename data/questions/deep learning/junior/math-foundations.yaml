@@ -1,0 +1,531 @@
+category: "Math Foundations"
+track: "deep learning"
+level: "junior"
+
+description: "Linear algebra, calculus, and probability essentials for deep learning"
+
+questions:
+  - id: "dlj-math-001"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["linear-algebra", "matrix", "vector"]
+    question:
+      text:
+        en: "What are vectors and matrices, and why are they the language of deep learning?"
+        ru: "Что такое векторы и матрицы и почему это язык deep learning?"
+      code: null
+    follow_ups:
+      en:
+        - "How is a dataset represented as a matrix?"
+      ru:
+        - "Как датасет представляется матрицей?"
+    expected_points:
+      - "Vector: 1D array of numbers; matrix: 2D grid"
+      - "Each sample is a vector, a batch is a matrix"
+      - "Weights are matrices (or tensors) mapping inputs to outputs"
+      - "DL compute is dominated by matrix multiplications"
+      - "Tensors are N-dimensional generalizations"
+
+  - id: "dlj-math-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["linear-algebra", "dot-product"]
+    question:
+      text:
+        en: "What is the dot product and how is it used in a neuron?"
+        ru: "Что такое скалярное произведение и как оно используется в нейроне?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the dot product relate to cosine similarity?"
+      ru:
+        - "Как скалярное произведение связано с косинусным сходством?"
+    expected_points:
+      - "Sum of element-wise products of two vectors"
+      - "Measures similarity/scale alignment between vectors"
+      - "Neuron output = dot product of inputs and weights + bias"
+      - "cos similarity = dot / (norm_a * norm_b), angle-independent"
+      - "Basis for attention scores (Q dot K)"
+
+  - id: "dlj-math-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["linear-algebra", "matrix-multiply"]
+    question:
+      text:
+        en: "How is a fully connected layer expressed as a matrix operation? Why is GEMM central?"
+        ru: "Как полносвязный слой записывается матричной операцией? Почему GEMM — центр вычислений?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the complexity of matrix multiplication?"
+      ru:
+        - "Какова сложность умножения матриц?"
+    expected_points:
+      - "Layer: y = X @ W^T + b (X: batch x features, W: out x in)"
+      - "GEMM (general matrix multiply) is the core kernel"
+      - "Complexity O(n^3) naively, O(n^2.37) theoretically, optimized in BLAS"
+      - "GPUs/cuBLAS optimize GEMM heavily — the main bottleneck"
+      - "Batching turns per-sample ops into one large GEMM"
+
+  - id: "dlj-math-004"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["linear-algebra", "transformation"]
+    question:
+      text:
+        en: "What does a matrix represent geometrically? What are common linear transformations?"
+        ru: "Что геометрически представляет матрица? Какие типичные линейные преобразования?"
+      code: null
+    follow_ups:
+      en:
+        - "What do eigenvalues tell you about a matrix?"
+      ru:
+        - "Что говорят собственные значения о матрице?"
+    expected_points:
+      - "Matrix = linear transformation (rotation, scaling, shearing, projection)"
+      - "Composition of layers = composition of transformations"
+      - "Determinant: volume scaling; sign = orientation flip"
+      - "Eigenvalues/eigenvectors: directions scaled by factor"
+      - "Hessian eigenvalues relate to curvature of the loss surface"
+
+  - id: "dlj-math-005"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["calculus", "derivative"]
+    question:
+      text:
+        en: "What is a derivative and why is it central to training?"
+        ru: "Что такое производная и почему она центрально важна для обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "What does a zero derivative mean at a point?"
+      ru:
+        - "Что означает нулевая производная в точке?"
+    expected_points:
+      - "Rate of change of function w.r.t. input"
+      - "Training needs d(loss)/d(weights) to know how to update"
+      - "Zero derivative: flat point — no gradient signal (vanishing)"
+      - "Slope sign tells direction to decrease loss"
+      - "Larger magnitude: faster change, bigger useful step"
+
+  - id: "dlj-math-006"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["calculus", "chain-rule"]
+    question:
+      text:
+        en: "State the chain rule and explain its role in backpropagation."
+        ru: "Сформулируйте правило цепочки и объясните его роль в бэкпропагации."
+      code: null
+    follow_ups:
+      en:
+        - "How does the chain rule apply to y = f(Wx+b)?"
+      ru:
+        - "Как правило цепочки применяется к y = f(Wx+b)?"
+    expected_points:
+      - "d f(g(x))/dx = f'(g(x)) * g'(x)"
+      - "Backprop = chain rule applied over the computation graph"
+      - "Each layer's gradient = upstream gradient * local derivative"
+      - "Products of many small derivatives shrink (vanishing)"
+      - "Products of large derivatives explode (exploding)"
+
+  - id: "dlj-math-007"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["calculus", "gradient"]
+    question:
+      text:
+        en: "What is a gradient for a multivariate function? How does it point?"
+        ru: "Что такое градиент для функции нескольких переменных? Куда он указывает?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do we step in the negative gradient direction?"
+      ru:
+        - "Почему шаг делается в сторону отрицательного градиента?"
+    expected_points:
+      - "Gradient: vector of partial derivatives"
+      - "Points in direction of steepest ascent"
+      - "Negative gradient = steepest descent (one step, locally)"
+      - "In training, gradient w.r.t. weights drives updates"
+      - "Batching approximates the full-data gradient"
+
+  - id: "dlj-math-008"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["calculus", "hessian"]
+    question:
+      text:
+        en: "What is the Hessian and why do most DL optimizers ignore it?"
+        ru: "Что такое матрица Гессе и почему большинство оптимизаторов DL её игнорируют?"
+      code: null
+    follow_ups:
+      en:
+        - "When are second-order methods worth it?"
+      ru:
+        - "Когда методы второго порядка оправданы?"
+    expected_points:
+      - "Hessian: matrix of second derivatives (curvature)"
+      - "Computing/storing H is O(n^2) — infeasible for billions of params"
+      - "Hessian-vector products possible (K-FAC, L-BFGS approximate)"
+      - "Second-order methods give better steps but cost more"
+      - "Eigenvalues of H indicate curvature (sharp vs flat minima)"
+
+  - id: "dlj-math-009"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["probability", "distributions"]
+    question:
+      text:
+        en: "What is a probability distribution? What DL-relevant distributions do you know?"
+        ru: "Что такое вероятностное распределение? Какие распределения важны для DL?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is the Gaussian distribution so common?"
+      ru:
+        - "Почему гауссово распределение так распространено?"
+    expected_points:
+      - "Assigns probabilities to outcomes; integrates to 1"
+      - "Gaussian: weights init, noise, likelihood assumptions"
+      - "Bernoulli: binary outcomes, dropout masks"
+      - "Categorical: class labels, next-token in language models"
+      - "Laplace: robust regression loss (MAE)"
+
+  - id: "dlj-math-010"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["probability", "entropy"]
+    question:
+      text:
+        en: "What is entropy and how does it relate to cross-entropy loss?"
+        ru: "Что такое энтропия и как она связана с кросс-энтропией?"
+      code: null
+    follow_ups:
+      en:
+        - "When is entropy maximal?"
+      ru:
+        - "Когда энтропия максимальна?"
+    expected_points:
+      - "Entropy: average uncertainty/information of a distribution"
+      - "Cross-entropy: expected -log p(true) under model distribution"
+      - "CE = H(true) + KL(model || true); minimizing CE ~ minimizing KL"
+      - "KL divergence measures distribution difference"
+      - "Max entropy at uniform distribution over C classes"
+
+  - id: "dlj-math-011"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["probability", "bayes"]
+    question:
+      text:
+        en: "Explain Bayes' theorem with an example relevant to ML."
+        ru: "Объясните формулу Байеса с примером, связанным с ML."
+      code: null
+    follow_ups:
+      en:
+        - "How do priors and posteriors appear in neural net regularization?"
+      ru:
+        - "Как prior и posterior появляются в регуляризации нейросетей?"
+    expected_points:
+      - "P(A|B) = P(B|A)P(A) / P(B)"
+      - "Update belief (posterior) given evidence (likelihood)"
+      - "L2 regularization ~ Gaussian prior on weights"
+      - "Bayesian view: weights are distributions, not fixed values"
+      - "Used in VAEs (ELBO), Bayesian optimization, Naive Bayes"
+
+  - id: "dlj-math-012"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["probability", "likelihood"]
+    question:
+      text:
+        en: "What is maximum likelihood estimation and how does it connect to common loss functions?"
+        ru: "Что такое метод максимального правдоподобия и как он связан с типичными функциями потерь?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do we maximize log-likelihood instead of likelihood?"
+      ru:
+        - "Почему максимизируют log-правдоподобие, а не правдоподобие?"
+    expected_points:
+      - "Find parameters making observed data most probable"
+      - "Log turns products to sums, avoids underflow"
+      - "Gaussian likelihood -> MSE loss"
+      - "Bernoulli/categorical likelihood -> binary/multi-class cross-entropy"
+      - "DL training = (regularized) maximum likelihood in most cases"
+
+  - id: "dlj-math-013"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["linear-algebra", "norms"]
+    question:
+      text:
+        en: "What are L1 and L2 norms? Where do they appear in deep learning?"
+        ru: "Что такое L1 и L2 нормы? Где они встречаются в deep learning?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does L1 produce sparse solutions?"
+      ru:
+        - "Почему L1 даёт разреженные решения?"
+    expected_points:
+      - "L1: sum of absolute values; L2: sqrt(sum of squares)"
+      - "L2 = Euclidean length of weight vector"
+      - "L1 penalty encourages sparsity (feature selection)"
+      - "L2 penalty shrinks weights smoothly (ridge)"
+      - "Global norm clipping uses L2 norm of all gradients"
+
+  - id: "dlj-math-014"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["linear-algebra", "sdp", "spectrum"]
+    question:
+      text:
+        en: "What does a spectrum of a weight matrix tell you about a network layer?"
+        ru: "Что спектр матрицы весов говорит о слое сети?"
+      code: null
+    follow_ups:
+      en:
+        - "How does spectral initialization relate to Xavier/He?"
+      ru:
+        - "Как спектральная инициализация связана с Xavier/He?"
+    expected_points:
+      - "Singular values describe stretching of the linear map"
+      - "Large spectrum: activations/gradients can explode"
+      - "Small spectrum: signals vanish through the layer"
+      - "Target: spectral radius near 1 for stable signal propagation"
+      - "Connection to orthogonal init, spectral normalization"
+
+  - id: "dlj-math-015"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["calculus", "partial-derivatives"]
+    question:
+      text:
+        en: "What is a partial derivative? How do you compute d(loss)/d(W) for a single linear layer?"
+        ru: "Что такое частная производная? Как вычислить d(loss)/d(W) для одного линейного слоя?"
+      code: null
+    follow_ups:
+      en:
+        - "What shape does the weight gradient have?"
+      ru:
+        - "Какая у градиента весов форма?"
+    expected_points:
+      - "Partial: derivative w.r.t. one variable, others fixed"
+      - "dL/dW = dL/dy * (dy/dW) = outer(upstream, x)"
+      - "Gradient has same shape as W"
+      - "Backprop passes upstream = dL/dy * W to previous layer"
+      - "Activation derivative multiplies upstream before passing"
+
+  - id: "dlj-math-016"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["probability", "expectation"]
+    question:
+      text:
+        en: "What is expectation (mean) and variance? How do they show up in training?"
+        ru: "Что такое математическое ожидание и дисперсия? Как они появляются в обучении?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does mini-batch gradient have variance?"
+      ru:
+        - "Почему mini-batch градиент имеет дисперсию?"
+    expected_points:
+      - "Expectation: probability-weighted average"
+      - "Variance: spread around the mean"
+      - "Mini-batch gradient: expectation = full gradient, variance > 0"
+      - "Larger batch -> lower variance, slower convergence to minimum"
+      - "Normalization layers track running mean/variance"
+
+  - id: "dlj-math-017"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["optimization", "convexity"]
+    question:
+      text:
+        en: "What is a convex function and why is neural network loss non-convex?"
+        ru: "Что такое выпуклая функция и почему потеря нейросети не выпуклая?"
+      code: null
+    follow_ups:
+      en:
+        - "Does non-convexity mean SGD finds a bad solution?"
+      ru:
+        - "Означает ли не-выпуклость, что SGD находит плохое решение?"
+    expected_points:
+      - "Convex: any line between points lies above graph; one global minimum"
+      - "NN loss has many local minima, saddles, flat regions"
+      - "Saddles dominate high-dimensional landscapes"
+      - "In practice most local minima have near-optimal loss"
+      - "SGD noise helps escape bad regions"
+
+  - id: "dlj-math-018"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["optimization", "saddle", "landscape"]
+    question:
+      text:
+        en: "Describe the geometry of a high-dimensional loss landscape. What are saddles and flat regions?"
+        ru: "Опишите геометрию многомерного ландшафта потерь. Что такое седловые точки и плоские области?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do sharp vs flat minima affect generalization?"
+      ru:
+        - "Почему резкие и плоские минимумы по-разному влияют на генерализацию?"
+    expected_points:
+      - "High-dim landscape: mostly curved, few exact saddles"
+      - "Saddle: minimum in some directions, maximum in others"
+      - "SGD noise and momentum help cross saddle regions"
+      - "Flat minima: small weight changes barely change loss"
+      - "Flat minima empirically generalize better than sharp ones"
+
+  - id: "dlj-math-019"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["linear-algebra", "broadcasting"]
+    question:
+      text:
+        en: "How does broadcasting work in array/tensor frameworks? Give an example."
+        ru: "Как работает broadcast в тензорных фреймворках? Приведите пример."
+      code: null
+    follow_ups:
+      en:
+        - "When does broadcasting fail with a shape error?"
+      ru:
+        - "Когда broadcast падает с ошибкой формы?"
+    expected_points:
+      - "Align shapes right-to-left; dimension 1 stretches to match"
+      - "Example: (B,F) + (F,) bias broadcasts bias over batch"
+      - "Enables vectorization without explicit loops"
+      - "Fails when dimensions differ and neither is 1"
+      - "Caveat: accidental broadcasting hides bugs"
+
+  - id: "dlj-math-020"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["calculus", "derivatives", "relu"]
+    question:
+      text:
+        en: "What are the derivatives of sigmoid, tanh, and ReLU? Why is ReLU's derivative a problem in practice?"
+        ru: "Каковы производные sigmoid, tanh и ReLU? В чём практическая проблема производной ReLU?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the 'dying ReLU' phenomenon?"
+      ru:
+        - "Что такое 'dying ReLU'?"
+    expected_points:
+      - "Sigmoid: s(1-s), max 0.25; tanh: 1-tanh^2, max 1"
+      - "ReLU: 1 for x>0, 0 for x<0 (undefined at 0)"
+      - "Sigmoid saturates: derivative -> 0 for large |x|"
+      - "Dying ReLU: neuron stuck at 0 output, zero gradient forever"
+      - "Leaky ReLU/ELU mitigate the dead region"
+
+  - id: "dlj-math-021"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["probability", "categorical"]
+    question:
+      text:
+        en: "How does sampling from a categorical distribution work in language models?"
+        ru: "Как работает выборка из категориального распределения в языковых моделях?"
+      code: null
+    follow_ups:
+      en:
+        - "What do temperature and top-k/top-p change in sampling?"
+      ru:
+        - "Что меняют температура и top-k/top-p в генерации?"
+    expected_points:
+      - "Model outputs logits -> softmax -> next-token probabilities"
+      - "Sampling picks token proportional to probability"
+      - "Temperature: scales logits; low = deterministic, high = random"
+      - "Top-k: keep k most likely; top-p (nucleus): smallest set with mass p"
+      - "Greedy decoding = argmax, no sampling"
+
+  - id: "dlj-math-022"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["linear-algebra", "projection", "embedding"]
+    question:
+      text:
+        en: "What is a linear projection (e.g., Q/K/V matrices)? Why can it not capture non-linear relations?"
+        ru: "Что такое линейная проекция (например, матрицы Q/K/V)? Почему она не способна улавливать нелинейные зависимости?"
+      code: null
+    follow_ups:
+      en:
+        - "How do MLP blocks in transformers add non-linearity?"
+      ru:
+        - "Как MLP-блоки в трансформерах добавляют нелинейность?"
+    expected_points:
+      - "Linear map: y = Wx + b; rotates/scales feature space"
+      - "Can separate linearly separable patterns only"
+      - "Composition of linears is still linear"
+      - "MLP with nonlinearity (FFN) captures non-linear interactions"
+      - "Q/K/V enable different views of the same embedding"
+
+  - id: "dlj-math-023"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["probability", "kl-divergence"]
+    question:
+      text:
+        en: "What is KL divergence? How is it used in VAEs and distillation?"
+        ru: "Что такое KL-дивергенция? Где она используется в VAE и дистилляции?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is KL asymmetric?"
+      ru:
+        - "Почему KL асимметрична?"
+    expected_points:
+      - "KL(P||Q) = E_P[log(P/Q)]: difference between distributions"
+      - "Zero iff P=Q; always >= 0; asymmetric (KL(P||Q) != KL(Q||P))"
+      - "VAE: KL regularizes latent q(z|x) toward prior N(0,I)"
+      - "Distillation: student minimizes KL between soft teacher and student logits"
+      - "Soft targets encode class similarity (dark knowledge)"
+
+  - id: "dlj-math-024"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["calculus", "jacobian"]
+    question:
+      text:
+        en: "What is the Jacobian? Why do we avoid computing it explicitly in deep learning?"
+        ru: "Что такое матрица Якоби? Почему в deep learning избегают её явного вычисления?"
+      code: null
+    follow_ups:
+      en:
+        - "How does backprop use Jacobian-vector products instead?"
+      ru:
+        - "Как бэкпропагация использует Jacobian-vector products вместо Якобиана?"
+    expected_points:
+      - "Jacobian: all partial derivatives of a vector output w.r.t. vector input"
+      - "Size is O(m*n) — huge for billions of parameters"
+      - "Backprop never forms full Jacobian: only JVPs and VJPs"
+      - "Chain rule over graph computes needed products layer by layer"
+      - "Memory/time savings are the core of reverse-mode AD"
+
+  - id: "dlj-math-025"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["linear-algebra", "eigenvalues"]
+    question:
+      text:
+        en: "What are eigenvalues and eigenvectors? Where do they appear in neural networks?"
+        ru: "Что такое собственные значения и собственные векторы? Где они встречаются в нейросетях?"
+      code: null
+    follow_ups:
+      en:
+        - "How do eigenvalues relate to the stability of a network?"
+      ru:
+        - "Как собственные значения связаны со стабильностью сети?"
+    expected_points:
+      - "A v = lambda v: directions scaled by eigenvalue"
+      - "Eigenvalues of Hessian: local curvature of loss"
+      - "Spectral radius controls growth/decay of signals in deep nets"
+      - "PCA (data analysis) uses eigen-decomposition of covariance"
+      - "Large eigenvalues can cause instability (e.g., in RNNs)"

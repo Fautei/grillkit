@@ -1,0 +1,595 @@
+category: "Scaling and Architecture Design"
+track: "deep learning"
+level: "senior"
+description: "Large model architecture design, MoE, long context, and compute-optimal training for senior engineers"
+
+questions:
+  - id: "dls-arch-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["gpt", "architecture", "scaling"]
+    question:
+      text:
+        en: "What were the key architectural changes from GPT-2 to GPT-3/GPT-4?"
+        ru: "Какие ключевые архитектурные изменения произошли от GPT-2 к GPT-3/GPT-4?"
+      code: null
+    follow_ups:
+      en:
+        - "How did scaling laws motivate these changes?"
+      ru:
+        - "Как законы масштабирования повлияли на эти изменения?"
+    expected_points:
+      - "GPT-3 scaled model size dramatically using same transformer decoder architecture"
+      - "GPT-4 introduced Mixture of Experts in parts and multimodality"
+      - "Larger context windows and increased training data scale"
+      - "Improved training stability and alignment considerations"
+      - "System-level optimizations for inference efficiency"
+
+  - id: "dls-arch-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["llama", "rope", "rmsnorm"]
+    question:
+      text:
+        en: "What are the key design choices in the LLaMA architecture (RMSNorm, RoPE, SwiGLU)?"
+        ru: "Каковы ключевые архитектурные решения в архитектуре LLaMA (RMSNorm, RoPE, SwiGLU)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why were these choices preferred over alternatives?"
+      ru:
+        - "Почему эти решения были выбраны вместо альтернатив?"
+    expected_points:
+      - "RMSNorm replaces LayerNorm for better training efficiency"
+      - "RoPE provides rotary positional embeddings for better length extrapolation"
+      - "SwiGLU activation in FFN gives better performance per parameter"
+      - "Pre-normalization applied before attention and FFN layers"
+      - "Grouped attention variants used for efficiency"
+
+  - id: "dls-arch-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["normalization", "pre-ln", "stability"]
+    question:
+      text:
+        en: "Why did modern LLMs move from pre-LN to RMSNorm style designs?"
+        ru: "Почему современные LLM перешли от pre-LN к дизайнам на основе RMSNorm?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the computational benefits?"
+      ru:
+        - "Каковы вычислительные преимущества?"
+    expected_points:
+      - "RMSNorm is simpler with fewer parameters than LayerNorm"
+      - "Removes mean centering computation for faster training"
+      - "Pre-LN provides better training stability at scale"
+      - "RMSNorm maintains stability while improving efficiency"
+      - "Combined with careful initialization reduces need for complex normalization"
+
+  - id: "dls-arch-004"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["moe", "sparsity", "scaling"]
+    question:
+      text:
+        en: "What is MoE (mixture of experts) and how does it scale FLOPs vs parameters?"
+        ru: "Что такое MoE (смесь экспертов) и как он масштабирует FLOPs по сравнению с параметрами?"
+      code: null
+    follow_ups:
+      en:
+        - "When is MoE more efficient than dense models?"
+      ru:
+        - "Когда MoE эффективнее плотных моделей?"
+    expected_points:
+      - "MoE activates only a subset of experts per token for sparse computation"
+      - "Total parameters grow with number of experts while FLOPs depend on top-k routing"
+      - "Enables larger model capacity with similar compute cost to dense models"
+      - "Trade-off between parameter count and memory bandwidth"
+      - "Compute-optimal scaling favors MoE at very large scales"
+
+  - id: "dls-arch-005"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["moe", "routing", "gating"]
+    question:
+      text:
+        en: "How does expert routing work (top-k gating, router logits)?"
+        ru: "Как работает маршрутизация экспертов (top-k gating, router logits)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is top-k routing used instead of softmax over all experts?"
+      ru:
+        - "Почему используется top-k маршрутизация вместо softmax по всем экспертам?"
+    expected_points:
+      - "Router computes logits for each expert via learned linear projection"
+      - "Softmax normalizes logits to routing probabilities"
+      - "Top-k experts selected per token with highest probabilities"
+      - "Selected expert outputs combined with routing weights"
+      - "Sparse activation enables conditional computation"
+
+  - id: "dls-arch-006"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["moe", "load-balancing", "aux-loss"]
+    question:
+      text:
+        en: "What is the load-balancing problem in MoE and how is it solved (aux loss, expert choice)?"
+        ru: "В чём заключается проблема балансировки нагрузки в MoE и как она решается (aux loss, expert choice)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are trade-offs of these approaches?"
+      ru:
+        - "Каковы компромиссы этих подходов?"
+    expected_points:
+      - "Router may favor few experts causing underutilization of others"
+      - "Load imbalance reduces efficiency and can hurt model quality"
+      - "Auxiliary loss encourages uniform expert usage across tokens"
+      - "Expert choice routing allows experts to select tokens instead"
+      - "Router z-loss prevents extreme logit values for stability"
+
+  - id: "dls-arch-007"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["moe", "capacity", "experts"]
+    question:
+      text:
+        en: "What is the difference between MoE capacity factor and expert count?"
+        ru: "В чём разница между коэффициентом ёмкости MoE (capacity factor) и количеством экспертов?"
+      code: null
+    follow_ups:
+      en:
+        - "How do these affect training and inference?"
+      ru:
+        - "Как они влияют на обучение и инференс?"
+    expected_points:
+      - "Expert count is total number of available experts in the layer"
+      - "Capacity factor controls tokens per expert relative to average load"
+      - "Higher capacity factor allows more tokens but uses more compute/memory"
+      - "Lower capacity factor drops tokens if experts overloaded causing token dropping"
+      - "Trade-off between model quality, efficiency and hardware utilization"
+
+  - id: "dls-arch-008"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["moe", "stability", "training"]
+    question:
+      text:
+        en: "How do you train MoE stably (router temperature, z-loss)?"
+        ru: "Как стабильно обучать MoE (температура маршрутизатора, z-loss)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why are these techniques necessary?"
+      ru:
+        - "Почему эти техники необходимы?"
+    expected_points:
+      - "Router temperature scales logits to control routing randomness"
+      - "Higher temperature leads to more uniform routing early in training"
+      - "Router z-loss penalizes large router logits to prevent instability"
+      - "Careful initialization and learning rates are crucial"
+      - "Gradient clipping and monitoring expert utilization help stability"
+
+  - id: "dls-arch-009"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["moe", "memory", "communication"]
+    question:
+      text:
+        en: "What is the memory cost of MoE (all experts resident, communication)?"
+        ru: "Каковы затраты памяти у MoE (все эксперты в памяти, коммуникация)?"
+      code: null
+    follow_ups:
+      en:
+        - "How can you reduce MoE memory footprint?"
+      ru:
+        - "Как можно снизить потребление памяти MoE?"
+    expected_points:
+      - "All experts must be loaded in memory even if only few activated"
+      - "Memory scales with expert count times expert size"
+      - "Expert parallelism requires communication across devices"
+      - "All-to-all communication overhead for token routing"
+      - "Techniques like expert offloading or quantization can reduce costs"
+
+  - id: "dls-arch-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["attention", "gqa", "inference"]
+    question:
+      text:
+        en: "What is grouped-query attention (GQA) and why does it help inference?"
+        ru: "Что такое grouped-query attention (GQA) и почему он помогает при инференсе?"
+      code: null
+    follow_ups:
+      en:
+        - "How does it compare to MHA and MQA?"
+      ru:
+        - "Как он сравнивается с MHA и MQA?"
+    expected_points:
+      - "GQA shares key and value heads across groups of query heads"
+      - "Reduces KV cache size compared to multi-head attention"
+      - "Faster inference with less memory bandwidth usage"
+      - "Middle ground between MHA (full) and MQA (single KV head)"
+      - "Minimal quality loss while improving efficiency"
+
+  - id: "dls-arch-011"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["attention", "mla", "kv-cache"]
+    question:
+      text:
+        en: "What is multi-head latent attention (MLA) and how does it compress the KV cache?"
+        ru: "Что такое multi-head latent attention (MLA) и как он сжимает KV-кэш?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the benefits and drawbacks?"
+      ru:
+        - "Каковы преимущества и недостатки?"
+    expected_points:
+      - "MLA projects keys/values into a low-dimensional latent space"
+      - "Only latent vectors cached instead of full K and V matrices"
+      - "Uses RoPE in a compressed form with separate latent components"
+      - "Dramatically reduces KV cache memory for long contexts"
+      - "Slight computational overhead but major memory savings"
+
+  - id: "dls-arch-012"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["context", "rope", "scaling"]
+    question:
+      text:
+        en: "How do you extend context length in architecture (position embeddings, RoPE scaling)?"
+        ru: "Как расширить длину контекста в архитектуре (позиционные эмбеддинги, масштабирование RoPE)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are common RoPE scaling methods?"
+      ru:
+        - "Какие распространённые методы масштабирования RoPE?"
+    expected_points:
+      - "Position embeddings encode token positions in sequence"
+      - "RoPE encodes positions as rotations in complex space"
+      - "Linear scaling divides positions by scaling factor"
+      - "YaRN and NTK-aware scaling preserve high frequency components"
+      - "May require fine-tuning on longer contexts for best results"
+
+  - id: "dls-arch-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["ffn", "knowledge", "transformer"]
+    question:
+      text:
+        en: "What is the role of the FFN in a transformer (knowledge storage hypothesis)?"
+        ru: "Какова роль FFN в трансформере (гипотеза о хранении знаний)?"
+      code: null
+    follow_ups:
+      en:
+        - "What evidence supports this hypothesis?"
+      ru:
+        - "Какие доказательства подтверждают эту гипотезу?"
+    expected_points:
+      - "FFN layers act as key-value memory storing factual knowledge"
+      - "Each neuron responds to specific patterns or concepts"
+      - "Knowledge can be located and edited in FFN weights"
+      - "Attention routes information while FFN processes and stores"
+      - "Research shows factual associations concentrated in FFN layers"
+
+  - id: "dls-arch-014"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["scaling", "depth-width", "compute"]
+    question:
+      text:
+        en: "How do you choose the width/depth ratio for a given compute budget?"
+        ru: "Как выбрать соотношение ширины и глубины при заданном бюджете вычислений?"
+      code: null
+    follow_ups:
+      en:
+        - "What do scaling laws suggest?"
+      ru:
+        - "Что предлагают законы масштабирования?"
+    expected_points:
+      - "Wider models are more parallelizable on modern hardware"
+      - "Deeper models may have better sample efficiency in some cases"
+      - "Compute-optimal models follow scaling law recommendations"
+      - "Aspect ratio depends on training setup and inference constraints"
+      - "Empirical results favor shallower/wider for large-scale pretraining"
+
+  - id: "dls-arch-015"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["scaling", "chinchilla", "compute-optimal"]
+    question:
+      text:
+        en: "What is compute-optimal scaling (Chinchilla) and what does it imply for pretraining?"
+        ru: "Что такое compute-optimal scaling (Chinchilla) и что оно означает для претрейнинга?"
+      code: null
+    follow_ups:
+      en:
+        - "How did Chinchilla change prior scaling assumptions?"
+      ru:
+        - "Как Chinchilla изменил предыдущие предположения о масштабировании?"
+    expected_points:
+      - "Chinchilla shows optimal scaling balances model size and training tokens"
+      - "Prior practice undertrained models relative to data"
+      - "For fixed compute, scale data and parameters together"
+      - "Implies longer training on more data for smaller models"
+      - "Reduces compute waste from oversized undertrained models"
+
+  - id: "dls-arch-016"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["scaling", "tokens", "parameters"]
+    question:
+      text:
+        en: "What is the difference between token scaling and parameter scaling?"
+        ru: "В чём разница между масштабированием токенов и масштабированием параметров?"
+      code: null
+    follow_ups:
+      en:
+        - "How do they interact under a compute budget?"
+      ru:
+        - "Как они взаимодействуют при фиксированном бюджете вычислений?"
+    expected_points:
+      - "Parameter scaling increases model capacity and memory footprint"
+      - "Token scaling increases training data and compute cost"
+      - "Compute cost grows with both parameters and tokens"
+      - "Optimal trade-off depends on target inference budget"
+      - "Different regimes favor different scaling axes"
+
+  - id: "dls-arch-017"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["tokenizer", "bpe", "vocabulary"]
+    question:
+      text:
+        en: "How do you design the tokenizer for a new LLM (vocabulary size, BPE vs other)?"
+        ru: "Как спроектировать токенизатор для нового LLM (размер словаря, BPE и другие)?"
+      code: null
+    follow_ups:
+      en:
+        - "What factors guide vocabulary size choice?"
+      ru:
+        - "Какие факторы определяют выбор размера словаря?"
+    expected_points:
+      - "BPE builds vocabulary from frequent byte/character merges"
+      - "Vocabulary size balances compression ratio and embedding cost"
+      - "Larger vocabularies improve multilingual and code coverage"
+      - "Tokenizer trained on target domain distribution"
+      - "Special tokens reserved for control and chat formats"
+
+  - id: "dls-arch-018"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["tokenizer", "multilingual", "performance"]
+    question:
+      text:
+        en: "What is the impact of tokenizer design on multilingual performance?"
+        ru: "Как дизайн токенизатора влияет на многоязычную производительность?"
+      code: null
+    follow_ups:
+      en:
+        - "How can tokenization hurt low-resource languages?"
+      ru:
+        - "Как токенизация может навредить языкам с малым количеством данных?"
+    expected_points:
+      - "Poor tokenization causes longer sequences for non-Latin scripts"
+      - "Higher fertility increases compute and context usage"
+      - "Vocabulary must include scripts and morphemes of target languages"
+      - "Shared vocabularies can cause cross-lingual interference"
+      - "Language-aware sampling during tokenizer training helps"
+
+  - id: "dls-arch-019"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["pretraining", "objective", "causal-lm"]
+    question:
+      text:
+        en: "How do you design the pretraining objective (causal LM vs others, multitask)?"
+        ru: "Как спроектировать цель претрейнинга (causal LM против других, мультитаск)?"
+      code: null
+    follow_ups:
+      en:
+        - "When is causal LM preferred?"
+      ru:
+        - "Когда предпочтителен causal LM?"
+    expected_points:
+      - "Causal LM predicts next token and scales well to large data"
+      - "Masked LM suits bidirectional understanding tasks"
+      - "Prefix LM mixes causal and bidirectional attention"
+      - "Multitask objectives can improve transfer but add complexity"
+      - "Choice depends on downstream task distribution"
+
+  - id: "dls-arch-020"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["data", "curation", "pretraining"]
+    question:
+      text:
+        en: "What is data curation for pretraining (deduplication, filtering, quality scoring)?"
+        ru: "Что такое курирование данных для претрейнинга (дедупликация, фильтрация, оценка качества)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is deduplication critical?"
+      ru:
+        - "Почему дедупликация критична?"
+    expected_points:
+      - "Deduplication removes exact and near-duplicate documents"
+      - "Filtering excludes low-quality, toxic, or boilerplate content"
+      - "Quality scoring ranks documents by heuristic or model signals"
+      - "Reduces memorization and improves generalization"
+      - "Improves training efficiency and final model quality"
+
+  - id: "dls-arch-021"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["data", "mixture", "curriculum"]
+    question:
+      text:
+        en: "What is the data mixture problem (domains, ratios, curriculum)?"
+        ru: "В чём заключается проблема смеси данных (домены, пропорции, курикулум)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you choose domain ratios?"
+      ru:
+        - "Как выбрать пропорции доменов?"
+    expected_points:
+      - "Mixing domains affects capability balance and forgetting"
+      - "Domain ratios tuned by downstream evaluation"
+      - "Curriculum changes data distribution over training"
+      - "Over-representing code or math boosts reasoning"
+      - "Mixture optimization is often empirical and iterative"
+
+  - id: "dls-arch-022"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["synthetic", "data", "risks"]
+    question:
+      text:
+        en: "How do you handle synthetic data in pretraining (risks, benefits)?"
+        ru: "Как работать с синтетическими данными в претрейнинге (риски, преимущества)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are common failure modes?"
+      ru:
+        - "Какие типичные режимы отказа?"
+    expected_points:
+      - "Synthetic data scales volume beyond human-written corpora"
+      - "Can improve targeted skills like reasoning or code"
+      - "Risks include model collapse and distribution drift"
+      - "Quality control and diversity are essential"
+      - "Mixing with real data mitigates degradation"
+
+  - id: "dls-arch-023"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["normalization", "placement", "stability"]
+    question:
+      text:
+        en: "What is the role of normalization in deep networks (where to place it)?"
+        ru: "Какова роль нормализации в глубоких сетях (где размещать)?"
+      code: null
+    follow_ups:
+      en:
+        - "Pre-LN vs post-LN trade-offs?"
+      ru:
+        - "Компромиссы pre-LN и post-LN?"
+    expected_points:
+      - "Normalization stabilizes activations and gradients"
+      - "Pre-normalization improves training stability at scale"
+      - "Post-normalization can improve final performance in small models"
+      - "Placement affects gradient flow and convergence speed"
+      - "Modern LLMs prefer pre-LN with RMSNorm"
+
+  - id: "dls-arch-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["activation", "swiglu", "geglu"]
+    question:
+      text:
+        en: "What are the modern activation functions (SwiGLU, GeGLU) and why are they used?"
+        ru: "Какие современные функции активации (SwiGLU, GeGLU) и зачем они используются?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do gated activations outperform ReLU?"
+      ru:
+        - "Почему gated-активации превосходят ReLU?"
+    expected_points:
+      - "SwiGLU and GeGLU are gated linear unit variants"
+      - "Gating allows selective information flow in FFN"
+      - "Improve performance per parameter over ReLU/GELU"
+      - "Increase parameter count slightly in FFN"
+      - "Become standard in modern transformer FFNs"
+
+  - id: "dls-arch-025"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["edge", "efficientnet", "mobilenet"]
+    question:
+      text:
+        en: "How do you design an efficient architecture for edge (MobileNetV3, EfficientNetV2)?"
+        ru: "Как спроектировать эффективную архитектуру для edge (MobileNetV3, EfficientNetV2)?"
+      code: null
+    follow_ups:
+      en:
+        - "What techniques reduce edge latency?"
+      ru:
+        - "Какие техники снижают задержку на edge?"
+    expected_points:
+      - "Depthwise separable convolutions reduce compute"
+      - "Compound scaling balances depth, width, and resolution"
+      - "Neural architecture search finds efficient blocks"
+      - "Quantization-aware design improves deployability"
+      - "Hardware-aware constraints guide block choices"
+
+  - id: "dls-arch-026"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["scaling", "parameters", "data"]
+    question:
+      text:
+        en: "What is the trade-off between parameter count and training data for a fixed compute?"
+        ru: "Каков компромисс между количеством параметров и обучающими данными при фиксированных вычислениях?"
+      code: null
+    follow_ups:
+      en:
+        - "How does Chinchilla formalize this?"
+      ru:
+        - "Как Chinchilla формализует это?"
+    expected_points:
+      - "More parameters need more data to avoid undertraining"
+      - "Fixed compute splits between model size and token count"
+      - "Undertrained large models waste compute"
+      - "Optimal ratio depends on architecture and data quality"
+      - "Inference cost favors smaller well-trained models"
+
+  - id: "dls-arch-027"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["scaling", "evaluation", "small-runs"]
+    question:
+      text:
+        en: "How do you evaluate the scaling behavior of a model before full training (small runs)?"
+        ru: "Как оценить поведение масштабирования модели до полного обучения (малые запуски)?"
+      code: null
+    follow_ups:
+      en:
+        - "What metrics indicate good scaling?"
+      ru:
+        - "Какие метрики указывают на хорошее масштабирование?"
+    expected_points:
+      - "Train smaller models across sizes to fit scaling laws"
+      - "Measure loss vs compute to extrapolate performance"
+      - "Track downstream metrics on proxy tasks"
+      - "Validate hyperparameter transfer across scales"
+      - "Detect instabilities early with small runs"
+
+  - id: "dls-arch-028"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["normalization", "layernorm", "stability"]
+    question:
+      text:
+        en: "What is the impact of layer normalization choice on training stability?"
+        ru: "Как выбор нормализации слоя влияет на стабильность обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "LayerNorm vs RMSNorm in practice?"
+      ru:
+        - "LayerNorm против RMSNorm на практике?"
+    expected_points:
+      - "LayerNorm centers and scales activations reducing variance"
+      - "RMSNorm skips mean centering for speed and stability"
+      - "Placement relative to residual affects gradient magnitude"
+      - "Poor normalization can cause divergence at large scale"
+      - "Choice interacts with initialization and learning rate"
+
+# __PART2__

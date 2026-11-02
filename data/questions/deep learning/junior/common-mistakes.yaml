@@ -1,0 +1,316 @@
+category: "Common Mistakes and Debugging"
+track: "deep learning"
+level: "junior"
+description: "Typical deep learning mistakes, debugging scenarios, and evaluation pitfalls for junior engineers"
+
+questions:
+  - id: "dlj-mist-001"
+    type: "scenario"
+    difficulty: 2
+    tags: ["overfitting", "regularization", "validation"]
+    question:
+      text:
+        en: "Training loss is low but validation loss is high. Diagnose the problem and list the first fixes."
+        ru: "Потери на обучающем наборе низкие, но потери на валидационном наборе высокие. Диагностируйте проблему и перечислите первые шаги по исправлению."
+      code: null
+    follow_ups:
+      en:
+        - "How can you tell if it is overfitting versus data distribution shift?"
+        - "When would regularization be more effective than collecting more data?"
+      ru:
+        - "Как отличить переобучение от смещения распределения данных?"
+        - "Когда регуляризация будет эффективнее, чем сбор дополнительных данных?"
+    expected_points:
+      - "Identify overfitting as the likely cause"
+      - "Suggest adding regularization (weight decay/dropout)"
+      - "Suggest data augmentation or more training data"
+      - "Suggest early stopping or reducing model capacity"
+      - "Consider learning rate or batch size adjustments"
+  - id: "dlj-mist-002"
+    type: "scenario"
+    difficulty: 2
+    tags: ["generalization", "distribution-shift", "validation"]
+    question:
+      text:
+        en: "Validation metrics look great but real-world performance is poor. List the most likely causes."
+        ru: "Метрики на валидации хорошие, но производительность в реальных условиях низкая. Перечислите наиболее вероятные причины."
+      code: null
+    follow_ups:
+      en:
+        - "How can domain shift manifest differently from overfitting?"
+        - "What validation strategy helps detect this before deployment?"
+      ru:
+        - "Чем сдвиг домена отличается от переобучения?"
+        - "Какая стратегия валидации поможет обнаружить это до развертывания?"
+    expected_points:
+      - "Data leakage between train and validation sets"
+      - "Distribution shift between validation and real data"
+      - "Selection bias in data collection"
+      - "Inadequate preprocessing or label errors"
+      - "Test set not representative of deployment conditions"
+  - id: "dlj-mist-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["data-leakage", "preprocessing", "validation"]
+    question:
+      text:
+        en: "What is data leakage and how does it typically happen in machine learning projects?"
+        ru: "Что такое утечка данных (data leakage) и как она обычно возникает в проектах машинного обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between train-test leakage and temporal leakage?"
+        - "Why can target leakage be harder to spot?"
+      ru:
+        - "В чем разница между утечкой между train/test и временной утечкой?"
+        - "Почему утечку целевой переменной сложнее обнаружить?"
+    expected_points:
+      - "Data leakage is when information from outside the training set influences model training"
+      - "It causes overly optimistic evaluation metrics"
+      - "Common causes include preprocessing before splitting or using future data"
+      - "Can occur via feature engineering using test statistics"
+      - "Prevents proper generalization estimation"
+  - id: "dlj-mist-004"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["preprocessing", "split", "scaling"]
+    question:
+      text:
+        en: "Why must the train/test split happen before preprocessing (or the scaler be fit on train only)?"
+        ru: "Почему разделение на обучающую и тестовую выборки должно происходить до предобработки (или почему scaler нужно обучать только на обучающей выборке)?"
+      code: null
+    follow_ups:
+      en:
+        - "What would happen if you fit a StandardScaler on the whole dataset?"
+        - "Does this rule apply to all preprocessing steps like imputation?"
+      ru:
+        - "Что произойдет, если обучить StandardScaler на всем наборе данных?"
+        - "Применяется ли это правило ко всем шагам предобработки, например к заполнению пропусков?"
+    expected_points:
+      - "Prevents information leakage from test set to training"
+      - "Ensures test set remains unseen during preprocessing"
+      - "Scalers fitted on all data use test statistics"
+      - "This inflates validation/test performance unrealistically"
+      - "Correct approach: fit on train, transform train and test"
+  - id: "dlj-mist-005"
+    type: "scenario"
+    difficulty: 2
+    tags: ["reproducibility", "random-seed", "determinism"]
+    question:
+      text:
+        en: "Your results are not reproducible between runs. What sources of randomness must you control?"
+        ru: "Результаты не воспроизводятся при повторных запусках. Какие источники случайности нужно контролировать?"
+      code: null
+    follow_ups:
+      en:
+        - "Which sources are harder to control across different hardware?"
+        - "Is full determinism always possible or desirable?"
+      ru:
+        - "Какие источники сложнее контролировать на разном оборудовании?"
+        - "Всегда ли возможно или желательно добиться полной детерминированности?"
+    expected_points:
+      - "Set random seeds for Python, NumPy, and PyTorch"
+      - "Control CUDA/cuDNN non-determinism with torch.backends"
+      - "Set worker_init_fn and generator for DataLoaders"
+      - "Avoid non-deterministic ops or set deterministic flags"
+      - "Consider hash seed and other library random states"
+  - id: "dlj-mist-006"
+    type: "scenario"
+    difficulty: 2
+    tags: ["eval", "batchnorm", "dropout"]
+    question:
+      text:
+        en: "You forgot to call model.eval() before inference. What goes wrong with BatchNorm and Dropout?"
+        ru: "Вы забыли вызвать model.eval() перед инференсом. Что произойдет с BatchNorm и Dropout?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is BatchNorm behavior different in train vs eval?"
+        - "How does Dropout affect predictions if left in train mode?"
+      ru:
+        - "Почему поведение BatchNorm отличается в режимах train и eval?"
+        - "Как Dropout повлияет на предсказания, если оставить его в train-режиме?"
+    expected_points:
+      - "BatchNorm uses batch statistics instead of running statistics in train mode"
+      - "This causes inconsistent results across batches"
+      - "Dropout remains active and randomly zeros units"
+      - "Predictions become stochastic and unreliable"
+      - "Always call model.eval() and disable gradients for inference"
+  - id: "dlj-mist-007"
+    type: "scenario"
+    difficulty: 1
+    tags: ["inference", "gradients", "memory"]
+    question:
+      text:
+        en: "You forgot torch.no_grad() during evaluation. What is the consequence?"
+        ru: "Вы забыли использовать torch.no_grad() при оценке модели. К чему это приведет?"
+      code: null
+    follow_ups:
+      en:
+        - "How much memory can this waste?"
+        - "Are there any cases where you still need gradients during evaluation?"
+      ru:
+        - "Насколько много памяти это может потратить?"
+        - "Бывают ли случаи, когда при оценке все же нужны градиенты?"
+    expected_points:
+      - "PyTorch builds computation graphs for all operations"
+      - "Gradients are computed and stored unnecessarily"
+      - "Increased memory usage and slower inference"
+      - "No impact on predictions if only forward pass, but wasteful"
+      - "Use torch.no_grad() or @torch.no_grad() for evaluation"
+  - id: "dlj-mist-008"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["normalization", "preprocessing", "leakage"]
+    question:
+      text:
+        en: "Why is normalizing features with global dataset statistics a mistake, and what is the correct approach?"
+        ru: "Почему нормализация признаков по статистикам всего набора данных - ошибка, и как правильно это делать?"
+      code: null
+    follow_ups:
+      en:
+        - "When is it acceptable to use global statistics?"
+        - "How do you handle normalization in pipelines?"
+      ru:
+        - "Когда допустимо использовать глобальные статистики?"
+        - "Как правильно организовать нормализацию в пайплайне?"
+    expected_points:
+      - "Using global statistics leaks test data information into training"
+      - "The model sees test distribution during normalization"
+      - "Correct approach: compute mean/std on training set only"
+      - "Apply same train statistics to validation and test sets"
+      - "This preserves the unseen nature of test data"
+  - id: "dlj-mist-009"
+    type: "scenario"
+    difficulty: 2
+    tags: ["imbalance", "classification", "majority-class"]
+    question:
+      text:
+        en: "Your model predicts only one class on an imbalanced dataset. Why does this happen and how do you fix it?"
+        ru: "Ваша модель предсказывает только один класс на несбалансированном наборе данных. Почему так происходит и как это исправить?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is this a common failure mode even with enough capacity?"
+        - "When should you prefer class weighting vs resampling?"
+      ru:
+        - "Почему это частый случай даже при достаточной емкости модели?"
+        - "Когда лучше использовать взвешивание классов, а когда ресемплинг?"
+    expected_points:
+      - "Model minimizes loss by predicting majority class"
+      - "Accuracy is high but predictions are useless"
+      - "Fix with class weighting in loss function"
+      - "Use resampling techniques like oversampling minority or undersampling majority"
+      - "Consider different metrics and possibly threshold tuning"
+  - id: "dlj-mist-010"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["metrics", "imbalance", "evaluation"]
+    question:
+      text:
+        en: "Why is accuracy the wrong metric for imbalanced classification, and what should you use instead?"
+        ru: "Почему accuracy - неправильная метрика для несбалансированной классификации, и какие метрики лучше использовать?"
+      code: null
+    follow_ups:
+      en:
+        - "When can accuracy still be reasonable?"
+        - "How do you interpret precision-recall tradeoffs?"
+      ru:
+        - "Когда accuracy все еще может быть приемлемой?"
+        - "Как интерпретировать компромисс между precision и recall?"
+    expected_points:
+      - "Accuracy ignores class distribution and favors majority class"
+      - "A trivial majority classifier can achieve high accuracy"
+      - "Use precision, recall, F1-score for per-class performance"
+      - "Use ROC-AUC or PR-AUC for threshold-independent evaluation"
+      - "Consider confusion matrix for detailed error analysis"
+  - id: "dlj-mist-011"
+    type: "scenario"
+    difficulty: 2
+    tags: ["time-series", "shuffle", "validation"]
+    question:
+      text:
+        en: "You shuffled the targets of a time-ordered dataset. What goes wrong?"
+        ru: "Вы перемешали целевые значения во временном ряду. К чему это приведет?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is random shuffling invalid for time series?"
+        - "What split strategy should you use instead?"
+      ru:
+        - "Почему случайное перемешивание недопустимо для временных рядов?"
+        - "Какую стратегию разделения нужно использовать вместо него?"
+    expected_points:
+      - "Destroys temporal dependencies between samples"
+      - "Model learns spurious correlations from wrong order"
+      - "Creates data leakage from future to past"
+      - "Evaluation becomes meaningless and non-realistic"
+      - "Use chronological split (train on past, test on future)"
+  - id: "dlj-mist-012"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["time-series", "leakage", "temporal"]
+    question:
+      text:
+        en: "Why must you avoid using future information in time-series or sequence tasks?"
+        ru: "Почему нельзя использовать информацию из будущего в задачах с временными рядами или последовательностями?"
+      code: null
+    follow_ups:
+      en:
+        - "What are common sources of future leakage?"
+        - "How can feature engineering introduce temporal leakage?"
+      ru:
+        - "Каковы распространенные источники утечки из будущего?"
+        - "Как инженерия признаков может привести к временной утечке?"
+    expected_points:
+      - "Using future data makes the task unrealistically easy"
+      - "The model cannot access future at inference time"
+      - "Leads to inflated metrics and poor real-world performance"
+      - "Common sources: rolling windows using future points or global stats"
+      - "Must ensure all features are known at prediction time"
+  - id: "dlj-mist-013"
+    type: "scenario"
+    difficulty: 2
+    tags: ["nan", "loss", "debugging"]
+    question:
+      text:
+        en: "Your loss is NaN from the very first step. List the most likely causes."
+        ru: "Потери (loss) становятся NaN уже на первом шаге обучения. Перечислите наиболее вероятные причины."
+      code: null
+    follow_ups:
+      en:
+        - "How do you debug this systematically?"
+        - "Which cause is most common with custom loss functions?"
+      ru:
+        - "Как систематически отладить эту проблему?"
+        - "Какая причина наиболее часта при использовании пользовательских функций потерь?"
+    expected_points:
+      - "Learning rate too high causing numerical instability"
+      - "Invalid operations like log(0) or division by zero"
+      - "Exploding gradients or improper weight initialization"
+      - "Mixed precision issues or NaN in input data"
+      - "Check loss function, inputs, and add gradient clipping or lower LR"
+  - id: "dlj-mist-014"
+    type: "scenario"
+    difficulty: 2
+    tags: ["learning-rate", "optimization", "training"]
+    question:
+      text:
+        en: "The learning rate is too high. What symptoms do you see and how do you choose a good learning rate?"
+        ru: "Слишком большой learning rate. Какие симптомы наблюдаются и как выбрать подходящий learning rate?"
+      code: null
+    follow_ups:
+      en:
+        - "What does the learning rate finder do?"
+        - "How do schedulers help with learning rate selection?"
+      ru:
+        - "Для чего используется поиск learning rate (LR finder)?"
+        - "Как планировщики learning rate помогают в его выборе?"
+    expected_points:
+      - "Symptoms include loss diverging, oscillating, or becoming NaN"
+      - "Weights can explode and training becomes unstable"
+      - "Try learning rate finder to find optimal range"
+      - "Start with small LR and use LR scheduling"
+      - "Use techniques like warmup or reduce on plateau"
+
+# __PART2__

@@ -1,0 +1,511 @@
+category: "Generative Models"
+track: "deep learning"
+level: "middle"
+
+description: "Generative modeling: GANs, VAEs, autoencoders, and related topics"
+
+questions:
+  - id: "dlm-gan-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "basics"]
+    question:
+      text:
+        en: "What is a GAN and how do the generator and discriminator interact?"
+        ru: "Что такое GAN и как взаимодействуют генератор и дискриминатор?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the minimax objective?"
+      ru:
+        - "Какова минимаксная цель?"
+    expected_points:
+      - "Generator creates samples"
+      - "Discriminator classifies real vs fake"
+      - "Adversarial training"
+  - id: "dlm-gan-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["vae", "basics"]
+    question:
+      text:
+        en: "What is a VAE and what is the ELBO?"
+        ru: "Что такое VAE и что такое ELBO?"
+      code: null
+    follow_ups:
+      en:
+        - "Why the KL term?"
+      ru:
+        - "Зачем слагаемое KL?"
+    expected_points:
+      - "Encoder-decoder"
+      - "Latent distribution"
+      - "Reconstruction plus KL"
+  - id: "dlm-gan-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["autoencoder", "basics"]
+    question:
+      text:
+        en: "What is an autoencoder and what is its bottleneck?"
+        ru: "Что такое автоэнкодер и что такое бутылочное горлышко?"
+      code: null
+    follow_ups:
+      en:
+        - "Overcomplete case?"
+      ru:
+        - "Случай избыточности?"
+    expected_points:
+      - "Compression"
+      - "Reconstruction loss"
+      - "Latent code"
+  - id: "dlm-gan-004"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "training"]
+    question:
+      text:
+        en: "What is mode collapse in GANs?"
+        ru: "Что такое mode collapse в GAN?"
+      code: null
+    follow_ups:
+      en:
+        - "How to mitigate?"
+      ru:
+        - "Как смягчить?"
+    expected_points:
+      - "Limited diversity"
+      - "Discriminator feedback"
+      - "Fixes like minibatch"
+  - id: "dlm-gan-005"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "training"]
+    question:
+      text:
+        en: "What is non-saturation loss in GANs?"
+        ru: "Что такое non-saturation loss в GAN?"
+      code: null
+    follow_ups:
+      en:
+        - "Why better?"
+      ru:
+        - "Почему лучше?"
+    expected_points:
+      - "Generator gradient"
+      - "Avoids vanishing"
+      - "Log D(x)"
+  - id: "dlm-gan-006"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "wasserstein"]
+    question:
+      text:
+        en: "What is WGAN and why use Wasserstein distance?"
+        ru: "Что такое WGAN и зачем расстояние Вассерштейна?"
+      code: null
+    follow_ups:
+      en:
+        - "Critic vs discriminator?"
+      ru:
+        - "Критик vs дискриминатор?"
+    expected_points:
+      - "Earth mover distance"
+      - "Lipschitz constraint"
+      - "Stable training"
+  - id: "dlm-gan-007"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["vae", "training"]
+    question:
+      text:
+        en: "What is the reparameterization trick in VAEs?"
+        ru: "Что такое трюк репараметризации в VAE?"
+      code: null
+    follow_ups:
+      en:
+        - "Why needed?"
+      ru:
+        - "Зачем нужен?"
+    expected_points:
+      - "Sampling gradient"
+      - "mu plus sigma times epsilon"
+      - "Differentiability"
+  - id: "dlm-gan-008"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["vae", "prior"]
+    question:
+      text:
+        en: "What priors are used in VAEs and their effect?"
+        ru: "Какие априорные распределения используются в VAE и их влияние?"
+      code: null
+    follow_ups:
+      en:
+        - "Hierarchical priors?"
+      ru:
+        - "Иерархические априоры?"
+    expected_points:
+      - "Gaussian prior"
+      - "Latent structure"
+      - "Trade-offs"
+  - id: "dlm-gan-009"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["evaluation", "gan"]
+    question:
+      text:
+        en: "What is FID and how is it used?"
+        ru: "Что такое FID и как он используется?"
+      code: null
+    follow_ups:
+      en:
+        - "Limitations?"
+      ru:
+        - "Ограничения?"
+    expected_points:
+      - "Feature distance"
+      - "Inception features"
+      - "Lower is better"
+  - id: "dlm-gan-010"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["evaluation", "diversity"]
+    question:
+      text:
+        en: "What is Inception Score?"
+        ru: "Что такое Inception Score?"
+      code: null
+    follow_ups:
+      en:
+        - "Pitfalls?"
+      ru:
+        - "Подводные камни?"
+    expected_points:
+      - "Class confidence"
+      - "Diversity"
+      - "Known issues"
+  - id: "dlm-gan-011"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "conditional"]
+    question:
+      text:
+        en: "What is conditional GAN (cGAN)?"
+        ru: "Что такое условный GAN (cGAN)?"
+      code: null
+    follow_ups:
+      en:
+        - "Label embedding?"
+      ru:
+        - "Эмбеддинг меток?"
+    expected_points:
+      - "Condition on labels"
+      - "Controlled generation"
+      - "Auxiliary classifier"
+  - id: "dlm-gan-012"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["stylegan", "architecture"]
+    question:
+      text:
+        en: "What are key ideas of StyleGAN?"
+        ru: "Какие ключевые идеи StyleGAN?"
+      code: null
+    follow_ups:
+      en:
+        - "Style mixing?"
+      ru:
+        - "Смешивание стилей?"
+    expected_points:
+      - "Style mapping"
+      - "Adaptive instance norm"
+      - "Progressive growth"
+  - id: "dlm-gan-013"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["vae", "beta"]
+    question:
+      text:
+        en: "What is beta-VAE and disentanglement?"
+        ru: "Что такое beta-VAE и распутывание факторов?"
+      code: null
+    follow_ups:
+      en:
+        - "Trade-off?"
+      ru:
+        - "Компромисс?"
+    expected_points:
+      - "Weighted KL"
+      - "Disentangled latents"
+      - "Reconstruction cost"
+  - id: "dlm-gan-014"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["diffusion", "basics"]
+    question:
+      text:
+        en: "What is a diffusion model at a high level?"
+        ru: "Что такое диффузионная модель на высоком уровне?"
+      code: null
+    follow_ups:
+      en:
+        - "Forward/reverse?"
+      ru:
+        - "Прямой/обратный процесс?"
+    expected_points:
+      - "Noise addition"
+      - "Denoising"
+      - "Score matching"
+  - id: "dlm-gan-015"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["vae", "posterior-collapse"]
+    question:
+      text:
+        en: "What is posterior collapse in VAEs and how do you diagnose it?"
+        ru: "Что такое коллапс апостериорного распределения в VAE и как его диагностировать?"
+      code: null
+    follow_ups:
+      en:
+        - "How to fix?"
+      ru:
+        - "Как исправить?"
+    expected_points:
+      - "KL term vanishes"
+      - "Latent ignored"
+      - "Monitor KL per dimension"
+  - id: "dlm-gan-016"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "vae", "latent-space"]
+    question:
+      text:
+        en: "Compare the latent spaces of GANs and VAEs: why is the VAE latent space smoother and more interpolable?"
+        ru: "Сравните латентные пространства GAN и VAE: почему латентное пространство VAE более гладкое и интерполируемое?"
+      code: null
+    follow_ups:
+      en:
+        - "GAN latent issues?"
+      ru:
+        - "Проблемы латентного GAN?"
+    expected_points:
+      - "VAE KL regularization"
+      - "Continuous prior"
+      - "GAN no explicit constraint"
+  - id: "dlm-gan-017"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "small-data"]
+    question:
+      text:
+        en: "What are the problems of training a GAN on a small dataset?"
+        ru: "Какие проблемы при обучении GAN на малом датасете?"
+      code: null
+    follow_ups:
+      en:
+        - "Mitigations?"
+      ru:
+        - "Смягчения?"
+    expected_points:
+      - "Overfitting discriminator"
+      - "Mode collapse"
+      - "Data augmentation"
+  - id: "dlm-gan-018"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "conditional"]
+    question:
+      text:
+        en: "How do you make a GAN generate with a given label or reference image (conditional generation)?"
+        ru: "Как сделать так, чтобы GAN генерировал по заданной метке или референсному изображению (условная генерация)?"
+      code: null
+    follow_ups:
+      en:
+        - "Image-to-image?"
+      ru:
+        - "Как устроен перевод 'изображение-в-изображение'?"
+    expected_points:
+      - "Condition inputs"
+      - "Pix2Pix/CycleGAN"
+      - "Latent concat"
+  - id: "dlm-gan-019"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "discriminator", "patchgan"]
+    question:
+      text:
+        en: "What is the role of the discriminator architecture choice (for example, PatchGAN)?"
+        ru: "Какова роль выбора архитектуры дискриминатора (например, PatchGAN)?"
+      code: null
+    follow_ups:
+      en:
+        - "Receptive field?"
+      ru:
+        - "Поле восприятия?"
+    expected_points:
+      - "Local vs global"
+      - "Patch-based scoring"
+      - "Texture quality"
+  - id: "dlm-gan-020"
+    type: "scenario"
+    difficulty: 4
+    tags: ["gan", "diagnosis"]
+    question:
+      text:
+        en: "Your GAN discriminator loss goes to 0 quickly and the generator stalls. Diagnose and list fixes."
+        ru: "Лосс дискриминатора GAN быстро уходит в 0, а генератор застревает. Диагностируйте и перечислите исправления."
+      code: null
+    follow_ups:
+      en:
+        - "Which fix first?"
+      ru:
+        - "Какое исправление первым?"
+    expected_points:
+      - "Discriminator too strong"
+      - "Learning rate balance"
+      - "Label smoothing"
+  - id: "dlm-gan-021"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["autoencoder", "anomaly"]
+    question:
+      text:
+        en: "How does a denoising autoencoder used for anomaly detection work?"
+        ru: "Как работает denoising autoencoder для обнаружения аномалий?"
+      code: null
+    follow_ups:
+      en:
+        - "Thresholding?"
+      ru:
+        - "Порог?"
+    expected_points:
+      - "Reconstruction error"
+      - "Train on normal"
+      - "High error flags anomaly"
+  - id: "dlm-gan-022"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gan", "high-res"]
+    question:
+      text:
+        en: "How do GANs handle high-resolution synthesis (progressive growing, resolution scaling)?"
+        ru: "Как GAN справляются с синтезом высокого разрешения (progressive growing, масштабирование разрешения)?"
+      code: null
+    follow_ups:
+      en:
+        - "Stability?"
+      ru:
+        - "Стабильность?"
+    expected_points:
+      - "Progressive growing"
+      - "Resolution stages"
+      - "Fade-in layers"
+  - id: "dlm-gan-023"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "limitations", "diffusion"]
+    question:
+      text:
+        en: "What are the main limitations of GANs that motivated the popularity of diffusion models?"
+        ru: "Какие основные ограничения GAN мотивировали популярность диффузионных моделей?"
+      code: null
+    follow_ups:
+      en:
+        - "Training stability?"
+      ru:
+        - "Стабильность обучения?"
+    expected_points:
+      - "Mode collapse"
+      - "Unstable training"
+      - "No likelihood"
+  - id: "dlm-gan-024"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["vae", "latent"]
+    question:
+      text:
+        en: "How do you interpret the latent code of a VAE (linear arithmetic, interpolation)?"
+        ru: "Как интерпретировать латентный код VAE (линейная арифметика, интерполяция)?"
+      code: null
+    follow_ups:
+      en:
+        - "Semantic directions?"
+      ru:
+        - "Семантические направления?"
+    expected_points:
+      - "Interpolation"
+      - "Vector arithmetic"
+      - "Smooth transitions"
+  - id: "dlm-gan-025"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["autoencoder", "diffusion"]
+    question:
+      text:
+        en: "What is a denoising autoencoder and how does the idea relate to diffusion models?"
+        ru: "Что такое denoising autoencoder и как эта идея связана с диффузионными моделями?"
+      code: null
+    follow_ups:
+      en:
+        - "Multi-step?"
+      ru:
+        - "Многошаговость?"
+    expected_points:
+      - "Noise removal"
+      - "Iterative denoising"
+      - "Score estimation"
+  - id: "dlm-gan-026"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["generative", "few-shot"]
+    question:
+      text:
+        en: "How do you train a generative model when data is expensive or scarce (few-shot, semi-supervised)?"
+        ru: "Как обучать генеративную модель, когда данные дорогие или scarce (few-shot, semi-supervised)?"
+      code: null
+    follow_ups:
+      en:
+        - "Transfer learning?"
+      ru:
+        - "Что такое трансферное обучение?"
+    expected_points:
+      - "Data augmentation"
+      - "Pretraining"
+      - "Semi-supervised objectives"
+  - id: "dlm-gan-027"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["evaluation", "quality-diversity"]
+    question:
+      text:
+        en: "What is the trade-off between sample quality and diversity, and how do you measure it?"
+        ru: "Каков компромисс между качеством и разнообразием сэмплов и как его измерять?"
+      code: null
+    follow_ups:
+      en:
+        - "Metrics?"
+      ru:
+        - "Метрики?"
+    expected_points:
+      - "Precision/recall"
+      - "FID vs coverage"
+      - "Mode collapse"
+  - id: "dlm-gan-028"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gan", "vae", "diffusion", "selection"]
+    question:
+      text:
+        en: "How do you choose between GAN, VAE, and diffusion models for a new generation task?"
+        ru: "Как выбрать между GAN, VAE и диффузионными моделями для новой задачи генерации?"
+      code: null
+    follow_ups:
+      en:
+        - "Constraints?"
+      ru:
+        - "Ограничения?"
+    expected_points:
+      - "Quality vs speed"
+      - "Likelihood needs"
+      - "Data and compute"

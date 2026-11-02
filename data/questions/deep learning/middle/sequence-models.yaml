@@ -1,0 +1,847 @@
+category: "Sequence Models"
+track: "deep learning"
+level: "middle"
+
+description: "RNNs, LSTMs, GRUs, seq2seq, attention mechanisms, and sequence tasks"
+
+questions:
+  - id: "dlm-seq-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["rnn", "recurrent", "hidden-state"]
+    question:
+      text:
+        en: "Explain the vanilla RNN: how the hidden state evolves over time and what weight sharing means."
+        ru: "Объясните обычный RNN: как скрытое состояние меняется во времени и что значит разделение весов."
+      code: null
+    follow_ups:
+      en:
+        - "What is the recurrence relation of an RNN?"
+      ru:
+        - "Каково рекуррентное уравнение RNN?"
+    expected_points:
+      - "h_t = tanh(W_xh * x_t + W_hh * h_{t-1} + b)"
+      - "Hidden state carries information across time steps"
+      - "Same weights W_xh, W_hh used at every step (weight sharing)"
+      - "Output y_t = W_hy * h_t + b (or only at final step)"
+      - "Handles variable-length sequences unlike feed-forward nets"
+
+  - id: "dlm-seq-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["rnn", "bptt", "vanishing"]
+    question:
+      text:
+        en: "What is backpropagation through time (BPTT) and why do RNNs suffer from vanishing gradients?"
+        ru: "Что такое BPTT (backpropagation through time) и почему RNN страдают от затухающих градиентов?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the gradient depend on the product of W_hh eigenvalues?"
+      ru:
+        - "Как градиент зависит от произведения собственных значений W_hh?"
+    expected_points:
+      - "Unroll the RNN over time; backprop like a deep net with shared weights"
+      - "Gradient over T steps is a product of T Jacobians (W_hh * diag(tanh'))"
+      - "Products shrink (vanish) or explode depending on spectral radius"
+      - "Long-range dependencies effectively unlearnable in vanilla RNN"
+      - "Truncated BPTT limits the unroll length for stability"
+
+  - id: "dlm-seq-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["lstm", "gates", "cell-state"]
+    question:
+      text:
+        en: "Explain the LSTM architecture: input, forget, and output gates, and the cell state."
+        ru: "Объясните архитектуру LSTM: входной, забывающий и выходной гейты и cell state."
+      code: null
+    follow_ups:
+      en:
+        - "What does the cell state represent and why is it stable?"
+      ru:
+        - "Что представляет собой cell state и почему он стабилен?"
+    expected_points:
+      - "Cell state: long-term memory, updated additively (c_t = f_t*c_{t-1} + i_t*tilde_c_t)"
+      - "Forget gate: what to discard from cell state (sigmoid)"
+      - "Input gate: what new info to store (sigmoid + tanh candidate)"
+      - "Output gate: what part of cell state to expose as hidden state"
+      - "Gates (sigmoid) modulate information flow, mitigating vanishing"
+
+  - id: "dlm-seq-004"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gru", "gates"]
+    question:
+      text:
+        en: "How does GRU simplify LSTM? What are its update and reset gates?"
+        ru: "Как GRU упрощает LSTM? Что такое update и reset гейты?"
+      code: null
+    follow_ups:
+      en:
+        - "When would you choose GRU over LSTM?"
+      ru:
+        - "Когда выбрать GRU вместо LSTM?"
+    expected_points:
+      - "GRU: two gates (update z, reset r), no separate cell state"
+      - "Update gate blends previous and new hidden state"
+      - "Reset gate controls how much past info to use for candidate"
+      - "Fewer parameters than LSTM, similar performance"
+      - "Often used for small datasets or when LSTM is overkill"
+
+  - id: "dlm-seq-005"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["lstm", "gates", "intuition"]
+    question:
+      text:
+        en: "Intuitively, how do LSTM gates enable learning long-term dependencies?"
+        ru: "Интуитивно, как гейты LSTM позволяют обучать долгосрочные зависимости?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens to the gradient flowing through the cell state?"
+      ru:
+        - "Что происходит с градиентом, проходящим через cell state?"
+    expected_points:
+      - "Cell state changes only additively (multiplicative by forget gate near 1)"
+      - "Gradient through cell state: product of forget gates, stays near 1"
+      - "Network can 'remember' by keeping forget gate open"
+      - "Gates learn when to write/erase information"
+      - "Avoids the repeated matrix products that kill RNN gradients"
+
+  - id: "dlm-seq-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["seq2seq", "encoder-decoder"]
+    question:
+      text:
+        en: "Describe the seq2seq (encoder-decoder) architecture and how it handles variable-length input/output."
+        ru: "Опишите архитектуру seq2seq (encoder-decoder) и как она работает с переменной длиной входа/выхода."
+      code: null
+    follow_ups:
+      en:
+        - "What is the information bottleneck of a fixed context vector?"
+      ru:
+        - "Какова информационная бутылочное горлышко фиксированного контекстного вектора?"
+    expected_points:
+      - "Encoder reads input sequence, produces context vector (final hidden state)"
+      - "Decoder starts from context, generates output sequence step by step"
+      - "Handles different input/output lengths (translation, summarization)"
+      - "Fixed context is a bottleneck for long inputs"
+      - "Typical: bidirectional encoder, unidirectional decoder (LSTM/GRU)"
+
+  - id: "dlm-seq-007"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["attention", "seq2seq", "context"]
+    question:
+      text:
+        en: "What problem does attention solve in seq2seq, and how does Bahdanau attention compute the context vector?"
+        ru: "Какую проблему решает attention в seq2seq и как Bahdanau attention вычисляет контекстный вектор?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is a weighted sum of all encoder states better than the final state?"
+      ru:
+        - "Почему взвешенная сумма всех encoder-состояний лучше финального состояния?"
+    expected_points:
+      - "Attention: decoder looks at relevant encoder positions at each step"
+      - "Score alignment (e.g., MLP over h_dec, h_enc), softmax -> weights"
+      - "Context = weighted sum of all encoder hidden states"
+      - "Each output step uses its own context (dynamic)"
+      - "Solves fixed-context bottleneck, improves long-sequence quality"
+
+  - id: "dlm-seq-008"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["teacher-forcing", "exposure-bias"]
+    question:
+      text:
+        en: "What is teacher forcing and what is the exposure bias it causes at inference?"
+        ru: "Что такое teacher forcing и какое exposure bias он вызывает при инференсе?"
+      code: null
+    follow_ups:
+      en:
+        - "What is scheduled sampling and how does it mitigate exposure bias?"
+      ru:
+        - "Что такое scheduled sampling и как он смягчает exposure bias?"
+    expected_points:
+      - "Teacher forcing: feed ground-truth previous tokens during training"
+      - "Training: model always sees correct prefixes"
+      - "Inference: model sees its own (possibly wrong) outputs"
+      - "Exposure bias: train/test distribution mismatch -> error compounding"
+      - "Scheduled sampling: mix teacher and sampled tokens over training"
+
+  - id: "dlm-seq-009"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["bleu", "metrics", "nlp"]
+    question:
+      text:
+        en: "What is BLEU and why is it imperfect for evaluating generated text?"
+        ru: "Что такое BLEU и почему он не идеален для оценки генерируемого текста?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the brevity penalty in BLEU?"
+      ru:
+        - "Каково brevity penalty в BLEU?"
+    expected_points:
+      - "BLEU: n-gram precision of hypothesis vs references"
+      - "Geometric mean of 1-4 gram precisions"
+      - "Brevity penalty: penalizes translations shorter than reference"
+      - "Imperfect: rewards fluent n-grams, ignores meaning/fluency fully"
+      - "Multiple references help; still correlated poorly with human judgment"
+
+  - id: "dlm-seq-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["language-model", "perplexity"]
+    question:
+      text:
+        en: "What is a language model and how is perplexity computed?"
+        ru: "Что такое языковая модель и как считается perplexity?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is perplexity the exponential of the average cross-entropy?"
+      ru:
+        - "Почему perplexity — экспонента средней кросс-энтропии?"
+    expected_points:
+      - "LM: models probability of a sequence of words/tokens"
+      - "Factorizes into conditional probs of next token given context"
+      - "Perplexity = exp(-1/N * sum log p(w_t|w_<t))"
+      - "Interpretation: average branching factor; lower is better"
+      - "Used to compare LMs and monitor training"
+
+  - id: "dlm-seq-011"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["nlp", "text-classification"]
+    question:
+      text:
+        en: "How do you build a text classifier with an RNN? Compare with a bag-of-words CNN approach."
+        ru: "Как построить текстовый классификатор с RNN? Сравните с bag-of-words CNN подходом."
+      code: null
+    follow_ups:
+      en:
+        - "Why are character-level CNNs fast for text classification?"
+      ru:
+        - "Почему character-level CNN быстры для текстовой классификации?"
+    expected_points:
+      - "Embed tokens -> RNN over sequence -> pool (last/avg/max) -> classifier"
+      - "Bidirectional RNN captures context in both directions"
+      - "BoW/CNN: no order modeling, but fast and works surprisingly well"
+      - "Text CNNs: n-gram filters capture local patterns, parallel"
+      - "Choice depends on data size, latency, and need for order"
+
+  - id: "dlm-seq-012"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["nlp", "ner", "crf"]
+    question:
+      text:
+        en: "How do you solve Named Entity Recognition (NER)? What does a CRF layer add?"
+        ru: "Как решается Named Entity Recognition (NER)? Что добавляет CRF-слой?"
+      code: null
+    follow_ups:
+      en:
+        - "Why are BIO tags used for NER?"
+      ru:
+        - "Почему для NER используют BIO-метки?"
+    expected_points:
+      - "Token-level sequence labeling: B-PER, I-PER, O, etc."
+      - "BiLSTM/encoder -> per-token classifier"
+      - "CRF layer: models label dependencies (valid tag sequences), finds best path (Viterbi)"
+      - "Prevents invalid transitions (e.g., I-PER before B-PER)"
+      - "Sequence-level optimization improves entity boundaries"
+
+  - id: "dlm-seq-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["nlp", "machine-translation"]
+    question:
+      text:
+        en: "Describe the neural machine translation (NMT) pipeline. What are its main components?"
+        ru: "Опишите пайплайн нейромашинного перевода (NMT). Каковы его основные компоненты?"
+      code: null
+    follow_ups:
+      en:
+        - "How does beam search work at inference?"
+      ru:
+        - "Как работает beam search при инференсе?"
+    expected_points:
+      - "Tokenizer -> encoder (source) -> attention -> decoder (target) -> detokenize"
+      - "Training: teacher forcing, cross-entropy over target tokens"
+      - "Inference: beam search keeps top-k partial sequences"
+      - "Subword tokenization (BPE) handles unknown words"
+      - "Attention aligns source and target positions"
+
+  - id: "dlm-seq-014"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["beam-search", "decoding"]
+    question:
+      text:
+        en: "Compare greedy decoding, beam search, and sampling for sequence generation."
+        ru: "Сравните greedy decoding, beam search и sampling для генерации последовательностей."
+      code: null
+    follow_ups:
+      en:
+        - "How does the beam width trade-off work?"
+      ru:
+        - "Как работает компромисс ширины beam?"
+    expected_points:
+      - "Greedy: pick argmax each step; fast but locally optimal, repetitive"
+      - "Beam search: keep top-k sequences, globally better within beam"
+      - "Sampling: stochastic (top-k/top-p/temperature); diverse but less controlled"
+      - "Beam search: larger beam = better but slower and more repetitive"
+      - "Task-dependent: translation favors beam, creative text favors sampling"
+
+  - id: "dlm-seq-015"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["subword", "bpe", "tokenization"]
+    question:
+      text:
+        en: "How does Byte Pair Encoding (BPE) work and why is it preferred for NLP?"
+        ru: "Как работает Byte Pair Encoding (BPE) и почему он предпочтителен в NLP?"
+      code: null
+    follow_ups:
+      en:
+        - "How does BPE handle an unseen word?"
+      ru:
+        - "Как BPE обрабатывает незнакомое слово?"
+    expected_points:
+      - "Iteratively merge most frequent symbol pairs to build vocabulary"
+      - "Subword units: balances vocabulary size and unknown words"
+      - "Unseen words split into known subwords (no UNK tokens)"
+      - "Handles morphology (prefixes/suffixes) naturally"
+      - "SentencePiece works at character level, language-agnostic"
+
+  - id: "dlm-seq-016"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["word2vec", "embeddings", "skipgram"]
+    question:
+      text:
+        en: "How do Word2Vec (CBOW and Skip-gram) learn word embeddings? What is negative sampling?"
+        ru: "Как Word2Vec (CBOW и Skip-gram) обучает эмбеддинги слов? Что такое negative sampling?"
+      code: null
+    follow_ups:
+      en:
+        - "Why use negative sampling instead of full softmax?"
+      ru:
+        - "Зачем negative sampling вместо полного softmax?"
+    expected_points:
+      - "CBOW: predict center word from context; Skip-gram: predict context from center"
+      - "Train embeddings so context words are close to target in vector space"
+      - "Full softmax over huge vocab is expensive -> negative sampling approximates"
+      - "Sample a few negative words, train a binary classifier"
+      - "Results: linear relations (king-queen+man~=king)"
+
+  - id: "dlm-seq-017"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["embeddings", "glove", "word2vec"]
+    question:
+      text:
+        en: "What is GloVe and how does it differ from Word2Vec?"
+        ru: "Что такое GloVe и чем оно отличается от Word2Vec?"
+      code: null
+    follow_ups:
+      en:
+        - "How does GloVe use global co-occurrence statistics?"
+      ru:
+        - "Как GloVe использует глобальную статистику совместных вхождений?"
+    expected_points:
+      - "GloVe: global co-occurrence matrix factorization"
+      - "Objective: inner product ~ log co-occurrence count (weighted)"
+      - "Word2Vec: predictive (local context window); GloVe: count-based (global)"
+      - "GloVe captures global statistics; Word2Vec captures local context"
+      - "Both produce static word vectors with linear structure"
+
+  - id: "dlm-seq-018"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["elmo", "contextual", "embeddings"]
+    question:
+      text:
+        en: "How do contextual embeddings (ELMo, BERT) differ from static word embeddings?"
+        ru: "Чем контекстуальные эмбеддинги (ELMo, BERT) отличаются от статических эмбеддингов слов?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does a word have different vectors in different contexts?"
+      ru:
+        - "Почему у слова разные вектора в разных контекстах?"
+    expected_points:
+      - "Static (Word2Vec): one vector per word regardless of context"
+      - "Contextual: representation depends on surrounding words"
+      - "ELMo: LSTM-based, deep features weighted by task"
+      - "BERT: transformer, context from both directions"
+      - "Disambiguates polysemy ('bank' of river vs money)"
+
+  - id: "dlm-seq-019"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["summarization", "abstractive"]
+    question:
+      text:
+        en: "What is the difference between extractive and abstractive summarization?"
+        ru: "Чем extractive суммаризация отличается от abstractive?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is abstractive summarization harder to evaluate?"
+      ru:
+        - "Почему abstractive суммаризацию труднее оценивать?"
+    expected_points:
+      - "Extractive: select and copy important sentences/phrases"
+      - "Abstractive: generate new text paraphrasing the source"
+      - "Extractive: easier, faithful, less fluent; Abstractive: fluent, can hallucinate"
+      - "Models: extractive (ranking), abstractive (seq2seq/transformer)"
+      - "Evaluation: ROUGE (n-gram overlap) imperfect for abstractive"
+
+  - id: "dlm-seq-020"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["dialogue", "response-generation"]
+    question:
+      text:
+        en: "What are the challenges of building a dialogue (response generation) model?"
+        ru: "Каковы задачи построения диалоговой (response generation) модели?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do dialogue models often produce generic responses?"
+      ru:
+        - "Почему диалоговые модели часто дают общие ответы?"
+    expected_points:
+      - "One-to-many: many valid replies for one input -> mode collapse to generic"
+      - "Long-term coherence and memory of conversation"
+      - "Context window: relevant history selection"
+      - "Evaluation hard: BLEU/ROUGE poorly correlate with quality"
+      - "Approaches: seq2seq, transformers, RL, retrieval + generation"
+
+  - id: "dlm-seq-021"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["speech", "asr"]
+    question:
+      text:
+        en: "How do modern speech recognition (ASR) systems work (Wave2Vec, Whisper)? What is CTC?"
+        ru: "Как работают современные системы распознавания речи (ASR) (Wave2Vec, Whisper)? Что такое CTC?"
+      code: null
+    follow_ups:
+      en:
+        - "What problem does CTC solve with repeated/blank labels?"
+      ru:
+        - "Какую проблему решает CTC с повторяющимися/blank метками?"
+    expected_points:
+      - "ASR: audio features (mel-spectrogram) -> encoder -> decode to text"
+      - "Wave2Vec: self-supervised pretraining on raw audio"
+      - "CTC (Connectionist Temporal Classification): aligns variable-length audio to text"
+      - "Introduces blank labels, sums over all alignments"
+      - "RNN-T and attention-based decoder (Whisper) alternatives"
+
+  - id: "dlm-seq-022"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["speech", "tts", "prosody"]
+    question:
+      text:
+        en: "How do modern text-to-speech (TTS) systems generate natural speech?"
+        ru: "Как современные TTS-системы генерируют естественную речь?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the role of a vocoder in TTS?"
+      ru:
+        - "Какова роль вокодера в TTS?"
+    expected_points:
+      - "Text -> phonemes -> acoustic features (mel-spectrogram) -> waveform"
+      - "Neural encoder-decoder predicts mel-spectrogram from text"
+      - "Vocoder (WaveNet, HiFi-GAN): spectrogram -> waveform"
+      - "Attention aligns text and audio frames (variable length)"
+      - "Naturalness: prosody, emotion, speaker identity modeling"
+
+  - id: "dlm-seq-023"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["time-series", "forecasting"]
+    question:
+      text:
+        en: "How do you apply sequence models to time-series forecasting? What are the inputs/outputs?"
+        ru: "Как применять последовательные модели к прогнозированию временных рядов? Какие вход/выход?"
+      code: null
+    follow_ups:
+      en:
+        - "What is a sliding window in time-series forecasting?"
+      ru:
+        - "Что такое sliding window во временных рядах?"
+    expected_points:
+      - "Sliding window: past N timesteps -> predict next M timesteps"
+      - "Inputs: historical values + exogenous features; output: future values"
+      - "Models: LSTM, Temporal CNN, Transformers (Informer, PatchTST)"
+      - "Regression loss (MSE) for point forecasts; distribution for probabilistic"
+      - "Challenges: trends, seasonality, non-stationarity"
+
+  - id: "dlm-seq-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["sequence", "masking", "training"]
+    question:
+      text:
+        en: "How do you train a sequence model that must output at every position (e.g., LM) vs one that outputs once (classification)?"
+        ru: "Как обучать последовательную модель, которая выдаёт вывод на каждой позиции (LM), и ту, что выдаёт один раз (классификация)?"
+      code: null
+    follow_ups:
+      en:
+        - "How is the LM loss shifted relative to the input?"
+      ru:
+        - "Как сдвинут loss LM относительно входа?"
+    expected_points:
+      - "LM: predict next token at each position; shift targets by one"
+      - "Loss computed over all positions (teacher forcing)"
+      - "Classification: pool the final (or all) hidden states -> single output"
+      - "Different loss shapes: per-token CE vs single-label CE"
+      - "Padding masked out in both to avoid contributing to loss"
+
+  - id: "dlm-seq-025"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["rnn", "bidirectional"]
+    question:
+      text:
+        en: "What is a bidirectional RNN and when can/can't you use it?"
+        ru: "Что такое bidirectional RNN и когда его можно/нельзя использовать?"
+      code: null
+    follow_ups:
+      en:
+        - "Why can't a bidirectional model do online/streaming prediction?"
+      ru:
+        - "Почему bidirectional модель не может делать online-предсказание?"
+    expected_points:
+      - "Two RNNs: forward (past->future) and backward (future->past)"
+      - "Combine (concatenate) hidden states at each position"
+      - "Accesses full sequence -> better for offline labeling tasks"
+      - "Not usable for streaming/auto-regressive generation (needs future)"
+      - "Common in NLU, NER, POS tagging"
+
+  - id: "dlm-seq-026"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["attention", "complexity"]
+    question:
+      text:
+        en: "What is the computational complexity of self-attention and why does it matter for long sequences?"
+        ru: "Какова вычислительная сложность self-attention и почему это важно для длинных последовательностей?"
+      code: null
+    follow_ups:
+      en:
+        - "How do linear attention methods reduce this cost?"
+      ru:
+        - "Как линейные методы attention снижают эту стоимость?"
+    expected_points:
+      - "Self-attention is O(n^2) in sequence length (n x n attention matrix)"
+      - "Memory O(n^2) to store attention weights"
+      - "Becomes the bottleneck for long sequences/documents"
+      - "Linear attention: kernelize/approximate to O(n)"
+      - "Sparse/local attention, FlashAttention (IO-aware) reduce practical cost"
+
+  - id: "dlm-seq-027"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["attention", "sparse", "local"]
+    question:
+      text:
+        en: "What are sparse and local attention patterns and where are they used?"
+        ru: "Что такое sparse и local паттерны attention и где они используются?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the Longformer use local + global attention?"
+      ru:
+        - "Как Longformer использует локальный и глобальный attention?"
+    expected_points:
+      - "Full attention: each token attends to all (O(n^2))"
+      - "Local/sliding window: each token attends to nearby tokens (O(n*w))"
+      - "Sparse: fixed patterns (strided, blocks) to reduce cost"
+      - "Longformer: local window + selected global tokens"
+      - "Trade-off: efficiency vs capturing long-range dependencies"
+
+  - id: "dlm-seq-028"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["positional", "encoding", "transformer"]
+    question:
+      text:
+        en: "Why is self-attention permutation-equivariant and how do positional encodings fix this?"
+        ru: "Почему self-attention инвариантен к перестановкам и как позиционные кодировки это исправляют?"
+      code: null
+    follow_ups:
+      en:
+        - "Compare sinusoidal, learned, and relative positional encodings."
+      ru:
+        - "Сравните синусоидальные, обучаемые и относительные позиционные кодировки."
+    expected_points:
+      - "Attention computes pairwise relations; order not encoded -> permutation-equivariant"
+      - "Positional encodings add position info to token embeddings"
+      - "Sinusoidal: fixed functions of position, extrapolate"
+      - "Learned: trainable vectors per position (limited length)"
+      - "Relative (T5, Transformer-XL): encode distance, not absolute position"
+
+  - id: "dlm-seq-029"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["rope", "position", "llama"]
+    question:
+      text:
+        en: "What is RoPE (Rotary Position Embedding) and why do modern LLMs like LLaMA use it?"
+        ru: "Что такое RoPE (Rotary Position Embedding) и почему его используют современные LLM, например LLaMA?"
+      code: null
+    follow_ups:
+      en:
+        - "How does RoPE encode relative position via rotation?"
+      ru:
+        - "Как RoPE кодирует относительную позицию через вращение?"
+    expected_points:
+      - "RoPE: rotate query/key vectors by an angle depending on position"
+      - "Dot product then depends only on relative position (q_i, k_j -> i-j)"
+      - "No added parameters, preserves inner-product structure"
+      - "Better length generalization than absolute learned embeddings"
+      - "Used in LLaMA, Mistral; compatible with KV caching"
+
+  - id: "dlm-seq-030"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["position", "alibi", "bias"]
+    question:
+      text:
+        en: "What is ALiBi (Attention with Linear Biases) and how does it differ from positional encodings?"
+        ru: "Что такое ALiBi (Attention with Linear Biases) и чем он отличается от позиционных кодировок?"
+      code: null
+    follow_ups:
+      en:
+        - "Why might ALiBi extrapolate better to longer sequences?"
+      ru:
+        - "Почему ALiBi может лучше экстраполироваться на более длинные последовательности?"
+    expected_points:
+      - "ALiBi: adds a linear penalty to attention scores based on distance"
+      - "No positional vectors added to embeddings; bias applied in attention"
+      - "Each head gets a different slope (distance decay)"
+      - "Encodes relative position implicitly; simpler, fewer params"
+      - "Extrapolates well because bias scales linearly with distance"
+
+  - id: "dlm-seq-031"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["flash-attention", "io", "efficiency"]
+    question:
+      text:
+        en: "How does FlashAttention speed up attention computation? What is the core idea?"
+        ru: "Как FlashAttention ускоряет вычисление attention? В чём его главная идея?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between FLOPs and memory bandwidth as bottlenecks?"
+      ru:
+        - "В чём разница между FLOPs и пропускной способностью памяти как узкими местами?"
+    expected_points:
+      - "Attention is memory-bound: reading/writing the n x n matrix dominates"
+      - "FlashAttention: tiling + recomputation, never materializes full attention matrix"
+      - "Keeps blocks in fast on-chip SRAM, reduces HBM reads/writes"
+      - "IO-aware algorithm: 2-4x faster, less memory, exact (not approximate)"
+      - "Enables training with longer sequences on the same hardware"
+
+  - id: "dlm-seq-032"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["kv-cache", "inference", "decoding"]
+    question:
+      text:
+        en: "What is the KV cache and why is it essential for fast autoregressive decoding?"
+        ru: "Что такое KV cache и почему он необходим для быстрого авторегрессивного декодирования?"
+      code: null
+    follow_ups:
+      en:
+        - "How much memory does the KV cache consume for a large model?"
+      ru:
+        - "Сколько памяти занимает KV cache у большой модели?"
+    expected_points:
+      - "Store key/value tensors of all previous tokens during generation"
+      - "Avoids recomputing attention for past tokens each step"
+      - "Grows linearly with sequence length x batch x layers x heads x dim"
+      - "Dominant memory for long generations; quantize/cache tricks help"
+      - "Enables O(1) per new token attention (vs O(n) recompute)"
+
+  - id: "dlm-seq-033"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["decoding", "top-k", "top-p"]
+    question:
+      text:
+        en: "Explain temperature, top-k, and top-p (nucleus) sampling for LLM generation."
+        ru: "Объясните температуру, top-k и top-p (nucleus) sampling для генерации LLM."
+      code: null
+    follow_ups:
+      en:
+        - "How do these parameters affect diversity vs coherence?"
+      ru:
+        - "Как эти параметры влияют на разнообразие против связности?"
+    expected_points:
+      - "Temperature: scales logits; low=deterministic, high=diverse"
+      - "Top-k: sample from k most likely tokens"
+      - "Top-p (nucleus): smallest set whose probability mass >= p"
+      - "Top-p adapts set size to confidence (dynamic)"
+      - "Trade-off: diversity/creativity vs coherence/faithfulness"
+
+  - id: "dlm-seq-034"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["repetition", "penalty", "decoding"]
+    question:
+      text:
+        en: "What are repetition penalties and why do language models repeat themselves?"
+        ru: "Что такое repetition penalty и почему языковые модели повторяются?"
+      code: null
+    follow_ups:
+      en:
+        - "What is frequency penalty vs presence penalty?"
+      ru:
+        - "Чем frequency penalty отличается от presence penalty?"
+    expected_points:
+      - "Models can get stuck in loops (especially with greedy/beam)"
+      - "Repetition penalty: reduce score of already-used tokens"
+      - "Presence penalty: fixed penalty if token used at all"
+      - "Frequency penalty: penalty proportional to count"
+      - "Tuning avoids degenerate repetition without hurting quality"
+
+  - id: "dlm-seq-035"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["seq", "multi-task", "heads"]
+    question:
+      text:
+        en: "How do you design a model that performs multiple sequence tasks (classification + sequence labeling)?"
+        ru: "Как спроектировать модель для нескольких последовательных задач (классификация + seq labeling)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the multi-task loss balancing problem?"
+      ru:
+        - "Какова проблема балансировки multi-task loss?"
+    expected_points:
+      - "Shared backbone (encoder) with task-specific heads"
+      - "Head 1: pooled representation -> classification"
+      - "Head 2: per-token -> sequence labeling"
+      - "Multi-task loss: weighted sum; balance to avoid one task dominating"
+      - "Shared features can help (positive transfer) or hurt (conflict)"
+      - "Gradient surgery / uncertainty weighting for balance"
+
+  - id: "dlm-seq-036"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["seq", "streaming", "online"]
+    question:
+      text:
+        en: "What are the constraints of online/streaming sequence models versus offline models?"
+        ru: "Каковы ограничения online/streaming последовательных моделей по сравнению с offline?"
+      code: null
+    follow_ups:
+      en:
+        - "Why can't a bidirectional model be used for streaming?"
+      ru:
+        - "Почему bidirectional модель нельзя использовать для streaming?"
+    expected_points:
+      - "Streaming: must produce output with only past context (causal)"
+      - "No bidirectional (needs future), no full-sequence pooling"
+      - "Fixed latency and bounded memory (sliding window)"
+      - "Auto-regressive/causal models (GPT-style) fit streaming"
+      - "Applications: live translation, streaming ASR, recommendation"
+
+  - id: "dlm-seq-037"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["seq", "state", "compression"]
+    question:
+      text:
+        en: "How can you compress the recurrent state to handle very long sequences (e.g., compression RNNs, memory networks)?"
+        ru: "Как сжимать рекуррентное состояние для очень длинных последовательностей (compression RNN, memory networks)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the role of an external memory in memory networks?"
+      ru:
+        - "Какова роль внешней памяти в memory networks?"
+    expected_points:
+      - "Fixed-size state loses info over very long sequences"
+      - "External memory: read/write vectors addressed by content"
+      - "Memory networks: separate memory slots, attention-based access"
+      - "Compression: periodically summarize/encode the state"
+      - "Hierarchical/segmented RNNs summarize chunks"
+
+  - id: "dlm-seq-038"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["state-space", "mamba", "long-context"]
+    question:
+      text:
+        en: "What are State Space Models (SSM) like Mamba and why are they an alternative to transformers?"
+        ru: "Что такое State Space Models (SSM) вроде Mamba и почему они альтернатива трансформерам?"
+      code: null
+    follow_ups:
+      en:
+        - "How does Mamba achieve selective information flow?"
+      ru:
+        - "Как Mamba достигает селективного потока информации?"
+    expected_points:
+      - "SSM: continuous-time differential equations discretized (LSTM-like recurrence)"
+      - "Linear (O(n)) time complexity vs O(n^2) attention"
+      - "Mamba: input-dependent (selective) parameters, hardware-aware scan"
+      - "Competitive with transformers on long-sequence tasks, less memory"
+      - "Hybrid architectures combine SSM layers + attention"
+
+  - id: "dlm-seq-039"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["seq", "evaluation", "human"]
+    question:
+      text:
+        en: "How do you evaluate sequence generation quality beyond n-gram metrics? What is the role of human evaluation and LLM-as-judge?"
+        ru: "Как оценивать качество генерации последовательностей за пределами n-gram метрик? Какова роль human evaluation и LLM-as-judge?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the known biases of LLM-as-judge?"
+      ru:
+        - "Каковы известные bias у LLM-as-judge?"
+    expected_points:
+      - "BLEU/ROUGE correlate poorly with human judgment"
+      - "Human evaluation: gold standard but expensive/slow"
+      - "LLM-as-judge: strong LLM scores generations (cheap, scalable)"
+      - "Judge biases: position, verbosity, self-preference, style over substance"
+      - "Use rubrics, multiple judges, and spot human checks"
+
+  - id: "dlm-seq-040"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["seq", "data", "preprocessing"]
+    question:
+      text:
+        en: "What are the key data considerations for sequence tasks (tokenization, length, parallelism, noise)?"
+        ru: "Каковы ключевые аспекты данных для последовательных задач (токенизация, длина, параллельность, шум)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you handle sequences longer than the model's max length?"
+      ru:
+        - "Как обрабатывать последовательности длиннее max length модели?"
+    expected_points:
+      - "Tokenization affects vocabulary and sequence length"
+      - "Max length: truncate, slide window, or hierarchical processing"
+      - "Parallel data alignment for translation (sentence-level)"
+      - "Noisy/misspelled data: robust tokenization, denoising"
+      - "Class imbalance in labels; deduplication for pretraining"

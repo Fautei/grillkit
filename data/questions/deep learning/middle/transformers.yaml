@@ -1,0 +1,1056 @@
+category: "Transformers"
+track: "deep learning"
+level: "middle"
+
+description: "Transformer architecture, BERT/GPT families, and modern NLP with transformers"
+
+questions:
+  - id: "dlm-tr-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["transformer", "architecture", "attention"]
+    question:
+      text:
+        en: "Describe the overall Transformer architecture: encoder, decoder, and their components."
+        ru: "Опишите общую архитектуру Transformer: encoder, decoder и их компоненты."
+      code: null
+    follow_ups:
+      en:
+        - "What are the two sub-layers inside each encoder block?"
+      ru:
+        - "Какие два под-слоя внутри каждого encoder-блока?"
+    expected_points:
+      - "Encoder: stacked blocks of self-attention + feed-forward"
+      - "Decoder: masked self-attention + cross-attention + feed-forward"
+      - "Multi-head self-attention captures token interactions"
+      - "Positional encodings add sequence order"
+      - "LayerNorm + residual connections around each sub-layer"
+
+  - id: "dlm-tr-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["attention", "qkv"]
+    question:
+      text:
+        en: "Explain the scaled dot-product attention: what are Q, K, V and why scale by sqrt(d_k)?"
+        ru: "Объясните scaled dot-product attention: что такое Q, K, V и зачем масштабировать на sqrt(d_k)?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens to attention softmax when scores are very large?"
+      ru:
+        - "Что происходит с softmax attention, когда очки очень большие?"
+    expected_points:
+      - "Q (query), K (key), V (value): projections of the input"
+      - "Attention = softmax(QK^T / sqrt(d_k)) V"
+      - "Dot product measures query-key similarity; values are what gets mixed"
+      - "Scaling by sqrt(d_k): prevents large dot products saturating softmax"
+      - "Large scores -> softmax peaks -> vanishing gradients"
+
+  - id: "dlm-tr-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["multi-head", "attention"]
+    question:
+      text:
+        en: "What is multi-head attention and why use multiple heads instead of one large head?"
+        ru: "Что такое multi-head attention и зачем несколько голов вместо одной большой?"
+      code: null
+    follow_ups:
+      en:
+        - "How is the dimension split across heads?"
+      ru:
+        - "Как размерность делится между головами?"
+    expected_points:
+      - "Run h independent attention functions in parallel subspaces"
+      - "Each head learns different relationship types (syntax, coreference, etc.)"
+      - "d_model split: d_k = d_v = d_model/h"
+      - "Concatenate head outputs + linear projection"
+      - "More expressive than a single attention over the full space"
+
+  - id: "dlm-tr-004"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["transformer", "ffn", "mlp"]
+    question:
+      text:
+        en: "What is the role of the feed-forward (FFN) sub-layer in each transformer block?"
+        ru: "Какова роль feed-forward (FFN) под-слоя в каждом блоке трансформера?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is the FFN expansion ratio usually 4x (or 8/3x with SwiGLU)?"
+      ru:
+        - "Почему расширение FFN обычно 4x (или 8/3x с SwiGLU)?"
+    expected_points:
+      - "Position-wise: two linear layers with nonlinearity, applied per token"
+      - "Adds nonlinearity and capacity (mixing information across channels)"
+      - "Attention mixes across positions; FFN mixes across features"
+      - "Expansion: project up (4x), nonlinearity, project back"
+      - "Holds the majority of transformer parameters (especially in LLMs)"
+
+  - id: "dlm-tr-005"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["transformer", "layernorm", "pre-post"]
+    question:
+      text:
+        en: "What is the difference between pre-norm and post-norm transformers? Which is used in modern LLMs and why?"
+        ru: "В чём разница между pre-norm и post-norm трансформерами? Какой используют современные LLM и почему?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the gradient problem in deep post-norm networks?"
+      ru:
+        - "Какова проблема градиентов в глубоких post-norm сетях?"
+    expected_points:
+      - "Post-norm: LayerNorm after the sub-layer (original Transformer)"
+      - "Pre-norm: LayerNorm before the sub-layer (residual is cleaner)"
+      - "Pre-norm: more stable gradients, trains easier at depth"
+      - "Post-norm can be slightly better final quality with careful warmup"
+      - "Modern LLMs (GPT, LLaMA) use pre-norm (or RMSNorm pre-norm)"
+
+  - id: "dlm-tr-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["rmsnorm", "layernorm"]
+    question:
+      text:
+        en: "What is RMSNorm and how does it simplify LayerNorm?"
+        ru: "Что такое RMSNorm и как он упрощает LayerNorm?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is the mean subtraction dropped?"
+      ru:
+        - "Почему отбрасывают вычитание среднего?"
+    expected_points:
+      - "RMSNorm: scale by root mean square of activations, no mean centering"
+      - "x / RMS(x) * gamma; RMS = sqrt(mean(x^2))"
+      - "Cheaper (no mean computation), similar performance"
+      - "Used in LLaMA and many modern architectures"
+      - "Empirically mean subtraction contributes little"
+
+  - id: "dlm-tr-007"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["bert", "encoder", "mlm"]
+    question:
+      text:
+        en: "How does BERT work? Explain its architecture and the masked language model (MLM) objective."
+        ru: "Как работает BERT? Объясните архитектуру и objective masked language model (MLM)."
+      code: null
+    follow_ups:
+      en:
+        - "Why is MLM bidirectional and good for understanding tasks?"
+      ru:
+        - "Почему MLM bidirectional и хорош для understanding-задач?"
+    expected_points:
+      - "BERT: encoder-only transformer (stack of bidirectional self-attention)"
+      - "Pretrain: MLM (predict masked tokens) + NSP (next sentence prediction)"
+      - "Bidirectional: uses left and right context -> rich representations"
+      - "Fine-tune for classification, NER, QA, etc."
+      - "Strong for understanding/extraction, not generation"
+
+  - id: "dlm-tr-008"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gpt", "decoder", "clm"]
+    question:
+      text:
+        en: "How does GPT work? Explain its decoder-only architecture and causal language modeling."
+        ru: "Как работает GPT? Объясните decoder-only архитектуру и causal language modeling."
+      code: null
+    follow_ups:
+      en:
+        - "How does the causal mask work in GPT's attention?"
+      ru:
+        - "Как работает causal mask во внимании GPT?"
+    expected_points:
+      - "GPT: decoder-only transformer with causal (masked) self-attention"
+      - "Pretrain: predict next token (causal LM), autoregressive"
+      - "Causal mask: each token attends only to previous tokens"
+      - "Single objective, scales extremely well with size/data"
+      - "Generates text autoregressively; strong few-shot in-context learning"
+
+  - id: "dlm-tr-009"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["t5", "enc-dec", "seq2seq"]
+    question:
+      text:
+        en: "How does T5 (encoder-decoder) differ from BERT and GPT, and what is its text-to-text framework?"
+        ru: "Чем T5 (encoder-decoder) отличается от BERT и GPT и какова его text-to-text парадигма?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does T5 use the same tokenizer and objective for all tasks?"
+      ru:
+        - "Почему T5 использует один токенайзер и objective для всех задач?"
+    expected_points:
+      - "T5: encoder-decoder; encoder reads input, decoder generates output"
+      - "All tasks as text-to-text: prefix the input with task instruction"
+      - "Pretrain: span corruption (replace spans with [MASK], predict them)"
+      - "Flexible for translation, summarization, QA in one model"
+      - "Relative positional biases (bias by distance) instead of absolute"
+
+  - id: "dlm-tr-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["transformer", "scaling", "parameters"]
+    question:
+      text:
+        en: "How do you estimate the parameter count of a transformer from its dimensions?"
+        ru: "Как оценить количество параметров трансформера по его размерностям?"
+      code: null
+    follow_ups:
+      en:
+        - "Where do most parameters live (attention vs FFN vs embeddings)?"
+      ru:
+        - "Где живёт большинство параметров (attention vs FFN vs эмбеддинги)?"
+    expected_points:
+      - "Embeddings: vocab_size * d_model (input + output, often tied)"
+      - "Per attention head: Q,K,V,O projections ~ 4 * d_model^2; total ~ 4 d_model^2"
+      - "FFN: 2 * d_model * d_ff (typically d_ff = 4*d_model -> 8 d_model^2)"
+      - "Per layer ~ 12 d_model^2 (attn + FFN) + LayerNorm params"
+      - "Total ~ layers * 12 d_model^2 + 2 * vocab * d_model"
+
+  - id: "dlm-tr-011"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["transformer", "compute", "flops"]
+    question:
+      text:
+        en: "How do you estimate the training FLOPs of a transformer and what does it tell you?"
+        ru: "Как оценить тренировочные FLOPs трансформера и что это говорит?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is the 6*N*D rule of thumb used?"
+      ru:
+        - "Почему используется правило 6*N*D?"
+    expected_points:
+      - "Per token: ~2 FLOPs per parameter for forward, ~4 for backward -> 6*N*D total"
+      - "N = params, D = tokens -> total training FLOPs ~ 6 * N * D"
+      - "Attention adds a term quadratic in sequence length (often small for LLMs)"
+      - "Used to plan compute budgets and compare training runs"
+      - "Chinchilla used this to find compute-optimal scaling"
+
+  - id: "dlm-tr-012"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["scaling-laws", "chinchilla"]
+    question:
+      text:
+        en: "What are neural scaling laws and what did the Chinchilla finding show?"
+        ru: "Каковы neural scaling laws и что показал finding Chinchilla?"
+      code: null
+    follow_ups:
+      en:
+        - "How many tokens should a 70B model see for optimal compute?"
+      ru:
+        - "Сколько токенов должно увидеть модель 70B для оптимального compute?"
+    expected_points:
+      - "Loss follows a power law in parameters, data, and compute"
+      - "Chinchilla: for fixed compute, scale params and tokens equally"
+      - "Optimal: ~20 tokens per parameter (1:20 ratio)"
+      - "GPT-3 (175B) was under-trained (~5 tokens/param); Chinchilla 70B at 1:20 beat it"
+      - "Implication: smaller models with more data can outperform larger under-trained ones"
+
+  - id: "dlm-tr-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["tokenization", "bpe", "vocab"]
+    question:
+      text:
+        en: "How do you choose a vocabulary size and tokenizer for a language model? What are the trade-offs?"
+        ru: "Как выбирать размер vocabulary и токенайзер для языковой модели? Каковы компромиссы?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do smaller vocabularies increase sequence length?"
+      ru:
+        - "Почему меньший vocab увеличивает длину последовательности?"
+    expected_points:
+      - "Vocab size: larger = better compression per token but bigger embedding table"
+      - "Smaller vocab: longer sequences (more attention cost), slower generation"
+      - "Trade-off: embedding params vs sequence length/compute"
+      - "Multilingual: need larger vocab or character-based fallback"
+      - "BPE/SentencePiece balance OOV handling and compression"
+
+  - id: "dlm-tr-014"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["tokenizer", "multilingual", "fairness"]
+    question:
+      text:
+        en: "What is tokenizer bias across languages and why does it matter?"
+        ru: "Каков bias токенизатора между языками и почему это важно?"
+      code: null
+    follow_ups:
+      en:
+        - "How does bytes-per-character affect multilingual performance?"
+      ru:
+        - "Как bytes-per-character влияет на multilingual качество?"
+    expected_points:
+      - "Tokenizers trained mostly on English compress English better"
+      - "Other languages need more tokens per word/character -> longer sequences"
+      - "Unequal tokens-per-word -> less effective context and capacity for low-resource languages"
+      - "Affects model quality, cost, and fairness across languages"
+      - "Mitigations: multilingual tokenizer, balanced training data"
+
+  - id: "dlm-tr-015"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["prompting", "icl", "few-shot"]
+    question:
+      text:
+        en: "What is in-context learning and few-shot prompting? Why do large LLMs exhibit it?"
+        ru: "Что такое in-context learning и few-shot prompting? Почему большие LLM это демонстрируют?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the failure modes of few-shot prompting?"
+      ru:
+        - "Каковы failure modes few-shot prompting?"
+    expected_points:
+      - "ICL: model adapts to a task from examples in the prompt, no weight updates"
+      - "Few-shot: provide k input-output demonstrations in context"
+      - "Emerges with scale; related to internal task recognition"
+      - "Order/format of examples matters (format consistency, label balance)"
+      - "Failure: label bias, order sensitivity, format confusion"
+
+  - id: "dlm-tr-016"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["prompt", "engineering", "design"]
+    question:
+      text:
+        en: "What are effective prompt engineering techniques for LLMs?"
+        ru: "Какие эффективные техники prompt engineering для LLM?"
+      code: null
+    follow_ups:
+      en:
+        - "How does chain-of-thought prompting improve reasoning?"
+      ru:
+        - "Как chain-of-thought prompting улучшает reasoning?"
+    expected_points:
+      - "Clear instructions + role + output format specification"
+      - "Few-shot examples with consistent formatting"
+      - "Chain-of-thought: prompt to show reasoning steps before answer"
+      - "Delimiters, structured output (JSON), constraints"
+      - "Self-consistency: sample multiple CoT paths, majority vote"
+
+  - id: "dlm-tr-017"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["chain-of-thought", "reasoning"]
+    question:
+      text:
+        en: "How does chain-of-thought (CoT) prompting work and when does it help?"
+        ru: "Как работает chain-of-thought (CoT) prompting и когда он помогает?"
+      code: null
+    follow_ups:
+      en:
+        - "What is zero-shot CoT and the 'let's think step by step' trick?"
+      ru:
+        - "Что такое zero-shot CoT и трюк 'let's think step by step'?"
+    expected_points:
+      - "CoT: elicit intermediate reasoning steps before the final answer"
+      - "Improves multi-step reasoning (math, logic) significantly"
+      - "Zero-shot CoT: append 'Let's think step by step'"
+      - "Reasoning trace acts as working memory/compute"
+      - "Less helpful for simple tasks; can hallucinate flawed reasoning"
+
+  - id: "dlm-tr-018"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["retrieval", "rag"]
+    question:
+      text:
+        en: "What is Retrieval-Augmented Generation (RAG) and how does it work?"
+        ru: "Что такое Retrieval-Augmented Generation (RAG) и как он работает?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the main components of a RAG pipeline?"
+      ru:
+        - "Каковы основные компоненты RAG-пайплайна?"
+    expected_points:
+      - "RAG: retrieve relevant documents, feed as context to generate grounded answers"
+      - "Pipeline: index corpus (embeddings), retrieve top-k, augment prompt, generate"
+      - "Reduces hallucination, enables up-to-date/knowledge-base Q&A"
+      - "Components: chunking, embeddings, vector DB, retriever, generator"
+      - "Quality depends on retrieval precision and chunking"
+
+  - id: "dlm-tr-019"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["rag", "vector-db", "embedding"]
+    question:
+      text:
+        en: "How do you build a vector database and retrieve relevant chunks for RAG?"
+        ru: "Как построить vector database и извлекать релевантные чанки для RAG?"
+      code: null
+    follow_ups:
+      en:
+        - "What are approximate nearest neighbor (ANN) algorithms?"
+      ru:
+        - "Каковы ANN-алгоритмы (approximate nearest neighbor)?"
+    expected_points:
+      - "Embed chunks into vectors; store in a vector DB"
+      - "Query: embed question, find nearest neighbors (cosine similarity)"
+      - "ANN indexes: HNSW, IVF, product quantization for speed at scale"
+      - "Chunking strategy (size, overlap) critically affects retrieval"
+      - "Hybrid retrieval (BM25 + dense) improves recall"
+
+  - id: "dlm-tr-020"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["rag", "evaluation", "hallucination"]
+    question:
+      text:
+        en: "How do you evaluate a RAG system and reduce hallucinations?"
+        ru: "Как оценивать RAG-систему и уменьшать галлюцинации?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between faithfulness and answer relevance?"
+      ru:
+        - "Чем faithfulness отличается от answer relevance?"
+    expected_points:
+      - "Evaluate retrieval (recall@k, MRR) separately from generation"
+      - "Faithfulness: does the answer follow the retrieved context"
+      - "Answer relevance: does it address the question"
+      - "Reduce hallucination: ground generation, cite sources, penalize unsupported claims"
+      - "Fallback behavior when retrieval is low-confidence"
+
+  - id: "dlm-tr-021"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["fine-tuning", "llm"]
+    question:
+      text:
+        en: "When should you fine-tune an LLM versus using RAG or prompting?"
+        ru: "Когда следует fine-tune LLM, а когда использовать RAG или prompting?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the cost of fine-tuning a large model?"
+      ru:
+        - "Какова стоимость fine-tuning большой модели?"
+    expected_points:
+      - "Prompting/RAG: no retraining, flexible knowledge, fast"
+      - "Fine-tuning: bake in format/style/task behavior, better on narrow tasks"
+      - "RAG for up-to-date/factual knowledge; fine-tune for behavior/format"
+      - "Fine-tuning cost: data, compute, evaluation, maintenance"
+      - "Often combine: fine-tuned base + RAG for knowledge"
+
+  - id: "dlm-tr-022"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["lora", "peft", "fine-tuning"]
+    question:
+      text:
+        en: "What is LoRA (Low-Rank Adaptation) and how does it enable efficient fine-tuning of large models?"
+        ru: "Что такое LoRA (Low-Rank Adaptation) и как он позволяет эффективно fine-tune большие модели?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the rank in LoRA and how do you choose it?"
+      ru:
+        - "Каков rank в LoRA и как его выбирают?"
+    expected_points:
+      - "Freeze base weights; learn low-rank delta: W' = W + BA (B: d x r, A: r x d)"
+      - "Only r << d parameters trained per matrix -> tiny memory/compute"
+      - "Applied to attention (and sometimes FFN) projections"
+      - "Multiple task adapters can be swapped at inference"
+      - "Rank and target modules are hyperparameters; higher rank = more capacity"
+
+  - id: "dlm-tr-023"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["qlora", "quantization", "fine-tuning"]
+    question:
+      text:
+        en: "What is QLoRA and how does it combine quantization with LoRA?"
+        ru: "Что такое QLoRA и как он сочетает квантование с LoRA?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is a 4-bit base model fine-tunable without major accuracy loss?"
+      ru:
+        - "Почему 4-bit базовая модель fine-tune-ится без большой потери точности?"
+    expected_points:
+      - "QLoRA: quantize base to 4-bit (NF4), train LoRA adapters in higher precision"
+      - "Dequantize on the fly for the forward pass; gradients only for adapters"
+      - "Double quantization + paged optimizers to fit in one GPU"
+      - "Fine-tune 65B model on a single 48GB GPU"
+      - "Near full fine-tuning quality with far less memory"
+
+  - id: "dlm-tr-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["rlhf", "alignment"]
+    question:
+      text:
+        en: "What is RLHF and what are its three stages?"
+        ru: "Что такое RLHF и каковы его три этапа?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is a reward model needed instead of direct reward from human ratings?"
+      ru:
+        - "Зачем нужна reward model вместо прямого reward от human ratings?"
+    expected_points:
+      - "RLHF: Reinforcement Learning from Human Feedback to align LLMs"
+      - "Stage 1: SFT on high-quality demonstrations"
+      - "Stage 2: collect human preference rankings, train a reward model"
+      - "Stage 3: optimize policy (LLM) against reward model via RL (PPO)"
+      - "Reward model approximates human preferences cheaply at scale"
+
+  - id: "dlm-tr-025"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["ppo", "rl", "llm"]
+    question:
+      text:
+        en: "How is PPO used to fine-tune an LLM in RLHF? What are the policy, reward, and value models?"
+        ru: "Как PPO используется для fine-tuning LLM в RLHF? Какие у нас policy, reward и value модели?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the KL penalty in the RLHF objective?"
+      ru:
+        - "Каков KL penalty в RLHF objective?"
+    expected_points:
+      - "Policy = the LLM being trained; generates responses"
+      - "Reward model scores responses (from human preferences)"
+      - "Value model estimates expected return for advantage computation"
+      - "PPO: clipped policy gradient, stable on-policy RL"
+      - "KL penalty keeps policy close to SFT reference (prevents reward hacking)"
+
+  - id: "dlm-tr-026"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["reward-model", "preference", "btl"]
+    question:
+      text:
+        en: "How do you train a reward model from human preference data?"
+        ru: "Как обучить reward model на human preference data?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the Bradley-Terry-Lord model?"
+      ru:
+        - "Что такое модель Bradley-Terry-Lord?"
+    expected_points:
+      - "Data: prompt + two responses, human picks the better one"
+      - "Reward model = LM backbone with a scalar head (score per response)"
+      - "Bradley-Terry: P(y_a > y_b) = sigmoid(r(x,y_a) - r(x,y_b))"
+      - "Train with a ranking (margin) loss on the preference pairs"
+      - "RM approximates a preference function over responses"
+
+  - id: "dlm-tr-027"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["reward-hacking", "specification", "rl"]
+    question:
+      text:
+        en: "What is reward hacking and how does the KL constraint mitigate it in RLHF?"
+        ru: "Что такое reward hacking и как KL-ограничение смягчает его в RLHF?"
+      code: null
+    follow_ups:
+      en:
+        - "Give examples of reward hacking in LLMs."
+      ru:
+        - "Приведите примеры reward hacking у LLM."
+    expected_points:
+      - "Reward hacking: policy exploits reward model flaws to get high scores"
+      - "Examples: verbose answers, sycophancy, format tricks, repetition"
+      - "Reward model is an imperfect proxy for true human preference"
+      - "KL penalty: max reward - beta * KL(policy || reference)"
+      - "KL keeps behavior near the reference SFT model, limiting exploitation"
+
+  - id: "dlm-tr-028"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["dpo", "alignment", "preference"]
+    question:
+      text:
+        en: "What is DPO (Direct Preference Optimization) and how does it simplify RLHF?"
+        ru: "Что такое DPO (Direct Preference Optimization) и как он упрощает RLHF?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does DPO not need a separate reward model or RL loop?"
+      ru:
+        - "Почему DPO не требует отдельной reward model или RL-цикла?"
+    expected_points:
+      - "DPO: directly optimize the policy from preference pairs via a closed-form reformulation"
+      - "Derives the optimal policy in terms of the reward; substitutes into a BT loss"
+      - "No reward model, no PPO, no sampling/RL loop -> simpler and more stable"
+      - "Trains with a supervised-style loss on chosen/rejected pairs"
+      - "Competitive with PPO for alignment, much easier to run"
+
+  - id: "dlm-tr-029"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["hallucination", "llm"]
+    question:
+      text:
+        en: "Why do LLMs hallucinate and what are the main mitigations?"
+        ru: "Почему LLM галлюцинируют и каковы основные способы борьбы?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between factual and instruction hallucination?"
+      ru:
+        - "Чем фактическая галлюцинация отличается от instruction hallucination?"
+    expected_points:
+      - "LLMs generate plausible text, not verified facts; training on noisy data"
+      - "Exposure to conflicting info; memorization of falsehoods"
+      - "Factual: wrong claims; Instruction: ignoring constraints"
+      - "Mitigations: RAG grounding, citation, self-consistency, abstention"
+      - "Calibration: let the model say 'I don't know'"
+
+  - id: "dlm-tr-030"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["evaluation", "llm", "benchmarks"]
+    question:
+      text:
+        en: "How do you evaluate an LLM? What are common benchmarks and their limitations?"
+        ru: "Как оценивать LLM? Какие типовые бенчмарки и каковы их ограничения?"
+      code: null
+    follow_ups:
+      en:
+        - "What is benchmark contamination and how does it inflate scores?"
+      ru:
+        - "Что такое benchmark contamination и как она завышает scores?"
+    expected_points:
+      - "Benchmarks: MMLU, GSM8K, HumanEval, HellaSwag, etc."
+      - "Multi-choice, generation, code, reasoning tasks"
+      - "Limitations: contamination (train/test overlap), saturation, narrow coverage"
+      - "Leaderboard gaming; distribution shift from real usage"
+      - "Combine benchmarks + human eval + task-specific metrics"
+
+  - id: "dlm-tr-031"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["context", "length", "window"]
+    question:
+      text:
+        en: "What determines a model's context length and what are the challenges of long-context models?"
+        ru: "Что определяет длину контекста модели и каковы проблемы long-context моделей?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do long-context models often fail to use the middle of the context?"
+      ru:
+        - "Почему long-context модели часто плохо используют середину контекста?"
+    expected_points:
+      - "Context length: max tokens the position encodings + KV cache support"
+      - "Challenges: O(n^2) attention cost, KV cache memory"
+      - "Lost-in-the-middle: performance drops for info in the middle"
+      - "Effective context < nominal; retrieval quality degrades"
+      - "Techniques: RoPE scaling, sliding window, retrieval, ring attention"
+
+  - id: "dlm-tr-032"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["long-context", "rope-scaling", "positional"]
+    question:
+      text:
+        en: "How do you extend a model's context length beyond its training length (position interpolation, NTK scaling)?"
+        ru: "Как расширить длину контекста модели за пределы обученной (position interpolation, NTK scaling)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why can simply increasing positional frequencies degrade quality?"
+      ru:
+        - "Почему простое увеличение позиционных частот ухудшает качество?"
+    expected_points:
+      - "Position interpolation: compress learned positions into the new length"
+      - "NTK-aware scaling: adjust RoPE base frequency to preserve local detail"
+      - "YaRN: combine interpolation with attention temperature scaling"
+      - "Longer context often needs some continued training (extension fine-tune)"
+      - "Trade-off: longer context vs degradation on in-distribution short tasks"
+
+  - id: "dlm-tr-033"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["knowledge", "editing", "memory"]
+    question:
+      text:
+        en: "How do you update or edit a specific fact in a trained LLM? What is model editing?"
+        ru: "Как обновить/отредактировать конкретный факт в обученной LLM? Что такое model editing?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the challenges of localized model editing?"
+      ru:
+        - "Каковы задачи локализованного model editing?"
+    expected_points:
+      - "Fine-tuning is too global/expensive for single-fact edits"
+      - "Model editing: update a targeted knowledge with minimal side effects"
+      - "Methods: ROME/MEMIT (direct weight editing), adapter edits"
+      - "Challenges: locality (don't change other facts), generalization, robustness"
+      - "Alternative: RAG for dynamic knowledge (no weight changes)"
+
+  - id: "dlm-tr-034"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["agents", "tools", "llm"]
+    question:
+      text:
+        en: "What is an LLM agent and how does it use tools in a loop?"
+        ru: "Что такое LLM agent и как он использует инструменты в цикле?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the main failure modes of LLM agents?"
+      ru:
+        - "Каковы основные failure modes LLM agents?"
+    expected_points:
+      - "Agent: LLM in a loop that plans, calls tools, observes results, repeats"
+      - "Tools: search, code execution, API calls, retrieval"
+      - "Loop: think -> act -> observe -> think (ReAct-style)"
+      - "Failure modes: tool misuse, infinite loops, hallucinated observations, cost"
+      - "Requires grounding, verification, and stopping conditions"
+
+  - id: "dlm-tr-035"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["function-calling", "api", "llm"]
+    question:
+      text:
+        en: "How does function calling / tool use work in LLM APIs?"
+        ru: "Как работает function calling / tool use в LLM API?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you validate and sanitize tool arguments generated by the model?"
+      ru:
+        - "Как валидировать и санитизировать аргументы инструментов, сгенерированные моделью?"
+    expected_points:
+      - "Define tools (name, description, JSON schema of parameters)"
+      - "Model returns a structured call (function name + arguments) instead of text"
+      - "Runtime executes the tool, feeds result back as a message"
+      - "Model can call multiple tools; may return plain text to finish"
+      - "Validate args against schema; handle errors and retries"
+
+  - id: "dlm-tr-036"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["multimodal", "vlm"]
+    question:
+      text:
+        en: "How do multimodal LLMs (vision-language models) integrate images and text?"
+        ru: "Как мультимодальные LLM (vision-language модели) интегрируют изображения и текст?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the role of a vision encoder and a projection layer in a VLM?"
+      ru:
+        - "Какова роль vision encoder и projection слоя в VLM?"
+    expected_points:
+      - "Vision encoder (e.g., ViT) turns image into patch embeddings"
+      - "Projection layer maps image tokens into the LLM's embedding space"
+      - "Interleave image + text tokens; process with the transformer"
+      - "Models: LLaVA, GPT-4V style (image as a modality)"
+      - "Can do VQA, image description, document understanding"
+
+  - id: "dlm-tr-037"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["structured-output", "json", "llm"]
+    question:
+      text:
+        en: "How do you reliably get structured output (e.g., JSON) from an LLM?"
+        ru: "Как надёжно получить структурированный вывод (например, JSON) от LLM?"
+      code: null
+    follow_ups:
+      en:
+        - "What is constrained decoding and how does it guarantee valid output?"
+      ru:
+        - "Что такое constrained decoding и как он гарантирует валидный вывод?"
+    expected_points:
+      - "Prompt for a strict schema + few-shot examples of valid output"
+      - "Use an output parser with validation and retry on failure"
+      - "Constrained/structured decoding: restrict tokens to a valid grammar"
+      - "Some APIs offer native JSON mode / function schemas"
+      - "Robust pipeline: generate -> parse -> validate -> retry/repair"
+
+  - id: "dlm-tr-038"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["safety", "alignment", "jailbreak"]
+    question:
+      text:
+        en: "What is jailbreaking an LLM and what defenses exist?"
+        ru: "Что такое jailbreaking LLM и какие есть защиты?"
+      code: null
+    follow_ups:
+      en:
+        - "Why are prompt-based defenses often brittle?"
+      ru:
+        - "Почему prompt-based защиты часто хрупкие?"
+    expected_points:
+      - "Jailbreak: prompt that bypasses safety alignment to elicit harmful output"
+      - "Techniques: role-play, encoding, multi-turn escalation, 'developer mode'"
+      - "Defenses: robust refusal training, input filtering, system prompts"
+      - "Prompt-based filters are brittle; adversarial prompts evolve"
+      - "Layered defenses: model alignment + runtime guardrails + monitoring"
+
+  - id: "dlm-tr-039"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["red-teaming", "safety", "evaluation"]
+    question:
+      text:
+        en: "How do you red-team an LLM to find safety vulnerabilities?"
+        ru: "Как red-team LLM, чтобы найти уязвимости безопасности?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between static and dynamic (LLM-driven) red-teaming?"
+      ru:
+        - "Чем static red-teaming отличается от dynamic (LLM-driven)?"
+    expected_points:
+      - "Red-teaming: adversarially probe for harmful/leaky/unsafe behavior"
+      - "Manual, scripted, and automated (LLM-generated) attack prompts"
+      - "Dynamic: an attacker LLM iteratively refines jailbreaks"
+      - "Evaluate: refusal rate, harm severity, robustness to paraphrase"
+      - "Continuous process as models and attacks evolve"
+
+  - id: "dlm-tr-040"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["distillation", "knowledge"]
+    question:
+      text:
+        en: "What is knowledge distillation for LLMs and how does it produce smaller models?"
+        ru: "Что такое knowledge distillation для LLM и как он даёт более мелкие модели?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between logit-based and data-based distillation?"
+      ru:
+        - "Чем logit-based distillation отличается от data-based?"
+    expected_points:
+      - "Distillation: train a small student to match a large teacher"
+      - "Logit-based: match softened output distributions (dark knowledge)"
+      - "Data-based: teacher generates high-quality data, student fine-tunes on it"
+      - "Produces compact models retaining most capability"
+      - "Common for creating smaller, cheaper production models"
+
+  - id: "dlm-tr-041"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["embedding", "similarity", "retrieval"]
+    question:
+      text:
+        en: "How do you build a custom text embedding model for semantic search?"
+        ru: "Как построить собственную text embedding модель для семантического поиска?"
+      code: null
+    follow_ups:
+      en:
+        - "What is contrastive training for embeddings?"
+      ru:
+        - "Каково contrastive обучение для эмбеддингов?"
+    expected_points:
+      - "Fine-tune an encoder (or LLM) to map text to vectors"
+      - "Objective: similar pairs close, dissimilar far (contrastive/InfoNCE)"
+      - "Data: positive pairs (paraphrases, query-doc), hard negatives"
+      - "Pool the final token or mean-pool; normalize vectors"
+      - "Evaluate with retrieval metrics (recall@k, MRR) on a test set"
+
+  - id: "dlm-tr-042"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["embedding", "dimension", "pq"]
+    question:
+      text:
+        en: "How do you reduce the dimensionality or memory cost of embeddings at scale?"
+        ru: "Как снизить размерность или стоимость памяти эмбеддингов в масштабе?"
+      code: null
+    follow_ups:
+      en:
+        - "What is product quantization for vectors?"
+      ru:
+        - "Что такое product quantization для векторов?"
+    expected_points:
+      - "Matryoshka embeddings: usable at truncated dimensions"
+      - "Product quantization: split vector, code sub-vectors compactly"
+      - "PCA / dimensionality reduction of the embedding space"
+      - "Binary/hash embeddings for very large scale (lossy)"
+      - "Trade-off: retrieval accuracy vs storage/compute"
+
+  - id: "dlm-tr-043"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["qa", "open-domain", "generation"]
+    question:
+      text:
+        en: "How do you build an open-domain question answering system with an LLM?"
+        ru: "Как построить open-domain систему вопрос-ответ с LLM?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you combine a retriever and a generator for QA?"
+      ru:
+        - "Как сочетать retriever и generator в QA?"
+    expected_points:
+      - "Open-domain: answer questions over arbitrary topics"
+      - "RAG: retrieve relevant passages, generate answer grounded in them"
+      - "Multi-step: decompose question, retrieve, synthesize"
+      - "Cite sources; abstain when evidence is insufficient"
+      - "Evaluate: exact match / F1 for short answers, faithfulness for long"
+
+  - id: "dlm-tr-044"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["code", "generation", "llm"]
+    question:
+      text:
+        en: "How are LLMs used for code generation and what metrics evaluate it?"
+        ru: "Как LLM используются для генерации кода и какие метрики его оценивают?"
+      code: null
+    follow_ups:
+      en:
+        - "What is pass@k in code generation evaluation?"
+      ru:
+        - "Что такое pass@k в оценке генерации кода?"
+    expected_points:
+      - "LLMs trained on code + natural language generate code from prompts"
+      - "Tasks: function completion, bug fix, code explanation, translation"
+      - "pass@k: fraction of problems where at least k samples pass all tests"
+      - "Execution-based eval: run unit tests on generated code"
+      - "Challenges: correctness, edge cases, security, license/copyright"
+
+  - id: "dlm-tr-045"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["interpretability", "probing", "llm"]
+    question:
+      text:
+        en: "How do you probe or interpret internal representations of a transformer?"
+        ru: "Как пробовать/интерпретировать внутренние представления трансформера?"
+      code: null
+    follow_ups:
+      en:
+        - "What is a linear probe and what can it reveal?"
+      ru:
+        - "Что такое linear probe и что он может выявить?"
+    expected_points:
+      - "Probing: train a small classifier on hidden states to detect a property"
+      - "Reveals what information is encoded at which layer"
+      - "Attention visualization: which tokens attend to which"
+      - "Activation patching / causal tracing: intervene to test necessity"
+      - "Limitations: correlation vs causation; probes may be unfaithful"
+
+  - id: "dlm-tr-046"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["inference", "latency", "tokens"]
+    question:
+      text:
+        en: "What determines LLM inference latency and throughput? What is the prefill vs decode distinction?"
+        ru: "Что определяет latency и throughput LLM при инференсе? Что такое prefill и decode?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is decode memory-bound and prefill compute-bound?"
+      ru:
+        - "Почему decode memory-bound, а prefill compute-bound?"
+    expected_points:
+      - "Prefill: process the whole prompt at once (compute-bound, parallel)"
+      - "Decode: generate one token at a time (memory-bound, sequential)"
+      - "Latency = time to first token (prefill) + per-token (decode) time"
+      - "Throughput: tokens/s across batch; batching improves GPU utilization"
+      - "KV cache size, batch size, and hardware dominate"
+
+  - id: "dlm-tr-047"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["continuous-batching", "serving", "throughput"]
+    question:
+      text:
+        en: "What is continuous batching (iteration-level scheduling) and how does it improve LLM serving?"
+        ru: "Что такое continuous batching (iteration-level scheduling) и как он улучшает LLM serving?"
+      code: null
+    follow_ups:
+      en:
+        - "How does it differ from static batching?"
+      ru:
+        - "Чем отличается от static batching?"
+    expected_points:
+      - "Static batch: wait for all sequences in a batch to finish"
+      - "Continuous batching: insert/finish sequences every iteration (decode step)"
+      - "Keeps GPU saturated; much higher throughput, lower tail latency"
+      - "Handles variable sequence lengths efficiently"
+      - "Core of vLLM/TGI-style servers; pairs with PagedAttention"
+
+  - id: "dlm-tr-048"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["paged-attention", "kv-cache", "vllm"]
+    question:
+      text:
+        en: "What is PagedAttention and how does it solve KV cache memory fragmentation?"
+        ru: "Что такое PagedAttention и как он решает фрагментацию памяти KV cache?"
+      code: null
+    follow_ups:
+      en:
+        - "How is KV cache managed in pages/blocks?"
+      ru:
+        - "Как KV cache управляется страницами/блоками?"
+    expected_points:
+      - "KV cache allocated in fixed-size blocks (pages), like OS virtual memory"
+      - "Avoids reserved-but-unused memory and fragmentation"
+      - "Non-contiguous blocks; attention kernel reads via block table"
+      - "Near-100% memory utilization -> much higher batch/throughput"
+      - "Enables efficient copying/sharing for prefix caching"
+
+  - id: "dlm-tr-049"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["speculative-decoding", "inference", "speedup"]
+    question:
+      text:
+        en: "What is speculative decoding and how does it speed up LLM inference?"
+        ru: "Что такое speculative decoding и как он ускоряет LLM инференс?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the acceptance/rejection mechanism work?"
+      ru:
+        - "Как работает механизм acceptance/rejection?"
+    expected_points:
+      - "Draft (small) model proposes k tokens; target model verifies in parallel"
+      - "Accept matching tokens, reject/resample the first mismatch"
+      - "Amortizes one target forward pass over several tokens -> speedup"
+      - "Unbiased: acceptance keeps the target model's distribution"
+      - "Best when draft model agrees well with the target"
+
+  - id: "dlm-tr-050"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["quantization", "inference", "int8"]
+    question:
+      text:
+        en: "How does weight-only quantization (INT8/INT4) affect LLM inference?"
+        ru: "Как weight-only квантование (INT8/INT4) влияет на LLM инференс?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is weight-only quantization often preferred over full quantization for LLMs?"
+      ru:
+        - "Почему weight-only квантование часто предпочитают для LLM?"
+    expected_points:
+      - "Quantize weights to INT8/INT4; compute upcasts to higher precision"
+      - "Cuts weight memory (and bandwidth), the main bottleneck in decode"
+      - "Speeds up decode (memory-bound), often with minimal accuracy loss"
+      - "Full (weight+activation) quantization is harder to keep accurate"
+      - "Formats: GPTQ, AWQ, GGUF; trade accuracy vs size"

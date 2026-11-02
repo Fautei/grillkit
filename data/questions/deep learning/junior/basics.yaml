@@ -1,0 +1,360 @@
+category: "Deep Learning Fundamentals"
+track: "deep learning"
+level: "junior"
+
+description: "Introduction to deep learning concepts, history, and basic neural network architectures"
+
+questions:
+  - id: "dl-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["deep learning", "basics", "history"]
+    question:
+      text:
+        en: "What is the difference between traditional machine learning and deep learning?"
+        ru: "В чём разница между традиционным машинным обучением и глубоким обучением?"
+      code: null
+    follow_ups:
+      en:
+        - "How did the increase in data and computing power enable deep learning?"
+        - "What are the key advantages of deep learning over traditional ML?"
+      ru:
+        - "Как увеличилось количество данных и вычислительные мощности позволили развитию глубокого обучения?"
+        - "Каковы ключевые преимущества глубокого обучения перед традиционным ML?"
+    expected_points:
+      - "DL uses multiple layers to learn hierarchical representations"
+      - "Traditional ML typically uses shallow models (1-2 layers)"
+      - "DL can automatically learn feature extractors from raw data"
+      - "DL excels with large datasets and complex patterns"
+      - "Traditional ML often requires manual feature engineering"
+
+  - id: "dl-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "neural networks"]
+    question:
+      text:
+        en: "What are the three main components of a neural network?"
+        ru: "Какие три основные компоненты нейронной сети?"
+      code: null
+    follow_ups:
+      en:
+        - "How do neurons in a layer connect to neurons in the next layer?"
+        - "What role do activation functions play?"
+      ru:
+        - "Как нейроны в слое подключаются к нейронам в следующем слое?"
+        - "Какую роль играют функции активации?"
+    expected_points:
+      - "Neurons (nodes/units)"
+      - "Weights and biases"
+      - "Activation functions"
+      - "Connections (synapses/edges)"
+
+  - id: "dl-j-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "gradient"]
+    question:
+      text:
+        en: "What is backpropagation and why is it important?"
+        ru: "Что такое бэкпропагация и почему она важна?"
+      code: null
+    follow_ups:
+      en:
+        - "How does backpropagation relate to gradient descent?"
+        - "What are common challenges with backpropagation?"
+      ru:
+        - "Как бэкпропагация связана с градиентным спуском?"
+        - "Какие проблемы возникают с бэкпропагацией?"
+    expected_points:
+      - "Backpropagation computes gradients of loss w.r.t. weights"
+      - "Enables training through gradient descent"
+      - "Uses chain rule to propagate errors backward"
+      - "Foundation for training deep neural networks"
+      - "Challenges: vanishing/exploding gradients"
+
+  - id: "dl-j-004"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["deep learning", "basics", "dataset"]
+    question:
+      text:
+        en: "What are the key differences between supervised, unsupervised, and reinforcement learning?"
+        ru: "В чём разница между контролируемым, неконтролируемым и подкрепляющим обучением?"
+      code: null
+    follow_ups:
+      en:
+        - "When would you use each type of learning?"
+        - "What are some examples of each type?"
+      ru:
+        - "Когда использовать каждый тип обучения?"
+        - "Какие примеры каждого типа?"
+    expected_points:
+      - "Supervised: labeled data, learn mapping X→y"
+      - "Unsupervised: unlabeled data, find patterns/structure"
+      - "Reinforcement: agent learns from rewards/punishments"
+      - "Supervised: classification, regression"
+      - "Unsupervised: clustering, dimensionality reduction"
+      - "Reinforcement: game playing, robotics"
+
+  - id: "dl-j-005"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "framework"]
+    question:
+      text:
+        en: "What are the most popular deep learning frameworks and what distinguishes them?"
+        ru: "Назовите самые популярные deep learning фреймворки и чем они отличаются?"
+      code: null
+    follow_ups:
+      en:
+        - "Which framework would you choose for a beginner?"
+        - "How do you choose between frameworks for a project?"
+      ru:
+        - "Какой фреймворк выбрать для начинающего?"
+        - "Как выбрать фреймворк для проекта?"
+    expected_points:
+      - "TensorFlow (Keras) - high-level API, production-ready"
+      - "PyTorch - eager execution, research-friendly"
+      - "JAX - functional programming, research"
+      - "MXNet - scalability, multi-language"
+      - "Framework choice depends on project needs, team expertise"
+
+  - id: "dl-j-006"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "vision"]
+    question:
+      text:
+        en: "What is the role of convolutional layers in computer vision?"
+        ru: "Какую роль играют сверточные слои в компьютерном зрении?"
+      code: null
+    follow_ups:
+      en:
+        - "How do CNNs handle translation invariance?"
+        - "What are common CNN architectures?"
+      ru:
+        - "Как CNN достигают инвариантности к преобразованию?"
+        - "Какие архитектуры CNN наиболее популярны?"
+    expected_points:
+      - "Extract local features using filters/kernels"
+      - "Share weights spatially to reduce parameters"
+      - "Preserve spatial relationships in images"
+      - "Provide translation invariance"
+      - "Common: LeNet, AlexNet, VGG, ResNet"
+
+  - id: "dl-j-007"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["deep learning", "basics", "recurrent"]
+    question:
+      text:
+        en: "How do RNNs handle sequential data differently from standard neural networks?"
+        ru: "Как RNN обрабатывают последовательные данные по-другому?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the limitations of vanilla RNNs?"
+        - "How do LSTM and GRU solve these problems?"
+      ru:
+        - "Каковы ограничения базовых RNN?"
+        - "Как LSTM и GRU их решают?"
+    expected_points:
+      - "RNNs maintain hidden state across time steps"
+      - "Can process variable-length sequences"
+      - "Same weights used across time (weight sharing)"
+      - "Vanilla RNNs struggle with long-term dependencies"
+      - "LSTM/GRU gates control information flow"
+
+  - id: "dl-j-008"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["deep learning", "basics", "data"]
+    question:
+      text:
+        en: "What preprocessing steps are essential for training deep neural networks?"
+        ru: "Какие предварительные обработки данных необходимы для обучения глубоких нейронных сетей?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you normalize data for different network types?"
+        - "What are common data augmentation techniques?"
+      ru:
+        - "Как нормализовать данные для разных типов сетей?"
+        - "Какие методы аугментации данных используются?"
+    expected_points:
+      - "Data normalization (standardization, min-max)"
+      - "Handling missing values"
+      - "Data augmentation (rotation, flipping, etc.)"
+      - "Train/test split"
+      - "Cross-validation"
+      - "Batch normalization during training"
+
+  - id: "dl-j-009"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "regularization"]
+    question:
+      text:
+        en: "What is overfitting and how can regularization prevent it?"
+        ru: "Что такое переобучение и как regularization его предотвращает?"
+      code: null
+    follow_ups:
+      en:
+        - "How does dropout work and when should it be used?"
+        - "What's the difference between L1 and L2 regularization?"
+      ru:
+        - "Как работает dropout и когда его использовать?"
+        - "В чём разница между L1 и L2 regularization?"
+    expected_points:
+      - "Overfitting: model memorizes training data"
+      - "Poor generalization to new data"
+      - "Regularization adds penalty to complex models"
+      - "Dropout randomly deactivates neurons"
+      - "L1 creates sparsity, L2 prevents large weights"
+      - "Early stopping when validation loss increases"
+
+  - id: "dl-j-010"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "evaluation"]
+    question:
+      text:
+        en: "How do you evaluate the performance of a classification model?"
+        ru: "Как оценить производительность классификационной модели?"
+      code: null
+    follow_ups:
+      en:
+        - "When would you use accuracy vs. F1-score?"
+        - "What is cross-validation?"
+      ru:
+        - "Когда использовать точность против F1-миты?"
+        - "Что такое кросс-валидация?"
+    expected_points:
+      - "Accuracy: correct predictions / total predictions"
+      - "Precision: true positives / predicted positives"
+      - "Recall: true positives / actual positives"
+      - "F1-score: harmonic mean of precision and recall"
+      - "Confusion matrix shows detailed performance"
+      - "ROC/AUC for threshold-independent evaluation"
+      - "Cross-validation: multiple train/test splits"
+
+  - id: "dl-j-011"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["deep learning", "basics", "optimization"]
+    question:
+      text:
+        en: "What are common optimization algorithms for training neural networks?"
+        ru: "Какие алгоритмы оптимизации используются для обучения нейронных сетей?"
+      code: null
+    follow_ups:
+      en:
+        - "How does Adam differ from SGD?"
+        - "When should you use learning rate scheduling?"
+      ru:
+        - "В чём разница между Adam и SGD?"
+        - "Когда использовать планирование learning rate?"
+    expected_points:
+      - "SGD: updates with gradient of each sample"
+      - "Mini-batch SGD: efficient compromise"
+      - "Momentum: accelerates convergence"
+      - "Adam: adaptive learning rates per parameter"
+      - "RMSprop: root mean square of gradients"
+      - "Learning rate scheduling: decay over time"
+
+  - id: "dl-j-012"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["deep learning", "basics", "nlp"]
+    question:
+      text:
+        en: "What are word embeddings and why are they important?"
+        ru: "Что такое word embeddings и почему они важны?"
+      code: null
+    follow_ups:
+      en:
+        - "How do Word2Vec and GloVe differ?"
+        - "What are modern transformer-based embeddings?"
+      ru:
+        - "В чём разница между Word2Vec и GloVe?"
+        - "Какие есть современные эмбеддинги на основе трансформеров?"
+    expected_points:
+      - "Word embeddings: dense vector representations of words"
+      - "Capture semantic and syntactic relationships"
+      - "Word2Vec: predicts context words (CBOW/Skip-gram)"
+      - "GloVe: factorizes co-occurrence statistics"
+      - "BERT, OpenAI GPT: contextual embeddings"
+      - "Applications: machine translation, sentiment analysis"
+
+  - id: "dl-j-013"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "transfer"]
+    question:
+      text:
+        en: "What is transfer learning and when should you use it?"
+        ru: "Что такое трансферное обучение и когда его использовать?"
+      code: null
+    follow_ups:
+      en:
+        - "How does fine-tuning work?"
+        - "What are common pre-trained models?"
+      ru:
+        - "Как работает донастройка (fine-tuning)?"
+        - "Какие модели предварительно обучены наиболее часто?"
+    expected_points:
+      - "Transfer learning: reuse pre-trained model"
+      - "Lends to domains with limited data"
+      - "Fine-tune on target task with few examples"
+      - "Common: ImageNet pre-trained on vision tasks"
+      - "BERT, GPT for NLP tasks"
+      - "Benefits: faster convergence, better performance"
+
+  - id: "dl-j-014"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "ethics"]
+    question:
+      text:
+        en: "What are some ethical considerations in deep learning development?"
+        ru: "Какие этические вопросы возникают при разработке глубокого обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "How do bias and fairness issues arise?"
+        - "What are best practices for responsible AI?"
+      ru:
+        - "Как возникают проблемы биаса и справедливости?"
+        - "Каковы лучшие практики ответственного ИИ?"
+    expected_points:
+      - "Bias in training data leads to unfair predictions"
+      - "Lack of diversity in datasets"
+      - "Privacy concerns with sensitive data"
+      - "Interpretability and explainability"
+      - "Environmental impact of large models"
+      - "Best practices: diverse datasets, bias auditing"
+
+  - id: "dl-j-015"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["deep learning", "basics", "future"]
+    question:
+      text:
+        en: "What are some emerging trends in deep learning?"
+        ru: "Какие направления сейчас в развитии глубокого обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "How are multimodal models changing the field?"
+        - "What about federated learning?"
+      ru:
+        - "Как мультимодальные модели меняют область?"
+        - "Что такое федеративное обучение?"
+    expected_points:
+      - "Multimodal models: image+text+audio processing"
+      - "Foundation models: large-scale pre-trained models"
+      - "Federated learning: training across distributed devices"
+      - "Neural architecture search (NAS)"
+      - "Efficient/edge AI for deployment constraints"
+      - "Self-supervised and contrastive learning"

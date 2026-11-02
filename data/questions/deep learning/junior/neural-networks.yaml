@@ -1,0 +1,739 @@
+category: "Neural Network Basics"
+track: "deep learning"
+level: "junior"
+
+description: "Perceptrons, MLPs, activation functions, loss functions, and how networks learn"
+
+questions:
+  - id: "dlj-nn-001"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["mlp", "perceptron", "architecture"]
+    question:
+      text:
+        en: "What is a multilayer perceptron (MLP) and how does the forward pass work?"
+        ru: "Что такое многослойный перцептрон (MLP) и как работает прямой проход?"
+      code: null
+    follow_ups:
+      en:
+        - "How many parameters does a 784-256-10 network have?"
+      ru:
+        - "Сколько параметров у сети 784-256-10?"
+    expected_points:
+      - "MLP: fully connected input, hidden, and output layers"
+      - "Forward pass: x -> W*x + b -> activation, repeated per layer"
+      - "Each neuron computes a linear function then applies a nonlinearity"
+      - "Output layer shape depends on task (1 for regression, C for classification)"
+
+  - id: "dlj-nn-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["activation", "relu", "nonlinearity"]
+    question:
+      text:
+        en: "Why do neural networks need non-linear activation functions?"
+        ru: "Почему нейронным сетям нужны нелинейные функции активации?"
+      code: null
+    follow_ups:
+      en:
+        - "What does a network without activations become?"
+      ru:
+        - "Во что превращается сеть без активаций?"
+    expected_points:
+      - "Without nonlinearity, stacked layers collapse into one linear map"
+      - "Nonlinearity lets networks approximate arbitrary functions"
+      - "Activation introduces capacity to model complex decision boundaries"
+      - "Each layer becomes W*act(W*act(...x)) instead of Wx+b"
+
+  - id: "dlj-nn-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["activation", "sigmoid", "tanh"]
+    question:
+      text:
+        en: "Compare sigmoid, tanh, and ReLU activation functions. When is each appropriate?"
+        ru: "Сравните функции активации sigmoid, tanh и ReLU. Когда каждая уместна?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the vanishing gradient problem for sigmoid?"
+      ru:
+        - "Что такое проблема затухающих градиентов у sigmoid?"
+    expected_points:
+      - "Sigmoid: (0,1), squashes output, saturates, good for binary output"
+      - "Tanh: (-1,1), zero-centered, also saturates"
+      - "ReLU: max(0,x), no positive saturation, computationally cheap"
+      - "Sigmoid/tanh derivatives are small for large inputs (vanishing gradients)"
+      - "ReLU can die (permanently zero output) with large learning rates"
+
+  - id: "dlj-nn-004"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["activation", "elu", "gelu", "swish"]
+    question:
+      text:
+        en: "What are ReLU variants (Leaky ReLU, ELU, GELU, Swish) and what problems do they solve?"
+        ru: "Какие варианты ReLU (Leaky ReLU, ELU, GELU, Swish) существуют и какие проблемы они решают?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is GELU popular in transformers?"
+      ru:
+        - "Почему GELU популярен в трансформерах?"
+    expected_points:
+      - "Leaky ReLU: small negative slope avoids dying ReLU"
+      - "ELU: smooth, negative outputs, shifts mean toward zero"
+      - "GELU: x*Phi(x), smooth nonlinearity used in BERT/GPT"
+      - "Swish/SiLU: x*sigmoid(x), smooth, used in mobile and modern nets"
+      - "All aim to keep gradients flowing in negative region"
+
+  - id: "dlj-nn-005"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["loss", "cross-entropy", "classification"]
+    question:
+      text:
+        en: "Why is cross-entropy the standard loss for classification? What does it measure?"
+        ru: "Почему кросс-энтропия — стандартная функция потерь для классификации? Что она измеряет?"
+      code: null
+    follow_ups:
+      en:
+        - "How does cross-entropy behave when the model is confident and wrong?"
+      ru:
+        - "Как ведёт себя кросс-энтропия, когда модель уверенно ошибается?"
+    expected_points:
+      - "Measures difference between predicted and true distributions"
+      - "Derived from maximum likelihood / negative log-likelihood"
+      - "Penalizes confident wrong predictions heavily (log divergence)"
+      - "Combined with softmax it is differentiable and well-behaved"
+      - "Zero loss only when predicted distribution matches truth"
+
+  - id: "dlj-nn-006"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["loss", "mse", "regression"]
+    question:
+      text:
+        en: "What is the difference between MSE and MAE for regression, and when do you pick each?"
+        ru: "Чем MSE отличается от MAE в регрессии и когда выбирают каждую?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is MSE sensitive to outliers?"
+      ru:
+        - "Почему MSE чувствителен к выбросам?"
+    expected_points:
+      - "MSE: squared error, penalizes large errors quadratically"
+      - "MAE: absolute error, robust to outliers"
+      - "MSE corresponds to Gaussian noise likelihood"
+      - "MAE corresponds to Laplace noise likelihood"
+      - "MSE gradient is zero at zero error; MAE gradient undefined at zero"
+
+  - id: "dlj-nn-007"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["softmax", "classification", "output"]
+    question:
+      text:
+        en: "What does the softmax function do and why is it used in classification output layers?"
+        ru: "Что делает функция softmax и зачем она нужна в выходном слое классификации?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you avoid numerical instability in softmax?"
+      ru:
+        - "Как избежать численной нестабильности в softmax?"
+    expected_points:
+      - "Converts logits into a probability distribution (sums to 1)"
+      - "Exponentiates then normalizes: e^x_i / sum(e^x_j)"
+      - "Softens argmax, allows differentiable comparisons"
+      - "Subtract max logit for stability (log-sum-exp trick)"
+      - "With cross-entropy it simplifies to log-softmax loss"
+
+  - id: "dlj-nn-008"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["bias", "weights", "parameters"]
+    question:
+      text:
+        en: "What are weights and biases in a neuron? What would happen without the bias term?"
+        ru: "Что такое веса и bias в нейроне? Что случится без bias?"
+      code: null
+    follow_ups:
+      en:
+        - "Can normalization layers replace biases?"
+      ru:
+        - "Могут ли нормализующие слои заменить bias?"
+    expected_points:
+      - "Weights scale inputs, bias shifts the activation threshold"
+      - "Without bias, activation is forced through origin"
+      - "Bias allows decision boundaries to move"
+      - "BatchNorm can absorb biases; some architectures omit them"
+      - "Bias adds one parameter per neuron"
+
+  - id: "dlj-nn-009"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["initialization", "xavier", "he"]
+    question:
+      text:
+        en: "Why does weight initialization matter? Explain Xavier and He initialization."
+        ru: "Почему важна инициализация весов? Объясните Xavier и He инициализацию."
+      code: null
+    follow_ups:
+      en:
+        - "What happens if all weights start at zero?"
+      ru:
+        - "Что произойдёт, если все веса начать с нуля?"
+    expected_points:
+      - "Bad init causes vanishing or exploding activations/gradients"
+      - "Zero init: all neurons identical, symmetry never breaks"
+      - "Xavier/Glorot: variance tuned for tanh/sigmoid (fan_in+fan_out)"
+      - "He init: larger variance for ReLU (2/fan_in)"
+      - "Good init keeps signal variance stable through layers"
+
+  - id: "dlj-nn-010"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["universal", "approximation", "capacity"]
+    question:
+      text:
+        en: "What does the universal approximation theorem say and what are its practical limits?"
+        ru: "Что утверждает теорема универсального аппроксимирования и каковы её практические ограничения?"
+      code: null
+    follow_ups:
+      en:
+        - "Does a wider network always generalize better?"
+      ru:
+        - "Всегда ли более широкая сеть лучше генерализует?"
+    expected_points:
+      - "A single hidden layer with enough units can approximate any continuous function"
+      - "Theorem is existential: it says nothing about how many units or how to learn them"
+      - "Deep networks need far fewer parameters than wide ones in practice"
+      - "Capacity alone does not guarantee good generalization"
+
+  - id: "dlj-nn-011"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["depth", "width", "architecture"]
+    question:
+      text:
+        en: "What is the trade-off between depth and width of a network?"
+        ru: "В чём компромисс между глубиной и шириной сети?"
+      code: null
+    follow_ups:
+      en:
+        - "When does making a network deeper help and when hurt?"
+      ru:
+        - "Когда увеличение глубины помогает, а когда вредит?"
+    expected_points:
+      - "Depth composes transformations, learns hierarchical features"
+      - "Width increases capacity per layer"
+      - "Deep nets train better with residuals/skips and normalization"
+      - "Wider nets are easier to train (capacity, ensemble effect)"
+      - "Cost: more memory and compute; diminishing returns"
+
+  - id: "dlj-nn-012"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["overfitting", "regularization", "generalization"]
+    question:
+      text:
+        en: "How do you detect overfitting during training and what are the first fixes to try?"
+        ru: "Как обнаружить переобучение во время обучения и что делать в первую очередь?"
+      code: null
+    follow_ups:
+      en:
+        - "What does a gap between train and validation loss tell you?"
+      ru:
+        - "О чём говорит разрыв между train и validation потерей?"
+    expected_points:
+      - "Train loss decreases while validation loss plateaus/rises"
+      - "Model has memorized training data, not learned patterns"
+      - "Fixes: more data, data augmentation, dropout, weight decay"
+      - "Early stopping at the best validation checkpoint"
+      - "Reduce model capacity (width/depth)"
+      - "Check data leakage between train and validation sets"
+
+  - id: "dlj-nn-013"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["underfitting", "bias", "variance"]
+    question:
+      text:
+        en: "What is underfitting and how does it differ from overfitting? How to fix it?"
+        ru: "Что такое недообучение и чем оно отличается от переобучения? Как его исправить?"
+      code: null
+    follow_ups:
+      en:
+        - "How do bias and variance relate to over/underfitting?"
+      ru:
+        - "Как смещение и дисперсия связаны с пере-/недообучением?"
+    expected_points:
+      - "Underfitting: both train and validation loss are high"
+      - "Model too simple to capture the pattern"
+      - "High bias, low variance regime"
+      - "Fixes: more capacity, more training, better features/init, smaller regularization"
+      - "Opposite problem of overfitting (high variance)"
+
+  - id: "dlj-nn-014"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["backprop", "chain-rule", "gradients"]
+    question:
+      text:
+        en: "Walk through how backpropagation computes gradients layer by layer."
+        ru: "Пошагово объясните, как бэкпропагация вычисляет градиенты по слоям."
+      code: null
+    follow_ups:
+      en:
+        - "Why do we need the chain rule at each layer?"
+      ru:
+        - "Зачем нужно правило цепочки на каждом слое?"
+    expected_points:
+      - "Forward pass stores activations for backward reuse"
+      - "Loss gradient computed first, then propagated backwards"
+      - "Each layer: dL/dW = dL/dout * dout/dW via chain rule"
+      - "Gradients accumulate contributions from all downstream paths"
+      - "Autograd frameworks build the computation graph and reverse it"
+
+  - id: "dlj-nn-015"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gradient-descent", "optimizer", "learning-rate"]
+    question:
+      text:
+        en: "Explain gradient descent in the context of training. What role does the learning rate play?"
+        ru: "Объясните градиентный спуск в контексте обучения. Какую роль играет learning rate?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens if the learning rate is too big or too small?"
+      ru:
+        - "Что будет, если learning rate слишком большой или слишком маленький?"
+    expected_points:
+      - "Update rule: w = w - lr * gradient"
+      - "Learning rate scales the step size toward lower loss"
+      - "Too large: divergence or oscillation; too small: slow, stuck in noise"
+      - "Minimizes the empirical loss, not the true risk"
+      - "Stochastic variants use mini-batches for efficiency"
+
+  - id: "dlj-nn-016"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["batch-size", "training", "epochs"]
+    question:
+      text:
+        en: "What is an epoch? How does batch size affect training dynamics?"
+        ru: "Что такое эпоха? Как размер батча влияет на динамику обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do large batch sizes sometimes generalize worse?"
+      ru:
+        - "Почему большие батчи иногда хуже генерализуют?"
+    expected_points:
+      - "Epoch: one full pass over the training set"
+      - "Batch size: number of samples per gradient step"
+      - "Small batches: noisier gradients, implicit regularization, less memory"
+      - "Large batches: stable gradients, faster wall-clock on GPU, need higher LR"
+      - "Batch size also affects generalization (flat vs sharp minima)"
+
+  - id: "dlj-nn-017"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["learning-rate", "tuning", "hyperparameters"]
+    question:
+      text:
+        en: "How do you choose a learning rate in practice? What search strategies exist?"
+        ru: "Как на практике выбирают learning rate? Какие методы поиска существуют?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the learning rate range test?"
+      ru:
+        - "Что такое learning rate range test?"
+    expected_points:
+      - "Start with optimizer default (e.g., 1e-3 for Adam, 1e-2 for SGD+momentum)"
+      - "Learning rate range test: sweep LR, pick lowest loss before divergence"
+      - "Watch training loss: spikes mean LR too high, flat line too low"
+      - "Use schedules: warmup + cosine/step decay"
+      - "Sensitivity: small changes often have large effects"
+
+  - id: "dlj-nn-018"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["vanishing", "gradients", "depth"]
+    question:
+      text:
+        en: "What is the vanishing gradient problem and which components cause it?"
+        ru: "Что такое проблема затухающих градиентов и какие компоненты её вызывают?"
+      code: null
+    follow_ups:
+      en:
+        - "How do skip connections solve vanishing gradients?"
+      ru:
+        - "Как skip connections решают проблему затухающих градиентов?"
+    expected_points:
+      - "Gradients shrink exponentially through many layers"
+      - "Causes: saturating activations, weight norms < 1, long chains"
+      - "Early layers receive almost no update signal"
+      - "Solutions: ReLU, skip connections, BatchNorm, careful init"
+      - "Opposite problem: exploding gradients"
+
+  - id: "dlj-nn-019"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["exploding", "gradients", "clipping"]
+    question:
+      text:
+        en: "What are exploding gradients and how do you prevent them?"
+        ru: "Что такое взрывающиеся градиенты и как их предотвратить?"
+      code: null
+    follow_ups:
+      en:
+        - "How does gradient clipping work and what is a safe norm?"
+      ru:
+        - "Как работает клипирование градиентов и какая норма безопасна?"
+    expected_points:
+      - "Gradients grow explosively, causing NaNs or divergence"
+      - "Caused by large weights, recurrent connections, unstable init"
+      - "Fix: clip gradients by global norm (e.g., 1.0)"
+      - "Weight decay, normalization, and good init also help"
+      - "Common in RNNs and deep networks with high LR"
+
+  - id: "dlj-nn-020"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["skip", "residual", "connections"]
+    question:
+      text:
+        en: "Why do residual (skip) connections make deep networks trainable?"
+        ru: "Почему резидуальные (skip) соединения делают глубокие сети обучаемыми?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the gradient path through a ResNet block?"
+      ru:
+        - "Какой путь градиента через блок ResNet?"
+    expected_points:
+      - "Identity shortcut gives gradient a direct path to early layers"
+      - "Network learns F(x) = H(x) - x instead of H(x)"
+      - "Identity mapping is trivially optimal (zero F), easy start"
+      - "Prevents degradation in very deep networks"
+      - "Foundation of ResNet and most modern deep architectures"
+
+  - id: "dlj-nn-021"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["normalization", "batchnorm"]
+    question:
+      text:
+        en: "What is Batch Normalization and why does it speed up training?"
+        ru: "Что такое Batch Normalization и почему он ускоряет обучение?"
+      code: null
+    follow_ups:
+      en:
+        - "How does BatchNorm behave at inference time?"
+      ru:
+        - "Как работает BatchNorm на этапе инференса?"
+    expected_points:
+      - "Normalizes each feature across the mini-batch"
+      - "Reduces internal covariate shift, stabilizes distributions"
+      - "Allows higher learning rates, acts as mild regularizer"
+      - "Inference uses running mean/variance, not batch stats"
+      - "Has learnable scale (gamma) and shift (beta) parameters"
+
+  - id: "dlj-nn-022"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["normalization", "layernorm", "rmsnorm"]
+    question:
+      text:
+        en: "How do LayerNorm and RMSNorm differ from BatchNorm, and why are they used in transformers?"
+        ru: "Чем LayerNorm и RMSNorm отличаются от BatchNorm и почему они используются в трансформерах?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is BatchNorm problematic for variable-length sequences?"
+      ru:
+        - "Почему BatchNorm проблематичен для последовательностей переменной длины?"
+    expected_points:
+      - "LayerNorm normalizes across features per sample, not across batch"
+      - "BatchNorm needs batch statistics — unstable with small batches or sequences"
+      - "RMSNorm: no mean subtraction, cheaper, used in LLaMA"
+      - "Position-wise normalization suits attention layers"
+      - "No running statistics needed at inference"
+
+  - id: "dlj-nn-023"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["dropout", "regularization"]
+    question:
+      text:
+        en: "How does dropout work during training versus inference?"
+        ru: "Как работает dropout при обучении и на инференсе?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do we scale outputs by 1/(1-p) during training (inverted dropout)?"
+      ru:
+        - "Почему при обучении масштабирование выходов на 1/(1-p) (inverted dropout)?"
+    expected_points:
+      - "Training: randomly zero neurons with probability p, scale up survivors"
+      - "Inference: no dropout, use full network"
+      - "Prevents co-adaptation of features, implicit ensemble effect"
+      - "Typical rates: 0.2-0.5 for dense layers"
+      - "Applied after activation or to attention in transformers"
+
+  - id: "dlj-nn-024"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["weight-decay", "l2", "regularization"]
+    question:
+      text:
+        en: "What is weight decay and how does it differ from L2 regularization?"
+        ru: "Что такое weight decay и чем он отличается от L2-регуляризации?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is decoupled weight decay (AdamW) important?"
+      ru:
+        - "Почему важна decoupled weight decay (AdamW)?"
+    expected_points:
+      - "Weight decay: shrink weights by factor each step"
+      - "L2: add lambda*||w||^2 to loss; equivalent in vanilla SGD"
+      - "With adaptive optimizers the two are NOT equivalent"
+      - "AdamW decouples decay from gradient-based update"
+      - "Prevents large weights, mild generalization benefit"
+
+  - id: "dlj-nn-025"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["data-leakage", "validation", "practical"]
+    question:
+      text:
+        en: "What is data leakage and why does it invalidate evaluation?"
+        ru: "Что такое утечка данных (data leakage) и почему она делает оценку невалидной?"
+      code: null
+    follow_ups:
+      en:
+        - "Give common examples of leakage in tabular and time-series data."
+      ru:
+        - "Приведите типичные примеры утечки в табличных и временных данных."
+    expected_points:
+      - "Information from test/future leaks into training"
+      - "Inflates metrics that fail on real unseen data"
+      - "Examples: normalizing with full-set stats, shuffling time series"
+      - "Duplicate samples across train/val split"
+      - "Fit preprocessing only on train, apply to val/test"
+
+  - id: "dlj-nn-026"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["metrics", "precision", "recall"]
+    question:
+      text:
+        en: "When is accuracy misleading and what should you use instead?"
+        ru: "Когда точность (accuracy) вводит в заблуждение и что использовать вместо неё?"
+      code: null
+    follow_ups:
+      en:
+        - "How does class imbalance affect accuracy?"
+      ru:
+        - "Как дисбаланс классов влияет на accuracy?"
+    expected_points:
+      - "With imbalanced classes, majority-class baseline dominates accuracy"
+      - "Use precision/recall/F1, ROC-AUC, or PR-AUC"
+      - "Precision: of predicted positives, how many are true"
+      - "Recall: of true positives, how many were found"
+      - "Choose metric aligned with business cost of errors"
+
+  - id: "dlj-nn-027"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["confusion-matrix", "classification"]
+    question:
+      text:
+        en: "Explain the confusion matrix: TP, FP, FN, TN. How do you read it for a fraud detector?"
+        ru: "Объясните матрицу ошибок: TP, FP, FN, TN. Как её читать для детектора мошенничества?"
+      code: null
+    follow_ups:
+      en:
+        - "Which error type is costlier in fraud detection?"
+      ru:
+        - "Какая ошибка дороже в детекции мошенничества?"
+    expected_points:
+      - "TP: correctly predicted positive; FN: missed positive"
+      - "FP: false alarm; TN: correctly predicted negative"
+      - "Fraud: FN (missed fraud) usually costs more than FP (false alarm)"
+      - "Tune threshold to balance cost of the two errors"
+      - "Derived: precision = TP/(TP+FP), recall = TP/(TP+FN)"
+
+  - id: "dlj-nn-028"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["classification", "regression", "tasks"]
+    question:
+      text:
+        en: "What are the main task types in deep learning and what output design fits each?"
+        ru: "Какие основные типы задач в deep learning и какой вывод подходит для каждого?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you design outputs for multi-label vs multi-class?"
+      ru:
+        - "Как проектировать выводы для multi-label и multi-class?"
+    expected_points:
+      - "Classification: softmax over C classes, cross-entropy"
+      - "Multi-label: sigmoid per label, binary cross-entropy"
+      - "Regression: linear output, MSE/MAE loss"
+      - "Detection/segmentation: per-pixel or per-region outputs"
+      - "Sequence tasks: per-timestep outputs (LM, tagging)"
+
+  - id: "dlj-nn-029"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["gpu", "hardware", "cuda"]
+    question:
+      text:
+        en: "Why are GPUs faster than CPUs for training neural networks?"
+        ru: "Почему GPU быстрее CPU для обучения нейронных сетей?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the role of CUDA in deep learning?"
+      ru:
+        - "Какова роль CUDA в deep learning?"
+    expected_points:
+      - "GPUs have thousands of cores for massively parallel matrix ops"
+      - "Neural net compute is dominated by GEMM (matrix multiply)"
+      - "CPUs: few fast cores, great for control flow and I/O"
+      - "CUDA exposes GPU parallelism to frameworks (cuDNN, cuBLAS)"
+      - "Memory bandwidth and VRAM capacity matter for batch size"
+
+  - id: "dlj-nn-030"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["gpu", "memory", "batch"]
+    question:
+      text:
+        en: "What causes out-of-memory errors on GPU and how do you fix them?"
+        ru: "Что вызывает ошибки out-of-memory на GPU и как их исправить?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the main memory consumers during training?"
+      ru:
+        - "Какие основные потребители памяти при обучении?"
+    expected_points:
+      - "Memory: model weights, gradients, optimizer states, activations"
+      - "Activations scale with batch size and sequence length"
+      - "Fix: smaller batch, gradient accumulation, mixed precision (fp16/bf16)"
+      - "Free unused variables, close previous sessions (CUDA context)"
+      - "Checkpoint/activation recomputation for very large models"
+
+  - id: "dlj-nn-031"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["mixed-precision", "fp16", "training"]
+    question:
+      text:
+        en: "What is mixed-precision training and why is loss scaling needed?"
+        ru: "Что такое обучение в mixed-precision и зачем нужна loss scaling?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do fp16 gradients underflow?"
+      ru:
+        - "Почему градиенты в fp16 теряют точность?"
+    expected_points:
+      - "Compute in fp16/bf16, keep master weights in fp32"
+      - "Faster and less memory on tensor cores"
+      - "fp16 has small dynamic range: gradients underflow to zero"
+      - "Loss scaling multiplies loss before backward, un-scales gradients"
+      - "bf16 needs no scaling (same exponent range as fp32)"
+
+  - id: "dlj-nn-032"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["autograd", "computation-graph"]
+    question:
+      text:
+        en: "How does automatic differentiation work in PyTorch/TensorFlow?"
+        ru: "Как работает автоматическое дифференцирование в PyTorch/TensorFlow?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between forward-mode and reverse-mode AD?"
+      ru:
+        - "В чём разница между forward-mode и reverse-mode AD?"
+    expected_points:
+      - "Framework records operations as a computation graph"
+      - "Reverse mode (backprop) computes gradients of scalar loss w.r.t. all inputs"
+      - "Ideal for many inputs, one output (loss) — the DL case"
+      - "requires_grad flag triggers graph recording in PyTorch"
+      - "Jacobian-vector products per layer during backward"
+
+  - id: "dlj-nn-033"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["tensor", "pytorch", "framework"]
+    question:
+      text:
+        en: "What is a tensor? What are its common attributes and operations in PyTorch?"
+        ru: "Что такое тензор? Какие у него основные атрибуты и операции в PyTorch?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you move a tensor to GPU?"
+      ru:
+        - "Как переместить тензор на GPU?"
+    expected_points:
+      - "Tensor: multi-dimensional array with dtype, device, shape"
+      - "Common ops: matmul, reshape/view, slice, concat, broadcasting"
+      - "GPU: tensor.to('cuda'), model.to(device)"
+      - "dtype: float32, float16, int64; gradients tracked with requires_grad"
+      - "Broadcasting aligns shapes for element-wise ops"
+
+  - id: "dlj-nn-034"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["dataset", "dataloader", "pytorch"]
+    question:
+      text:
+        en: "What are PyTorch Dataset and DataLoader? Why use DataLoader instead of manual batching?"
+        ru: "Что такое Dataset и DataLoader в PyTorch? Зачем нужен DataLoader вместо ручного батчинга?"
+      code: null
+    follow_ups:
+      en:
+        - "What does num_workers do and when does it help?"
+      ru:
+        - "Что делает num_workers и когда помогает?"
+    expected_points:
+      - "Dataset: maps index to sample (getitem) and length"
+      - "DataLoader: batching, shuffling, multi-process prefetch"
+      - "num_workers>0 loads data in parallel processes, hides I/O"
+      - "pin_memory() speeds CPU->GPU transfer"
+      - "IterableDataset for streaming/infinite data"
+
+  - id: "dlj-nn-035"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["save", "state-dict", "serialization"]
+    question:
+      text:
+        en: "How do you save and load a trained model in PyTorch? What is the difference between model save and state_dict save?"
+        ru: "Как сохранять и загружать обученную модель в PyTorch? В чём разница model save и state_dict save?"
+      code: null
+    follow_ups:
+      en:
+        - "What should a production checkpoint include?"
+      ru:
+        - "Что должен содержать production checkpoint?"
+    expected_points:
+      - "state_dict: parameter tensors only; load into same architecture"
+      - "torch.save(model): pickles whole object (fragile across versions)"
+      - "Prefer state_dict: portable, no code dependency"
+      - "Production: save weights + optimizer + epoch + config + metrics"
+      - "load_state_dict(strict=False) for partial/transfer loading"

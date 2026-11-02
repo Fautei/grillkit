@@ -1,0 +1,651 @@
+category: "Object Detection and Segmentation"
+track: "deep learning"
+level: "middle"
+
+description: "Modern object detection and segmentation: two-stage, one-stage, and transformer detectors"
+
+questions:
+  - id: "dlm-det-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["object-detection", "cnn", "history"]
+    question:
+      text:
+        en: "Why did object detection move from sliding-window classifiers to CNN-based detectors?"
+        ru: "Почему детекция объектов перешла от скользящего окна классификаторов к детекторам на основе CNN?"
+      code: null
+    follow_ups:
+      en:
+        - "What were the main limitations of HOG/DPM-style sliding windows?"
+        - "How did R-CNN reuse CNN features instead of recomputing them per window?"
+      ru:
+        - "Какие основные ограничения у скользящего окна в стиле HOG/DPM?"
+        - "Как R-CNN переиспользовала признаки CNN вместо пересчета для каждого окна?"
+    expected_points:
+      - "Sliding windows evaluate every location/scale, which is slow and redundant"
+      - "Hand-crafted features (HOG) are less expressive than learned CNN features"
+      - "CNNs share computation across overlapping regions via feature maps"
+      - "Region-based methods reduce the number of candidate locations dramatically"
+      - "End-to-end training improves accuracy and simplifies pipelines"
+
+  - id: "dlm-det-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["r-cnn", "object-detection", "pipeline"]
+    question:
+      text:
+        en: "Explain the R-CNN pipeline and its main bottleneck."
+        ru: "Объясните пайплайн R-CNN и его главное узкое место."
+      code: null
+    follow_ups:
+      en:
+        - "How many region proposals does selective search produce per image?"
+        - "Why is per-region CNN forward pass expensive?"
+      ru:
+        - "Сколько предложений регионов дает selective search на одно изображение?"
+        - "Почему прогон CNN для каждого региона дорогой?"
+    expected_points:
+      - "Selective search generates ~2000 region proposals per image"
+      - "Each proposal is warped to fixed size and passed through a CNN"
+      - "SVMs classify features and bounding box regressors refine boxes"
+      - "Main bottleneck: CNN forward pass repeated for every proposal"
+      - "Training is multi-stage and slow; no end-to-end optimization"
+
+  - id: "dlm-det-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["fast-r-cnn", "roi-pooling", "object-detection"]
+    question:
+      text:
+        en: "How does Fast R-CNN improve R-CNN (shared convolutions, RoI pooling)?"
+        ru: "Как Fast R-CNN улучшает R-CNN (общие свертки, RoI pooling)?"
+      code: null
+    follow_ups:
+      en:
+        - "What does RoI pooling produce and why is it size-fixed?"
+        - "How are classification and regression heads trained jointly?"
+      ru:
+        - "Что производит RoI pooling и почему размер фиксирован?"
+        - "Как совместно обучаются головы классификации и регрессии?"
+    expected_points:
+      - "CNN runs once over the whole image to produce a shared feature map"
+      - "RoI pooling extracts fixed-size features for each proposal from the shared map"
+      - "Eliminates per-region CNN forward passes, greatly speeding inference"
+      - "Single multi-task loss jointly trains classifier and box regressor"
+      - "End-to-end training except region proposal generation still external"
+
+  - id: "dlm-det-004"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["rpn", "region-proposal", "faster-r-cnn"]
+    question:
+      text:
+        en: "What is a region proposal network (RPN) and how does it generate proposals?"
+        ru: "Что такое region proposal network (RPN) и как она генерирует предложения?"
+      code: null
+    follow_ups:
+      en:
+        - "What are objectness scores versus class scores in an RPN?"
+        - "How is the RPN trained with anchors and ground truth?"
+      ru:
+        - "Чем оценки objectness отличаются от классовых в RPN?"
+        - "Как обучается RPN с якорями и ground truth?"
+    expected_points:
+      - "RPN is a fully convolutional network sliding over shared feature maps"
+      - "It predicts objectness scores and box deltas for each spatial location"
+      - "Uses anchor boxes at multiple scales and aspect ratios"
+      - "Proposals are filtered by NMS and fed to the detection head"
+      - "RPN and detector share convolutions, enabling end-to-end training"
+
+  - id: "dlm-det-005"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["anchor-boxes", "object-detection", "rpn"]
+    question:
+      text:
+        en: "What are anchor boxes and how are scales and aspect ratios chosen?"
+        ru: "Что такое anchor boxes и как выбираются масштабы и соотношения сторон?"
+      code: null
+    follow_ups:
+      en:
+        - "How does anchor matching work during training (IoU thresholds)?"
+        - "Why can poor anchor design hurt detection of certain object shapes?"
+      ru:
+        - "Как работает сопоставление якорей при обучении (пороги IoU)?"
+        - "Почему плохой дизайн якорей вредит детекции определенных форм объектов?"
+    expected_points:
+      - "Anchor boxes are predefined reference boxes at each feature-map location"
+      - "Scales and aspect ratios are chosen to cover typical object sizes/shapes"
+      - "Often 3 scales x 3 ratios = 9 anchors per location"
+      - "Network regresses offsets from anchors to ground truth boxes"
+      - "Design is dataset-dependent; clustering (e.g. YOLO k-means) can improve fit"
+
+  - id: "dlm-det-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["faster-r-cnn", "architecture", "object-detection"]
+    question:
+      text:
+        en: "Explain the full Faster R-CNN architecture end to end."
+        ru: "Объясните полную архитектуру Faster R-CNN от начала до конца."
+      code: null
+    follow_ups:
+      en:
+        - "What is the total loss combining RPN and detection head?"
+        - "How does NMS fit into the inference pipeline?"
+      ru:
+        - "Какова общая функция потерь, объединяющая RPN и голову детекции?"
+        - "Как NMS вписывается в пайплайн инференса?"
+    expected_points:
+      - "Backbone CNN extracts shared feature maps from the image"
+      - "RPN proposes candidate regions with objectness and box deltas"
+      - "Proposals are mapped to features via RoI pooling/align"
+      - "Detection head classifies each RoI and refines boxes"
+      - "Multi-task losses train RPN and head jointly end to end"
+
+  - id: "dlm-det-007"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["roi-align", "mask-rcnn", "quantization"]
+    question:
+      text:
+        en: "What is RoI Align and why does it matter for mask prediction?"
+        ru: "Что такое RoI Align и почему он важен для предсказания масок?"
+      code: null
+    follow_ups:
+      en:
+        - "How does RoI Align differ from RoI pooling in handling quantization?"
+        - "Why is precise alignment critical for pixel-level mask outputs?"
+      ru:
+        - "Чем RoI Align отличается от RoI pooling в обработке квантования?"
+        - "Почему точное выравнивание критично для масок на уровне пикселей?"
+    expected_points:
+      - "RoI pooling quantizes region boundaries to feature-map grid cells"
+      - "Quantization misaligns features, hurting pixel-precise tasks"
+      - "RoI Align uses bilinear interpolation without quantization"
+      - "Preserves spatial accuracy needed for instance segmentation masks"
+      - "Improves both detection and mask quality, especially small objects"
+
+  - id: "dlm-det-008"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["mask-rcnn", "instance-segmentation", "faster-r-cnn"]
+    question:
+      text:
+        en: "How does Mask R-CNN extend Faster R-CNN for instance segmentation?"
+        ru: "Как Mask R-CNN расширяет Faster R-CNN для instance segmentation?"
+      code: null
+    follow_ups:
+      en:
+        - "How is the mask head trained relative to class and box heads?"
+        - "Why is mask prediction decoupled per class?"
+      ru:
+        - "Как обучается голова масок относительно голов класса и бокса?"
+        - "Почему предсказание масок делается отдельно для каждого класса?"
+    expected_points:
+      - "Adds a parallel mask branch predicting a binary mask per RoI"
+      - "Uses RoI Align instead of RoI pooling for spatial precision"
+      - "Mask head is a small FCN applied per RoI"
+      - "Mask loss is per-pixel binary cross-entropy, independent of class"
+      - "Shares backbone and RPN with Faster R-CNN; multi-task training"
+
+  - id: "dlm-det-009"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["yolo", "one-stage", "object-detection"]
+    question:
+      text:
+        en: "How do one-stage detectors like YOLO work: grid cells, boxes, and confidence in a single pass?"
+        ru: "Как работают one-stage детекторы вроде YOLO: ячейки сетки, боксы и уверенность за один проход?"
+      code: null
+    follow_ups:
+      en:
+        - "What does the confidence score represent (objectness x IoU)?"
+        - "Why does YOLO struggle with small or crowded objects?"
+      ru:
+        - "Что означает оценка уверенности (objectness x IoU)?"
+        - "Почему YOLO плохо справляется с мелкими или плотно расположенными объектами?"
+    expected_points:
+      - "Image divided into SxS grid; each cell predicts B boxes and class probs"
+      - "Each box has coordinates, dimensions, and an objectness confidence"
+      - "Single CNN forward pass predicts all boxes and classes at once"
+      - "No region proposals; extremely fast inference"
+      - "Struggles with small objects and groups due to coarse grid and limited boxes"
+
+  - id: "dlm-det-010"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["yolo", "loss", "object-detection"]
+    question:
+      text:
+        en: "What is the YOLO loss design (box, objectness, class) and what are its problems?"
+        ru: "Как устроена функция потерь YOLO (бокс, objectness, класс) и в чем ее проблемы?"
+      code: null
+    follow_ups:
+      en:
+        - "How does YOLO balance coordinate loss against classification loss?"
+        - "Why is the original YOLO loss sensitive to box size?"
+      ru:
+        - "Как YOLO балансирует потери координат и классификации?"
+        - "Почему исходная функция потерь YOLO чувствительна к размеру бокса?"
+    expected_points:
+      - "Sum of squared errors over box coordinates, dimensions, confidence, and class"
+      - "Higher weight on coordinate errors, lower on empty-cell confidence"
+      - "Square-root of width/height to reduce large-box dominance"
+      - "Treats localization and classification errors equally scaled"
+      - "Imbalance between object and background cells; poor handling of small boxes"
+
+  - id: "dlm-det-011"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["ssd", "multi-scale", "object-detection"]
+    question:
+      text:
+        en: "How does SSD differ from YOLO (multi-scale feature maps, default boxes)?"
+        ru: "Чем SSD отличается от YOLO (многомасштабные карты признаков, default boxes)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does SSD detect small objects better than original YOLO?"
+        - "How are default boxes assigned to feature-map layers?"
+      ru:
+        - "Почему SSD лучше детектирует мелкие объекты, чем оригинальный YOLO?"
+        - "Как default boxes назначаются слоям карт признаков?"
+    expected_points:
+      - "SSD predicts boxes at multiple feature-map scales"
+      - "Uses default (prior) boxes with fixed scales/ratios per layer"
+      - "Each layer handles objects of a corresponding size"
+      - "No fully connected layers; fully convolutional"
+      - "Better small-object detection than single-scale YOLO"
+
+  - id: "dlm-det-012"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["focal-loss", "class-imbalance", "one-stage"]
+    question:
+      text:
+        en: "What is focal loss and why is it important for one-stage detectors?"
+        ru: "Что такое focal loss и почему он важен для one-stage детекторов?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the focusing parameter gamma modulate the loss?"
+        - "What problem does focal loss solve compared to cross-entropy?"
+      ru:
+        - "Как параметр фокусировки gamma модулирует потери?"
+        - "Какую проблему решает focal loss по сравнению с cross-entropy?"
+    expected_points:
+      - "One-stage detectors face extreme foreground/background imbalance"
+      - "Focal loss down-weights easy examples via (1-p)^gamma factor"
+      - "Focuses training on hard, misclassified examples"
+      - "RetinaNet with focal loss matches two-stage accuracy"
+      - "Alpha weighting balances positive/negative classes"
+
+  - id: "dlm-det-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["detr", "transformer", "object-detection"]
+    question:
+      text:
+        en: "Explain DETR: set prediction, no anchors or NMS, and the role of attention."
+        ru: "Объясните DETR: предсказание множества, без якорей и NMS, и роль attention."
+      code: null
+    follow_ups:
+      en:
+        - "How does bipartite matching via Hungarian algorithm assign predictions?"
+        - "Why does DETR need many epochs to converge?"
+      ru:
+        - "Как бипартитное сопоставление через венгерский алгоритм назначает предсказания?"
+        - "Почему DETR нуждается в большом числе эпох для сходимости?"
+    expected_points:
+      - "DETR treats detection as set prediction with a fixed number of queries"
+      - "Transformer encoder-decoder with cross-attention over image features"
+      - "Bipartite matching assigns predictions to ground truth without NMS"
+      - "No anchors, no hand-designed components; end-to-end"
+      - "Slow convergence due to attention learning to localize; improved by Deformable DETR"
+
+  - id: "dlm-det-014"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["object-detection", "comparison", "tradeoffs"]
+    question:
+      text:
+        en: "Compare two-stage and one-stage detectors in practice (accuracy, speed, complexity)."
+        ru: "Сравните two-stage и one-stage детекторы на практике (точность, скорость, сложность)."
+      code: null
+    follow_ups:
+      en:
+        - "When would you still choose a two-stage detector today?"
+        - "How do modern one-stage detectors close the accuracy gap?"
+      ru:
+        - "Когда сегодня стоит выбрать two-stage детектор?"
+        - "Как современные one-stage детекторы сокращают разрыв в точности?"
+    expected_points:
+      - "Two-stage: higher accuracy, especially small objects; slower inference"
+      - "One-stage: faster, simpler, suitable for real-time applications"
+      - "Two-stage more complex (RPN + head, NMS twice)"
+      - "Focal loss and FPN help one-stage match two-stage accuracy"
+      - "Choice depends on latency budget and accuracy requirements"
+
+  - id: "dlm-det-015"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["fpn", "multi-scale", "feature-pyramid"]
+    question:
+      text:
+        en: "What is a feature pyramid network (FPN) and why do detectors need multi-scale features?"
+        ru: "Что такое feature pyramid network (FPN) и зачем детекторам нужны многомасштабные признаки?"
+      code: null
+    follow_ups:
+      en:
+        - "How does FPN build top-down pathways with lateral connections?"
+        - "Why is FPN better than using only the deepest feature map?"
+      ru:
+        - "Как FPN строит восходящие сверху вниз пути с латеральными связями?"
+        - "Почему FPN лучше, чем использование только самого глубокого слоя признаков?"
+    expected_points:
+      - "FPN builds a pyramid of semantically strong features at all scales"
+      - "Top-down pathway upscales and merges with lateral 1x1 conv features"
+      - "Enables detection of small and large objects without image pyramids"
+      - "Improves small object detection via high-resolution pyramid levels"
+      - "Widely used in Faster R-CNN, RetinaNet, and many detectors"
+
+  - id: "dlm-det-016"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["map", "ap", "iou", "coco"]
+    question:
+      text:
+        en: "How is mAP computed (AP per class, IoU thresholds, COCO 50-95)?"
+        ru: "Как вычисляется mAP (AP по классам, пороги IoU, COCO 50-95)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between PASCAL VOC mAP and COCO mAP?"
+        - "Why use multiple IoU thresholds for COCO evaluation?"
+      ru:
+        - "В чем разница между mAP в PASCAL VOC и COCO?"
+        - "Почему в COCO используется несколько порогов IoU?"
+    expected_points:
+      - "AP is area under precision-recall curve per class for given IoU threshold"
+      - "mAP is mean of AP across all classes"
+      - "PASCAL VOC uses IoU 0.5; COCO uses AP averaged over IoU 0.5:0.95 in steps of 0.05"
+      - "COCO reports AP50, AP75, AP small/medium/large"
+      - "Detections matched to ground truth by highest IoU above threshold"
+
+  - id: "dlm-det-017"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["nms", "class-agnostic", "detection"]
+    question:
+      text:
+        en: "What is class-agnostic NMS and when do you need it?"
+        ru: "Что такое class-agnostic NMS и когда его нужно использовать?"
+      code: null
+    follow_ups:
+      en:
+        - "How does class-agnostic NMS differ from class-aware NMS?"
+        - "When can it help or hurt?"
+      ru:
+        - "Чем class-agnostic NMS отличается от class-aware NMS?"
+        - "Когда он может помочь или навредить?"
+    expected_points:
+      - "Class-agnostic NMS suppresses overlapping boxes regardless of predicted class"
+      - "Class-aware NMS suppresses only within the same class"
+      - "Useful when many classes or when overlapping objects of different classes are rare"
+      - "Can reduce false duplicates in crowded scenes with similar categories"
+      - "Must be used cautiously if same spatial region can have different valid classes"
+
+  - id: "dlm-det-018"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["deeplab", "aspp", "semantic-segmentation", "atrous"]
+    question:
+      text:
+        en: "How do DeepLab/DeepLabv3+ models work for semantic segmentation (ASPP, decoder)?"
+        ru: "Как работают модели DeepLab/DeepLabv3+ для семантической сегментации (ASPP, декодер)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is atrous (dilated) convolution and why use it?"
+        - "How does the decoder in DeepLabv3+ refine boundaries?"
+      ru:
+        - "Что такое атрированная (dilated) свертка и зачем ее использовать?"
+        - "Как декодер в DeepLabv3+ улучшает границы объектов?"
+    expected_points:
+      - "Uses atrous convolutions to enlarge receptive field without downsampling"
+      - "ASPP applies parallel atrous convolutions at different rates to capture multi-scale context"
+      - "DeepLabv3+ adds a simple decoder to recover spatial details"
+      - "Combines encoder features with low-level features for sharper boundaries"
+      - "Often uses Xception/ResNet backbone with output stride 16 or 8"
+
+  - id: "dlm-det-019"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["semantic", "instance", "panoptic", "segmentation"]
+    question:
+      text:
+        en: "What is the difference between semantic, instance, and panoptic segmentation?"
+        ru: "В чем разница между семантической, инстанс-сегментацией и паноптической сегментацией?"
+      code: null
+    follow_ups:
+      en:
+        - "Which tasks require distinguishing individual objects?"
+        - "What does panoptic segmentation unify?"
+      ru:
+        - "В каких задачах нужно различать отдельные объекты?"
+        - "Что объединяет паноптическая сегментация?"
+    expected_points:
+      - "Semantic: per-pixel class label, no distinction between instances of same class"
+      - "Instance: detect and segment each object instance separately"
+      - "Panoptic: unifies semantic and instance - every pixel gets (class, instance_id)"
+      - "Stuff classes (amorphous) vs thing classes (countable objects)"
+      - "Panoptic covers all pixels with consistent instance labels for things"
+
+  - id: "dlm-det-020"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["mask-rcnn", "roialign", "mask-head", "instance-segmentation"]
+    question:
+      text:
+        en: "How does Mask R-CNN assign masks to instances (RoIAlign plus mask head)?"
+        ru: "Как Mask R-CNN назначает маски экземплярам (RoIAlign и mask head)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is RoIAlign better than RoIPool for masks?"
+        - "How is the mask prediction structured?"
+      ru:
+        - "Почему RoIAlign лучше, чем RoIPool для масок?"
+        - "Как устроено предсказание маски?"
+    expected_points:
+      - "Extends Faster R-CNN by adding a parallel mask branch"
+      - "RoIAlign preserves spatial alignment via bilinear interpolation (no quantization)"
+      - "For each RoI produces a small binary mask per class (e.g. 28x28)"
+      - "Mask head is FCN on aligned features, applied independently per class"
+      - "During inference selects mask for predicted class and resizes to RoI size"
+
+  - id: "dlm-det-021"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["imbalance", "sampling", "ohem", "focal-loss"]
+    question:
+      text:
+        en: "What is the foreground-background imbalance problem in detection and how do you fix it (sampling, OHEM)?"
+        ru: "В чем проблема дисбаланса foreground/background в детекции и как ее решить (sampling, OHEM)?"
+      code: null
+    follow_ups:
+      en:
+        - "How does hard negative mining/OHEM work?"
+        - "How does focal loss relate to this problem?"
+      ru:
+        - "Как работает hard negative mining/OHEM?"
+        - "Как focal loss связан с этой проблемой?"
+    expected_points:
+      - "Most anchors/regions are background, overwhelming positives"
+      - "Random sampling limits negatives (e.g. 3:1 or 1:3 ratio)"
+      - "OHEM selects hard examples with highest loss for training"
+      - "Focal loss down-weights easy negatives automatically"
+      - "Balanced sampling prevents easy negatives from dominating gradients"
+
+  - id: "dlm-det-022"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["small-objects", "tiled-inference", "resolution"]
+    question:
+      text:
+        en: "How do detectors handle very small objects (tiled inference, higher resolution)?"
+        ru: "Как детекторы обрабатывают очень маленькие объекты (тайловый вывод, более высокое разрешение)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are tradeoffs of tiled inference?"
+        - "Why can higher resolution help small objects?"
+      ru:
+        - "Каковы компромиссы тайлового вывода?"
+        - "Почему более высокое разрешение помогает с мелкими объектами?"
+    expected_points:
+      - "Use higher input resolution to preserve small object details"
+      - "Tiled inference splits large images into patches with overlap and merges"
+      - "FPN helps but resolution still matters for tiny objects"
+      - "Test-time augmentation and multi-scale inference can help"
+      - "Tradeoffs: memory, latency, and need to handle patch boundaries"
+
+  - id: "dlm-det-023"
+    type: "scenario"
+    difficulty: 4
+    tags: ["small-objects", "troubleshooting", "detection"]
+    question:
+      text:
+        en: "Your detector consistently misses small objects. List the possible fixes."
+        ru: "Детектор систематически пропускает маленькие объекты. Перечислите возможные способы исправления."
+      code: null
+    follow_ups:
+      en:
+        - "Which fixes are cheap at training time vs inference time?"
+        - "How do you verify improvement?"
+      ru:
+        - "Какие способы дешевы при обучении, а какие при инференсе?"
+        - "Как проверить улучшение?"
+    expected_points:
+      - "Increase input resolution or use higher resolution training"
+      - "Add/improve FPN or use PANet/BiFPN for better multi-scale fusion"
+      - "Use tiled inference or slide window on large images"
+      - "Oversample small objects, use copy-paste augmentation"
+      - "Consider anchor scales/box sizes or use detectors designed for small objects"
+
+  - id: "dlm-det-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["deformable-convolution", "dcv", "detection", "segmentation"]
+    question:
+      text:
+        en: "What are deformable convolutions and where are they used in detection and segmentation?"
+        ru: "Что такое деформируемые свертки и где они применяются в детекции и сегментации?"
+      code: null
+    follow_ups:
+      en:
+        - "How do deformable convolutions learn offsets?"
+        - "Why are they useful for objects with geometric variations?"
+      ru:
+        - "Как деформируемые свертки обучают смещения (offsets)?"
+        - "Почему они полезны для объектов с геометрическими вариациями?"
+    expected_points:
+      - "Deformable conv adds learnable 2D offsets to sampling locations"
+      - "Adapts receptive field to object shape/orientation/deformation"
+      - "Used in Deformable ConvNets, Deformable DETR for better localization"
+      - "Helps with irregular shapes and dense/occluded objects"
+      - "Increases modeling power without fixed grid constraints"
+
+  - id: "dlm-det-025"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["instance-ap", "panoptic-quality", "pq", "evaluation"]
+    question:
+      text:
+        en: "How is instance segmentation evaluated (instance-level AP, panoptic quality)?"
+        ru: "Как оценивается инстанс-сегментация (instance-level AP, panoptic quality)?"
+      code: null
+    follow_ups:
+      en:
+        - "What does panoptic quality (PQ) measure?"
+        - "How does PQ decompose into SQ and RQ?"
+      ru:
+        - "Что измеряет panoptic quality (PQ)?"
+        - "Как PQ декомпозируется на SQ и RQ?"
+    expected_points:
+      - "Instance segmentation uses mask AP similar to box AP but on masks"
+      - "Matches by mask IoU threshold; reports AP50, AP75, AP across thresholds"
+      - "Panoptic Quality (PQ) = SQ * RQ for each class, averaged"
+      - "SQ is segmentation quality (mean IoU of matched segments)"
+      - "RQ is recognition quality (F1-like: TP/(TP+0.5FP+0.5FN))"
+
+  - id: "dlm-det-026"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["custom-detector", "training-pipeline", "data-prep"]
+    question:
+      text:
+        en: "How do you build and train a custom detector end to end (data, classes, validation)?"
+        ru: "Как построить и обучить кастомный детектор от начала до конца (данные, классы, валидация)?"
+      code: null
+    follow_ups:
+      en:
+        - "What data format considerations matter?"
+        - "How to avoid overfitting on small custom datasets?"
+      ru:
+        - "Какие особенности форматов данных важны?"
+        - "Как избежать переобучения на небольшом датасете?"
+    expected_points:
+      - "Collect/annotate data in COCO/VOC format with bounding boxes/masks"
+      - "Split into train/val/test and ensure class balance; define classes"
+      - "Choose backbone/detector matching data size and latency needs"
+      - "Use transfer learning from pretrained weights; tune hyperparams"
+      - "Validate with mAP, check errors per class, iterate on data/augmentation"
+
+  - id: "dlm-det-027"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["query-based", "detr", "foundation-models", "open-vocabulary"]
+    question:
+      text:
+        en: "What are the modern trends (query-based detectors, foundation models, open-vocabulary detection)?"
+        ru: "Каковы современные тренды (query-based детекторы, foundation models, open-vocabulary detection)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do query-based detectors differ from anchor-based?"
+        - "What enables open-vocabulary detection?"
+      ru:
+        - "Чем query-based детекторы отличаются от anchor-based?"
+        - "Что позволяет open-vocabulary детекцию?"
+    expected_points:
+      - "Query-based: DETR/Deformable DETR/DINO use learnable queries instead of anchors/NMS"
+      - "Foundation models (SAM, DINOv2) provide strong pretrained features"
+      - "Open-vocabulary: use vision-language models (CLIP) to detect unseen classes via text"
+      - "Trends toward end-to-end, unified architectures and zero-shot capability"
+      - "Focus on efficiency, scaling, and better generalization"
+
+  - id: "dlm-det-028"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["edge-deployment", "quantization", "onnx", "latency"]
+    question:
+      text:
+        en: "How do you deploy a detector on edge hardware (latency, quantization, ONNX)?"
+        ru: "Как развернуть детектор на edge-устройстве (задержка, квантование, ONNX)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are INT8 quantization tradeoffs?"
+        - "Why convert to ONNX/TensorRT?"
+      ru:
+        - "Каковы компромиссы INT8-квантования?"
+        - "Зачем конвертировать в ONNX/TensorRT?"
+    expected_points:
+      - "Optimize for latency/size: use smaller backbones, lower resolution"
+      - "Export to ONNX for framework interoperability"
+      - "Apply quantization (PTQ/QAT) to INT8 for speed/memory gains"
+      - "Use accelerators (TensorRT, TFLite, OpenVINO) with hardware-aware tuning"
+      - "Consider pre/post-processing, batching, and power/thermal constraints"
+

@@ -1,0 +1,595 @@
+category: "Training Loop Practice"
+track: "deep learning"
+level: "junior"
+
+description: "Writing and debugging a training loop, evaluation, logging, and reproducibility"
+
+questions:
+  - id: "dlj-tr-001"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training-loop", "epoch", "iteration"]
+    question:
+      text:
+        en: "Describe a standard training loop: what happens in each epoch and each iteration?"
+        ru: "Опишите стандартный цикл обучения: что происходит в каждой эпохе и итерации?"
+      code: null
+    follow_ups:
+      en:
+        - "Why do we reset the optimizer state or shuffle each epoch?"
+      ru:
+        - "Почему каждый epoch сбрасываем state оптимизатора или перемешиваем данные?"
+    expected_points:
+      - "Epoch: full pass over dataset; iteration: one batch"
+      - "Per batch: forward, loss, backward, optimizer.step, zero_grad"
+      - "Shuffle batches each epoch for unbiased gradient estimates"
+      - "Track running loss; evaluate on validation set per epoch"
+      - "Stop on early stopping or fixed number of epochs"
+
+  - id: "dlj-tr-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training-loop", "zero-grad"]
+    question:
+      text:
+        en: "Why must you call optimizer.zero_grad() before each backward pass?"
+        ru: "Почему нужно вызывать optimizer.zero_grad() перед каждым backward?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens to training if you forget zero_grad?"
+      ru:
+        - "Что случится с обучением, если забыть zero_grad?"
+    expected_points:
+      - "PyTorch accumulates gradients by default (for multi-batch tricks)"
+      - "Without zeroing, old gradients add to new ones"
+      - "Updates become huge and unstable, loss explodes"
+      - "Standard practice: zero_grad after optimizer.step"
+      - "Some frameworks (TF eager) do not accumulate"
+
+  - id: "dlj-tr-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training-loop", "model-mode"]
+    question:
+      text:
+        en: "What is the difference between model.train() and model.eval() in PyTorch?"
+        ru: "В чём разница между model.train() и model.eval() в PyTorch?"
+      code: null
+    follow_ups:
+      en:
+        - "Which layers behave differently in train vs eval mode?"
+      ru:
+        - "Какие слои ведут себя по-разному в train и eval режимах?"
+    expected_points:
+      - "train(): dropout active, BatchNorm uses batch stats"
+      - "eval(): dropout off, BatchNorm uses running stats"
+      - "Forgetting eval() makes metrics noisy/unreliable"
+      - "Dropout in eval would add unwanted randomness"
+      - "Mode is a per-module flag in PyTorch"
+
+  - id: "dlj-tr-004"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training-loop", "no-grad"]
+    question:
+      text:
+        en: "What does torch.no_grad() do and when should you use it?"
+        ru: "Что делает torch.no_grad() и когда его применять?"
+      code: null
+    follow_ups:
+      en:
+        - "Why run validation inside no_grad?"
+      ru:
+        - "Зачем прогонять валидацию внутри no_grad?"
+    expected_points:
+      - "Disables gradient recording — saves memory and speeds inference"
+      - "Use for validation, inference, and evaluation passes"
+      - "No computation graph stored -> lower memory"
+      - "Gradients are None inside the context"
+      - "Equivalent to @torch.inference_mode() for pure inference"
+
+  - id: "dlj-tr-005"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["validation", "evaluation", "protocol"]
+    question:
+      text:
+        en: "What is the correct protocol for evaluating a model during and after training?"
+        ru: "Какой правильный протокол оценки модели во время и после обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is it wrong to pick hyperparameters on the test set?"
+      ru:
+        - "Почему неверно подбирать гиперпараметры на тестовой выборке?"
+    expected_points:
+      - "Train on train set, monitor on validation set"
+      - "Test set: touched once at the end for final estimate"
+      - "Selecting hyperparameters on test = leakage, overfitting to test"
+      - "Keep train/val/test disjoint and representative"
+      - "Stratified splits preserve class ratios"
+
+  - id: "dlj-tr-006"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["early-stopping", "checkpoint"]
+    question:
+      text:
+        en: "How does early stopping work and how should the best checkpoint be saved?"
+        ru: "Как работает early stopping и как сохранять лучший чекпоинт?"
+      code: null
+    follow_ups:
+      en:
+        - "What is a patience parameter?"
+      ru:
+        - "Что такое patience?"
+    expected_points:
+      - "Stop when validation metric does not improve for N epochs"
+      - "Save the best validation checkpoint, not the last"
+      - "Patience: how many non-improving epochs to allow"
+      - "Restore best weights before final evaluation"
+      - "Can combine with LR reduction on plateau"
+
+  - id: "dlj-tr-007"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["logging", "tensorboard", "monitoring"]
+    question:
+      text:
+        en: "What should you log during training and how do you visualize it?"
+        ru: "Что логировать при обучении и как это визуализировать?"
+      code: null
+    follow_ups:
+      en:
+        - "What can a plateau in training loss indicate?"
+      ru:
+        - "О чём может говорить плато на кривой train loss?"
+    expected_points:
+      - "Loss (train/val), metrics (accuracy/F1), learning rate"
+      - "TensorBoard/Weights & Biases/MLOps dashboards"
+      - "Plateau: LR too low, model saturated, or data issue"
+      - "Spike: bad batch, LR too high, numerical issue"
+      - "Grad norm, throughput (samples/s), GPU utilization"
+
+  - id: "dlj-tr-008"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["reproducibility", "seeds"]
+    question:
+      text:
+        en: "How do you make a deep learning experiment reproducible?"
+        ru: "Как сделать эксперимент с глубоким обучением воспроизводимым?"
+      code: null
+    follow_ups:
+      en:
+        - "What sources of non-determinism remain even with fixed seeds?"
+      ru:
+        - "Какие источники недетерминизма остаются даже при зафиксированных seed?"
+    expected_points:
+      - "Fix random seeds (python, numpy, torch, CUDA)"
+      - "Record library versions, hardware, and config (git + config file)"
+      - "Set deterministic algorithms where available (cudnn.deterministic)"
+      - "Non-determinism remains: GPU atomics, multi-GPU reduction order"
+      - "Log dataset version/hash alongside code version"
+
+  - id: "dlj-tr-009"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["debugging", "nan"]
+    question:
+      text:
+        en: "Your training loss becomes NaN. What are the most common causes and how do you debug it?"
+        ru: "Потеря обучения стала NaN. Каковы типовые причины и как это отлаживать?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you find which layer produced the NaN?"
+      ru:
+        - "Как найти слой, где появился NaN?"
+    expected_points:
+      - "Learning rate too high -> gradient explosion"
+      - "Numerical overflow in log/exp (e.g., log of zero probability)"
+      - "Bad data: inf/nan in input, unnormalized values"
+      - "Debug: clip gradients, reduce LR, check inputs, add hooks per layer"
+      - "Use loss scaling with fp16; check optimizer state"
+
+  - id: "dlj-tr-010"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["debugging", "loss-not-decreasing"]
+    question:
+      text:
+        en: "The loss does not decrease at all. List the checklist of things to verify."
+        ru: "Потеря не снижается вообще. Приведите чек-лист проверки."
+      code: null
+    follow_ups:
+      en:
+        - "How would you verify the forward pass with a toy dataset?"
+      ru:
+        - "Как проверить прямой проход на toy-датасете?"
+    expected_points:
+      - "Verify labels and loss function match (e.g., logits vs probs)"
+      - "Check learning rate (often the culprit: too small)"
+      - "Verify gradients flow (non-zero grad on parameters)"
+      - "Test on a tiny overfit-able subset first"
+      - "Check data pipeline: correct shapes, normalization, shuffling"
+      - "Verify model/optimizer are on the same device"
+
+  - id: "dlj-tr-011"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["debugging", "overfit-small"]
+    question:
+      text:
+        en: "What is the 'overfit a single batch' debugging trick?"
+        ru: "В чём смысл приёма 'запомнить один батч' при отладке?"
+      code: null
+    follow_ups:
+      en:
+        - "What does it prove and what does it not?"
+      ru:
+        - "Что это доказывает, а что нет?"
+    expected_points:
+      - "Train on a tiny fixed subset until loss -> 0"
+      - "Proves gradients, optimizer, and loss wiring work"
+      - "If even this fails, the bug is in the pipeline, not capacity"
+      - "Does not prove generalization or good hyperparameters"
+      - "Standard first step before full-scale training"
+
+  - id: "dlj-tr-012"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["data-pipeline", "shuffling"]
+    question:
+      text:
+        en: "Why must the training data be shuffled, and what goes wrong if it is sorted?"
+        ru: "Почему тренировочные данные нужно перемешивать и что сломается при сортированных данных?"
+      code: null
+    follow_ups:
+      en:
+        - "How does shuffling affect BatchNorm statistics?"
+      ru:
+        - "Как shuffle влияет на статистику BatchNorm?"
+    expected_points:
+      - "SGD assumes i.i.d. batches; sorted data gives biased batches"
+      - "Loss spikes as batch distribution shifts mid-epoch"
+      - "BatchNorm stats become unstable with structured batches"
+      - "Shuffle each epoch with a fixed seed for reproducibility"
+      - "Validation order typically doesn't matter (no BN in eval)"
+
+  - id: "dlj-tr-013"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["class-imbalance", "weights"]
+    question:
+      text:
+        en: "How do you handle a highly imbalanced classification dataset?"
+        ru: "Как работать с сильно несбалансированным датасетом классификации?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between class weights and oversampling?"
+      ru:
+        - "Чем class weights отличаются от oversampling?"
+    expected_points:
+      - "Class weights: penalize majority-class errors more"
+      - "Oversample minority / undersample majority"
+      - "Focal loss down-weights easy examples"
+      - "Evaluate with PR-AUC, not accuracy"
+      - "Be careful: extreme resampling can hurt calibration"
+
+  - id: "dlj-tr-014"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["augmentation", "vision"]
+    question:
+      text:
+        en: "What are common image data augmentation techniques and why do they help?"
+        ru: "Какие типовые аугментации изображений существуют и почему они помогают?"
+      code: null
+    follow_ups:
+      en:
+        - "When can augmentation hurt performance?"
+      ru:
+        - "Когда аугментация может навредить?"
+    expected_points:
+      - "Geometric: flips, rotations, crops, translations"
+      - "Photometric: brightness, contrast, color jitter, noise"
+      - "Mixup/cutout/cutmix: blend or mask regions"
+      - "Acts as regularization: model must be invariant"
+      - "Hurt when transformations change semantics (e.g., rotating digits badly, flipping text)"
+
+  - id: "dlj-tr-015"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["normalization", "preprocessing"]
+    question:
+      text:
+        en: "How should you normalize images for a network trained on ImageNet vs a network you train yourself?"
+        ru: "Как нормализовать изображения для сети, обученной на ImageNet, и для своей сети?"
+      code: null
+    follow_ups:
+      en:
+        - "Why use mean/std of ImageNet when loading a pre-trained model?"
+      ru:
+        - "Зачем брать mean/std ImageNet при загрузке предобученной модели?"
+    expected_points:
+      - "Resize, center-crop, then scale to [0,1]"
+      - "Subtract per-channel mean, divide by std (ImageNet stats for pre-trained)"
+      - "Pre-trained models expect the distribution they saw in training"
+      - "For your own model: compute stats on the training set"
+      - "Wrong normalization -> poor accuracy from a pre-trained backbone"
+
+  - id: "dlj-tr-016"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["normalization", "tabular"]
+    question:
+      text:
+        en: "How do you preprocess tabular data for a neural network?"
+        ru: "Как предобработать табличные данные для нейросети?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is scaling more critical for NNs than for tree models?"
+      ru:
+        - "Почему масштабирование критичнее для NN, чем для деревьев?"
+    expected_points:
+      - "Standardize (z-score) or min-max scale each feature"
+      - "Fit scalers on train only, transform val/test"
+      - "Encode categoricals: one-hot or embeddings for high-cardinality"
+      - "Handle missing values: impute or learn missing indicator"
+      - "Trees are scale-invariant; NNs are not"
+
+  - id: "dlj-tr-017"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["tokenization", "nlp"]
+    question:
+      text:
+        en: "How do raw text sequences become model inputs? What are the basic tokenization steps?"
+        ru: "Как сырой текст превращается во вход модели? Каковы базовые шаги токенизации?"
+      code: null
+    follow_ups:
+      en:
+        - "What is a vocabulary and why does its size matter?"
+      ru:
+        - "Что такое vocabulary и почему важен его размер?"
+    expected_points:
+      - "Text -> tokens -> integer IDs via a vocabulary"
+      - "Tokenizers: word, subword (BPE), character-level"
+      - "Add special tokens: [PAD], [CLS], [SEP], [MASK]"
+      - "Padding + attention mask for variable-length sequences"
+      - "Vocabulary size trades embedding table memory vs seq length"
+
+  - id: "dlj-tr-018"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["padding", "attention-mask"]
+    question:
+      text:
+        en: "Why do sequences need padding and an attention mask?"
+        ru: "Зачем последовательностям нужны padding и attention mask?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens if you forget the attention mask?"
+      ru:
+        - "Что будет, если забыть attention mask?"
+    expected_points:
+      - "Batches need uniform length -> pad shorter sequences"
+      - "PAD tokens would pollute attention/averaging without a mask"
+      - "Mask zeros out padded positions in softmax and pooling"
+      - "Forgetting mask: PAD influences predictions, hurting accuracy"
+      - "Mask also used in causal LM (future tokens masked)"
+
+  - id: "dlj-tr-019"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["gpu", "throughput", "batch"]
+    question:
+      text:
+        en: "How do you choose a batch size given GPU memory and data size?"
+        ru: "Как выбирать размер батча с учётом памяти GPU и размера данных?"
+      code: null
+    follow_ups:
+      en:
+        - "What is gradient accumulation and when do you need it?"
+      ru:
+        - "Что такое gradient accumulation и когда он нужен?"
+    expected_points:
+      - "Fit weights+gradients+optimizer+activations in VRAM"
+      - "Activations dominate for deep models / long sequences"
+      - "Use the largest batch that fits; adjust LR (linear scaling rule)"
+      - "Gradient accumulation: effective batch = micro_batch * steps"
+      - "Throughput usually rises with batch until memory-bound"
+
+  - id: "dlj-tr-020"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["throughput", "bottleneck"]
+    question:
+      text:
+        en: "Your GPU utilization is low. How do you find and fix the bottleneck?"
+        ru: "Использование GPU низкое. Как найти и устранить узкое место?"
+      code: null
+    follow_ups:
+      en:
+        - "What tools help profile a PyTorch training loop?"
+      ru:
+        - "Какие инструменты профилируют PyTorch training loop?"
+    expected_points:
+      - "Data loading: increase num_workers, pin_memory, prefetch"
+      - "Small batches: GPU underutilized -> increase batch or batch ops"
+      - "CPU-GPU syncs: move processing off the hot path"
+      - "Profile with torch.profiler, nsys, nvprof; check GPU/CPU timelines"
+      - "Python overhead: use torch.compile, fuse ops"
+
+  - id: "dlj-tr-021"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["checkpoint", "resume"]
+    question:
+      text:
+        en: "What should a training checkpoint contain to allow exact resume?"
+        ru: "Что должен содержать чекпоинт для точного возобновления обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "Why resume from epoch 3 might produce different results than a fresh run?"
+      ru:
+        - "Почему resume с 3-й эпохи может отличаться от нового запуска?"
+    expected_points:
+      - "Model weights + optimizer state (momentum buffers, Adam m/v)"
+      - "Epoch/batch index, RNG state, scheduler state"
+      - "Config snapshot (hyperparameters, seed)"
+      - "Without optimizer state, resumed run behaves differently"
+      - "Dataset order/state also matters for exact reproducibility"
+
+  - id: "dlj-tr-022"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["metrics", "calibration"]
+    question:
+      text:
+        en: "What does it mean for a classifier to be calibrated, and how do you check it?"
+        ru: "Что значит, что классификатор калиброван, и как это проверить?"
+      code: null
+    follow_ups:
+      en:
+        - "When do you need calibrated probabilities in production?"
+      ru:
+        - "Когда в продакшене нужны калиброванные вероятности?"
+    expected_points:
+      - "Predicted probability matches empirical frequency"
+      - "Reliability diagram: bins of confidence vs accuracy"
+      - "Temperature scaling: fit one scalar to sharpen/flatten logits"
+      - "Needed for risk decisions, ranking, ensembling"
+      - "Deep nets with high LR tend to be overconfident"
+
+  - id: "dlj-tr-023"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training", "throughput", "profiling"]
+    question:
+      text:
+        en: "What is the difference between wall-clock time and compute time (FLOPs) of a model?"
+        ru: "В чём разница между wall-clock временем и вычислительной стоимостью (FLOPs) модели?"
+      code: null
+    follow_ups:
+      en:
+        - "Why can a model with fewer FLOPs be slower in practice?"
+      ru:
+        - "Почему модель с меньшим числом FLOPs может быть медленнее на практике?"
+    expected_points:
+      - "FLOPs: number of arithmetic operations (hardware-independent)"
+      - "Wall-clock: actual time, depends on hardware, memory, batching"
+      - "Memory-bound ops can dominate despite low FLOPs"
+      - "Arithmetic intensity determines GPU efficiency"
+      - "Use FLOPs for architecture comparison, wall-clock for deployment"
+
+  - id: "dlj-tr-024"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["loss", "label-smoothing"]
+    question:
+      text:
+        en: "What is label smoothing and why does it improve generalization?"
+        ru: "Что такое label smoothing и почему он улучшает генерализацию?"
+      code: null
+    follow_ups:
+      en:
+        - "How does it relate to overconfidence?"
+      ru:
+        - "Как он связан с overconfidence?"
+    expected_points:
+      - "Soft labels: replace 1.0 with 1-eps, 0.0 with eps/(C-1)"
+      - "Prevents overconfident predictions, acts as regularizer"
+      - "Small eps (0.05-0.1) typical"
+      - "Improves calibration and often validation accuracy"
+      - "Equivalent to adding a uniform KL term to the loss"
+
+  - id: "dlj-tr-025"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training", "determinism", "cudnn"]
+    question:
+      text:
+        en: "What are the main sources of randomness in a training run?"
+        ru: "Каковы основные источники случайности в запуске обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "Can you make a multi-GPU run fully deterministic?"
+      ru:
+        - "Можно ли сделать multi-GPU запуск полностью детерминированным?"
+    expected_points:
+      - "Weight initialization (seeded RNG)"
+      - "Data shuffling and sampling (seeded RNG)"
+      - "Dropout masks (seeded RNG)"
+      - "Non-deterministic CUDA kernels (atomics, reduction order)"
+      - "Multi-GPU: reduction order varies with process scheduling"
+
+  - id: "dlj-tr-026"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["gpu", "device", "pytorch"]
+    question:
+      text:
+        en: "How do you move model and data to the right device (CPU/GPU) in PyTorch?"
+        ru: "Как переместить модель и данные на нужное устройство (CPU/GPU) в PyTorch?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens if you forget .to(device) on the data?"
+      ru:
+        - "Что будет, если забыть .to(device) для данных?"
+    expected_points:
+      - "model.to(device) moves parameters; data.to(device) per batch"
+      - "Tensors must live on the same device for ops"
+      - "Forgetting: 'Expected all tensors to be on the same device' error"
+      - "Device: 'cuda', 'cuda:0', 'cpu'; MPS for Apple Silicon"
+      - "Use pin_memory + non_blocking for faster transfers"
+
+  - id: "dlj-tr-027"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["training", "plateau", "lr-schedule"]
+    question:
+      text:
+        en: "What is a learning rate schedule? Compare step decay, cosine, and warmup strategies."
+        ru: "Что такое планирование learning rate? Сравните step decay, cosine и warmup."
+      code: null
+    follow_ups:
+      en:
+        - "Why is warmup important for transformers?"
+      ru:
+        - "Зачем warmup для трансформеров?"
+    expected_points:
+      - "Schedule: how LR changes over training"
+      - "Step: multiply by gamma every N epochs (simple, coarse)"
+      - "Cosine: smooth decay to near zero (stable, common for transformers)"
+      - "Warmup: linearly increase LR for first steps (stabilizes early training)"
+      - "Adam + warmup avoids large early updates when m/v estimates are noisy"
+
+  - id: "dlj-tr-028"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["training", "multi-gpu"]
+    question:
+      text:
+        en: "What is Data Parallelism and what are its limitations?"
+        ru: "Что такое Data Parallelism и каковы его ограничения?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does DDP beat old DataParallel in PyTorch?"
+      ru:
+        - "Почему DDP лучше старого DataParallel в PyTorch?"
+    expected_points:
+      - "Replicate model on each GPU; split batch across GPUs"
+      - "Gradients averaged (all-reduce) after each step"
+      - "Limitation: model must fit on one GPU"
+      - "GIL-bound DataParallel vs process-based DDP (no GIL, faster comm)"
+      - "Scaling efficiency drops as GPU count grows (communication)"

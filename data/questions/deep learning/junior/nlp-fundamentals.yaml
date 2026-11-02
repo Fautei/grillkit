@@ -1,0 +1,471 @@
+category: "NLP Fundamentals"
+track: "deep learning"
+level: "junior"
+
+description: "Practical NLP basics: text preprocessing, embeddings, and classic text tasks for junior engineers"
+
+questions:
+  - id: "dlj-nlp-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["preprocessing", "tokenization", "normalization"]
+    question:
+      text:
+        en: "What are the basic text preprocessing steps (lowercasing, tokenization, normalization)?"
+        ru: "Каковы базовые шаги предобработки текста (приведение к нижнему регистру, токенизация, нормализация)?"
+      code: null
+    follow_ups:
+      en:
+        - "In what order should these steps be applied and why?"
+      ru:
+        - "В каком порядке следует применять эти шаги и почему?"
+    expected_points:
+      - "Lowercasing reduces vocabulary size and unifies word forms"
+      - "Tokenization splits text into tokens such as words or subwords"
+      - "Normalization handles punctuation, accents, or special characters"
+      - "Cleaning may remove HTML, URLs, or excessive whitespace"
+      - "The exact steps depend on the task and model requirements"
+
+  - id: "dlj-nlp-002"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["stop words", "preprocessing"]
+    question:
+      text:
+        en: "What are stop words and when should you remove them?"
+        ru: "Что такое stop words и когда их следует удалять?"
+      code: null
+    follow_ups:
+      en:
+        - "Why might removing stop words hurt a neural model?"
+      ru:
+        - "Почему удаление stop words может навредить нейросетевой модели?"
+    expected_points:
+      - "Stop words are frequent words with little semantic content (the, is, at)"
+      - "They are often removed in bag-of-words or TF-IDF pipelines"
+      - "Removal reduces noise and vocabulary size for classical methods"
+      - "Modern neural models usually keep them because context matters"
+      - "Domain-specific stop lists may be needed for specialized tasks"
+
+  - id: "dlj-nlp-003"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["one-hot", "encoding", "limitations"]
+    question:
+      text:
+        en: "Explain one-hot encoding of words and its limitations."
+        ru: "Объясните one-hot кодирование слов и его ограничения."
+      code: null
+    follow_ups:
+      en:
+        - "How does a learned embedding solve the sparsity problem of one-hot vectors?"
+      ru:
+        - "Как обучаемый embedding решает проблему разреженности one-hot векторов?"
+    expected_points:
+      - "Each word is represented as a vector with a single 1 and the rest 0"
+      - "The vector dimension equals the vocabulary size"
+      - "It creates very sparse, high-dimensional representations"
+      - "It cannot capture semantic similarity between words"
+      - "Vocabulary size grows large and out-of-vocabulary words are unsupported"
+
+  - id: "dlj-nlp-004"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["tf-idf", "weighting", "text"]
+    question:
+      text:
+        en: "What is TF-IDF and how does it weight words in a document?"
+        ru: "Что такое TF-IDF и как он взвешивает слова в документе?"
+      code: null
+    follow_ups:
+      en:
+        - "What does the IDF component do and why is it useful?"
+      ru:
+        - "Что делает компонент IDF и зачем он нужен?"
+    expected_points:
+      - "TF-IDF combines term frequency (TF) with inverse document frequency (IDF)"
+      - "TF counts how often a word appears in a document"
+      - "IDF downweights words that appear in many documents"
+      - "The product highlights words important to a specific document"
+      - "It produces sparse vectors and is common in classical text retrieval"
+
+  - id: "dlj-nlp-005"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["embeddings", "dense vectors", "representation"]
+    question:
+      text:
+        en: "What are word embeddings at a basic level and why are they dense vectors?"
+        ru: "Что такое word embeddings на базовом уровне и почему они плотные векторы?"
+      code: null
+    follow_ups:
+      en:
+        - "What does it mean that similar words are close in embedding space?"
+      ru:
+        - "Что означает, что похожие слова близки в пространстве embedding?"
+    expected_points:
+      - "Word embeddings map words to low-dimensional real-valued vectors"
+      - "They are learned from data so semantically similar words are close"
+      - "Dense vectors capture distributed meaning rather than a single index"
+      - "They are much smaller than one-hot vectors for large vocabularies"
+      - "They can be used as input features for downstream models"
+
+  - id: "dlj-nlp-006"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["static embeddings", "contextual embeddings", "bert"]
+    question:
+      text:
+        en: "What is the difference between static and contextual word embeddings?"
+        ru: "В чём разница между статическими и контекстуальными word embeddings?"
+      code: null
+    follow_ups:
+      en:
+        - "Give an example where a static embedding fails but a contextual one succeeds."
+      ru:
+        - "Приведите пример, где статический embedding не работает, а контекстуальный справляется."
+    expected_points:
+      - "Static embeddings assign one vector per word regardless of context"
+      - "Contextual embeddings produce different vectors depending on surrounding words"
+      - "Static examples include Word2Vec and GloVe"
+      - "Contextual examples include ELMo and transformer models like BERT"
+      - "Contextual embeddings better handle polysemy (words with multiple meanings)"
+
+  - id: "dlj-nlp-007"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["text classification", "bag of words", "neural network"]
+    question:
+      text:
+        en: "How do you build a simple text classifier (bag of words plus a neural network)?"
+        ru: "Как построить простой текстовый классификатор (bag of words плюс нейросеть)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why might this approach struggle with word order?"
+      ru:
+        - "Почему этот подход может испытывать проблемы с порядком слов?"
+    expected_points:
+      - "Preprocess text and build a vocabulary"
+      - "Represent each document as a bag-of-words vector (counts or TF-IDF)"
+      - "Feed the vector into a small neural network (dense layers)"
+      - "Train with cross-entropy loss for classification"
+      - "Evaluate with accuracy, precision, recall, or F1"
+      - "Word order is ignored, limiting performance on complex tasks"
+
+  - id: "dlj-nlp-008"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["sentiment analysis", "datasets", "metrics"]
+    question:
+      text:
+        en: "What is sentiment analysis and what datasets and metrics are typical for it?"
+        ru: "Что такое sentiment analysis и какие датасеты и метрики для него типичны?"
+      code: null
+    follow_ups:
+      en:
+        - "How would you handle class imbalance in a sentiment dataset?"
+      ru:
+        - "Как бы вы обработали дисбаланс классов в датасете по тональности?"
+    expected_points:
+      - "Sentiment analysis classifies text by emotional polarity (positive, negative, neutral)"
+      - "Common datasets include IMDb, SST, and Twitter sentiment corpora"
+      - "Typical metrics are accuracy, precision, recall, and F1"
+      - "Imbalanced classes may require weighted loss or resampling"
+      - "Aspect-based variants classify sentiment per entity or topic"
+
+  - id: "dlj-nlp-009"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["machine translation", "seq2seq", "nmt"]
+    question:
+      text:
+        en: "Explain the basic steps of a neural machine translation system."
+        ru: "Объясните базовые шаги системы нейромашинного перевода."
+      code: null
+    follow_ups:
+      en:
+        - "Why is an attention mechanism important in NMT?"
+      ru:
+        - "Почему механизм attention важен в нейромашинном переводе?"
+    expected_points:
+      - "Tokenize and encode the source sentence into a vector representation"
+      - "Use an encoder-decoder architecture (often with attention)"
+      - "The decoder generates the target sentence token by token"
+      - "Train with teacher forcing and cross-entropy loss"
+      - "Decode at inference with beam search or greedy decoding"
+      - "Evaluate with metrics such as BLEU"
+
+  - id: "dlj-nlp-010"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["ner", "token classification", "tags"]
+    question:
+      text:
+        en: "What is named entity recognition (NER) and how are tags assigned to tokens?"
+        ru: "Что такое named entity recognition (NER) и как теги назначаются токенам?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between BIO and IOB tagging schemes?"
+      ru:
+        - "В чём разница между схемами тегирования BIO и IOB?"
+    expected_points:
+      - "NER identifies spans of text referring to entities (person, org, location)"
+      - "Each token is classified with a tag such as B-PER or I-PER"
+      - "BIO scheme marks the beginning and inside of an entity span"
+      - "Models are usually token classifiers built on contextual embeddings"
+      - "Evaluation uses entity-level precision, recall, and F1"
+
+  - id: "dlj-nlp-011"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["summarization", "pipeline", "text"]
+    question:
+      text:
+        en: "What are the basic steps of a text summarization pipeline?"
+        ru: "Каковы базовые шаги конвейера суммаризации текста?"
+      code: null
+    follow_ups:
+      en:
+        - "How would you handle very long documents that exceed the model context limit?"
+      ru:
+        - "Как бы вы обработали очень длинные документы, превышающие лимит контекста модели?"
+    expected_points:
+      - "Preprocess and split the document into sentences or chunks"
+      - "Encode the text with a language model"
+      - "Generate or select summary sentences"
+      - "Post-process for coherence and length constraints"
+      - "Evaluate with ROUGE or human judgment"
+      - "Chunking or hierarchical models help with long inputs"
+
+  - id: "dlj-nlp-012"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["extractive", "abstractive", "summarization"]
+    question:
+      text:
+        en: "What is the difference between extractive and abstractive summarization at a basic level?"
+        ru: "В чём разница между extractive и abstractive суммаризацией на базовом уровне?"
+      code: null
+    follow_ups:
+      en:
+        - "Which type is more likely to produce novel phrasing not in the source?"
+      ru:
+        - "Какой тип скорее всего создаст новую формулировку, отсутствующую в исходнике?"
+    expected_points:
+      - "Extractive summarization selects and concatenates existing sentences from the source"
+      - "Abstractive summarization generates new sentences in the model's own words"
+      - "Extractive is simpler and less prone to hallucination"
+      - "Abstractive can be more concise and fluent but may hallucinate"
+      - "Modern systems often combine both approaches"
+
+  - id: "dlj-nlp-013"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["padding", "masking", "variable length"]
+    question:
+      text:
+        en: "How do you handle variable-length text in a neural network (padding, masking)?"
+        ru: "Как обрабатывать текст переменной длины в нейросети (padding, masking)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is masking needed after padding?"
+      ru:
+        - "Зачем нужен masking после padding?"
+    expected_points:
+      - "Pad shorter sequences to a fixed length with a special padding token"
+      - "Use a mask to ignore padded positions in loss and attention"
+      - "Truncate overly long sequences to a maximum length"
+      - "Packing or dynamic batching can reduce wasted computation"
+      - "Masking prevents padding tokens from affecting the output"
+
+  - id: "dlj-nlp-014"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["token", "tokenization", "subwords"]
+    question:
+      text:
+        en: "What is a token and why is tokenization more complex than splitting on spaces?"
+        ru: "Что такое токен и почему токенизация сложнее, чем разбиение по пробелам?"
+      code: null
+    follow_ups:
+      en:
+        - "How do subword tokenizers like BPE handle unknown words?"
+      ru:
+        - "Как субсловные токенизаторы, например BPE, обрабатывают неизвестные слова?"
+    expected_points:
+      - "A token is a unit of text the model processes (word, subword, or character)"
+      - "Splitting on spaces fails for punctuation, contractions, and languages without spaces"
+      - "Subword tokenizers break rare words into smaller pieces"
+      - "Tokenization affects vocabulary size and sequence length"
+      - "Different models use different tokenization schemes"
+  - id: "dlj-nlp-015"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["language model", "nlp", "basics"]
+    question:
+      text:
+        en: "What is language modeling at a basic level?"
+        ru: "Что такое языковое моделирование на базовом уровне?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the difference between predicting the next word and masked language modeling?"
+      ru:
+        - "В чём разница между предсказанием следующего слова и masked language modeling?"
+    expected_points:
+      - "A language model estimates the probability of a sequence of words"
+      - "It learns to predict the next token given previous tokens"
+      - "Training uses large text corpora and cross-entropy loss"
+      - "It can generate text by sampling from predicted distributions"
+      - "Modern models are based on transformers and subword tokenization"
+
+  - id: "dlj-nlp-016"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["evaluation", "perplexity", "bleu"]
+    question:
+      text:
+        en: "How do you evaluate a text generation model at a basic level (perplexity, BLEU)?"
+        ru: "Как оценить модель генерации текста на базовом уровне (perplexity, BLEU)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why might a model with low perplexity still produce poor text?"
+      ru:
+        - "Почему модель с низким perplexity может всё равно генерировать плохой текст?"
+    expected_points:
+      - "Perplexity measures how surprised the model is by the test data"
+      - "Lower perplexity means better prediction of the next token"
+      - "BLEU compares generated text to reference translations via n-gram overlap"
+      - "BLEU ranges from 0 to 1 and rewards matching n-grams"
+      - "Both metrics have limitations and human evaluation is often added"
+
+  - id: "dlj-nlp-017"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["chatbot", "dialogue", "safety"]
+    question:
+      text:
+        en: "What are the main challenges of building a chatbot (state, context, safety)?"
+        ru: "Каковы основные проблемы при создании чатбота (состояние, контекст, безопасность)?"
+      code: null
+    follow_ups:
+      en:
+        - "How can you keep conversation context from growing unbounded?"
+      ru:
+        - "Как не дать контексту диалога расти без ограничений?"
+    expected_points:
+      - "Tracking dialogue state across multiple turns is difficult"
+      - "Long context may exceed model limits and cause forgetting"
+      - "Safety requires filtering toxic or harmful outputs"
+      - "Hallucinations can mislead users"
+      - "Latency and cost grow with conversation length"
+      - "Grounding responses in reliable sources improves trust"
+
+  - id: "dlj-nlp-018"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["multilingual", "preprocessing", "text"]
+    question:
+      text:
+        en: "How do you preprocess text in a different language (for example, Russian) compared to English?"
+        ru: "Как предобрабатывать текст на другом языке (например, русском) по сравнению с английским?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is tokenization harder for languages without spaces between words?"
+      ru:
+        - "Почему токенизация сложнее для языков без пробелов между словами?"
+    expected_points:
+      - "Russian needs morphological normalization such as lemmatization or stemming"
+      - "Cyrillic text requires proper encoding and Unicode handling"
+      - "Stop word lists and punctuation differ by language"
+      - "Some languages lack clear word boundaries and need special tokenizers"
+      - "Case and declension add vocabulary complexity"
+
+  - id: "dlj-nlp-019"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["class imbalance", "text classification", "metrics"]
+    question:
+      text:
+        en: "What is text classification with imbalanced classes and how do you handle it?"
+        ru: "Что такое классификация текста с несбалансированными классами и как с этим справляться?"
+      code: null
+    follow_ups:
+      en:
+        - "Which resampling methods are common for imbalanced text data?"
+      ru:
+        - "Какие методы ресэмплинга типичны для несбалансированных текстовых данных?"
+    expected_points:
+      - "Imbalanced classes mean one class dominates the dataset"
+      - "Accuracy can be misleading when classes are skewed"
+      - "Use weighted loss or class weights during training"
+      - "Resample data (oversample minority or undersample majority)"
+      - "Evaluate with precision, recall, F1, or PR-AUC instead of accuracy"
+
+  - id: "dlj-nlp-020"
+    type: "scenario"
+    difficulty: 2
+    tags: ["imbalance", "metrics", "diagnosis"]
+    question:
+      text:
+        en: "Your text classifier gets 99% accuracy on a dataset that is 99/1 by class. What is wrong and what metric should you use instead?"
+        ru: "Ваш текстовый классификатор достигает 99% accuracy на датасете с соотношением классов 99/1. Что не так и какую метрику следует использовать вместо этого?"
+      code: null
+    follow_ups:
+      en:
+        - "How could you verify the model actually learned something useful?"
+      ru:
+        - "Как можно проверить, что модель действительно чему-то научилась?"
+    expected_points:
+      - "A trivial classifier predicting the majority class already reaches 99% accuracy"
+      - "Accuracy hides poor performance on the minority class"
+      - "Use F1, precision, recall, or PR-AUC to assess minority-class performance"
+      - "Inspect the confusion matrix for false negatives and false positives"
+      - "Consider balanced accuracy or MCC for imbalanced settings"
+
+  - id: "dlj-nlp-021"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["search", "tf-idf", "retrieval"]
+    question:
+      text:
+        en: "How do you build a simple keyword search that is better than exact string matching?"
+        ru: "Как построить простой поиск по ключевым словам лучше, чем точное совпадение строк?"
+      code: null
+    follow_ups:
+      en:
+        - "How would you add fuzzy matching to handle typos?"
+      ru:
+        - "Как добавить нечёткое совпадение для обработки опечаток?"
+    expected_points:
+      - "Tokenize and normalize text (lowercasing, stemming or lemmatization)"
+      - "Index documents with an inverted index for fast lookup"
+      - "Rank results with TF-IDF or BM25 instead of binary match"
+      - "Support partial and multi-term queries"
+      - "Handle synonyms or fuzzy matching for typos"
+
+  - id: "dlj-nlp-022"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["bias", "datasets", "fairness"]
+    question:
+      text:
+        en: "What are the main sources of bias in NLP datasets?"
+        ru: "Каковы основные источники bias в NLP датасетах?"
+      code: null
+    follow_ups:
+      en:
+        - "How can you mitigate bias during dataset collection or model training?"
+      ru:
+        - "Как можно смягчить bias при сборе датасета или обучении модели?"
+    expected_points:
+      - "Sampling bias from unrepresentative data sources"
+      - "Labeling bias introduced by annotators"
+      - "Historical and societal biases reflected in text"
+      - "Underrepresentation of certain languages or demographics"
+      - "Dataset size and domain skew affecting minority groups"

@@ -1,0 +1,541 @@
+category: "Distributed Training at Scale"
+track: "deep learning"
+level: "senior"
+description: "Data, tensor, and pipeline parallelism, ZeRO/FSDP, and multi-node training systems for senior engineers"
+
+questions:
+  - id: "dls-dd-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["ddp", "data-parallel", "synchronization"]
+    question:
+      text:
+        en: "Compare data parallelism (DP) and distributed data parallelism (DDP): what is synchronized?"
+        ru: "Сравните data parallelism (DP) и distributed data parallelism (DDP): что именно синхронизируется?"
+      code: null
+    follow_ups:
+      en:
+        - "How do communication patterns differ between DP and DDP?"
+      ru:
+        - "Чем отличаются паттерны коммуникации между DP и DDP?"
+    expected_points:
+      - "DP uses parameter server or shared gradients from all workers; DDP synchronizes gradients across all processes via collective communication"
+      - "DDP keeps a separate model replica per process and performs all-reduce on gradients during backward pass"
+      - "Only gradients are synchronized in DDP, not parameters directly during forward pass like naive DP"
+      - "DDP ensures identical model states after each optimizer step across all replicas"
+  - id: "dls-dd-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["ddp", "gradient-bucketing", "gil"]
+    question:
+      text:
+        en: "Why is DDP better than classic DataParallel (gradient bucketing, no GIL)?"
+        ru: "Почему DDP лучше классического DataParallel (gradient bucketing, отсутствие GIL)?"
+      code: null
+    follow_ups:
+      en:
+        - "How does the GIL impact classic DataParallel performance?"
+      ru:
+        - "Как GIL влияет на производительность классического DataParallel?"
+    expected_points:
+      - "DDP uses multi-process execution avoiding Python GIL contention present in multi-threaded DataParallel"
+      - "Gradient bucketing groups small gradients into buckets and overlaps communication with computation"
+      - "DDP uses efficient collective ops like all-reduce instead of gather/scatter via parameter server patterns"
+      - "DDP scales better to multi-GPU and multi-node setups with lower overhead"
+  - id: "dls-dd-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["ring-allreduce", "bandwidth", "collective"]
+    question:
+      text:
+        en: "What is the ring all-reduce algorithm and why is it bandwidth-optimal?"
+        ru: "Что такое алгоритм ring all-reduce и почему он оптимален по пропускной способности?"
+      code: null
+    follow_ups:
+      en:
+        - "How does ring all-reduce compare to tree-based approaches?"
+      ru:
+        - "Как ring all-reduce сравнивается с подходами на основе дерева?"
+    expected_points:
+      - "Ring all-reduce forms a ring of N processes and performs scatter-reduce followed by all-gather in phases"
+      - "Each process sends/receives data to adjacent peers, maximizing link utilization"
+      - "Total data transferred is N-1 steps * (data/N) per link but effectively each byte crosses each link once, achieving O(1) bandwidth cost independent in optimal form"
+      - "Bandwidth optimal means it saturates available network bandwidth without redundant transfers unlike naive all-reduce"
+  - id: "dls-dd-004"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["zero", "fsdp", "sharding"]
+    question:
+      text:
+        en: "Explain ZeRO stages 1/2/3: what is sharded in each?"
+        ru: "Объясните стадии ZeRO 1/2/3: что именно расщепляется (sharded) на каждой стадии?"
+      code: null
+    follow_ups:
+      en:
+        - "How does memory savings increase across ZeRO stages?"
+      ru:
+        - "Как растет экономия памяти по стадиям ZeRO?"
+    expected_points:
+      - "ZeRO-1 shards optimizer states across data parallel ranks, keeping full model and gradients on each rank"
+      - "ZeRO-2 shards optimizer states and gradients across ranks, keeping full model on each rank"
+      - "ZeRO-3 shards optimizer states, gradients, and model parameters across ranks with on-the-fly gathering when needed"
+      - "Communication overhead increases across stages while memory usage decreases significantly"
+  - id: "dls-dd-005"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["fsdp", "zero-3", "pytorch"]
+    question:
+      text:
+        en: "What is FSDP and how does it map ZeRO-3 to PyTorch?"
+        ru: "Что такое FSDP и как он отображает ZeRO-3 на PyTorch?"
+      code: null
+    follow_ups:
+      en:
+        - "What are key FSDP configuration options?"
+      ru:
+        - "Какие ключевые параметры конфигурации есть у FSDP?"
+    expected_points:
+      - "Fully Sharded Data Parallel (FSDP) is PyTorch implementation that shards parameters, gradients, and optimizer states like ZeRO-3"
+      - "FSDP wraps modules and uses all-gather to collect full parameters before forward/backward of each wrapped unit, then frees shards"
+      - "It supports flat parameter storage, mixed precision, and different sharding strategies (FULL_SHARD, SHARD_GRAD_OP, NO_SHARD)"
+      - "FSDP integrates with PyTorch autograd and provides checkpointing and CPU offload capabilities"
+  - id: "dls-dd-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gradient-accumulation", "batch-size"]
+    question:
+      text:
+        en: "What is gradient accumulation, and when does it differ from a larger batch?"
+        ru: "Что такое gradient accumulation и когда он отличается от большего batch size?"
+      code: null
+    follow_ups:
+      en:
+        - "Does gradient accumulation affect model convergence identically to large batches?"
+      ru:
+        - "Влияет ли gradient accumulation на сходимость модели так же, как большой batch?"
+    expected_points:
+      - "Gradient accumulation accumulates gradients over multiple micro-batches before performing one optimizer step"
+      - "Effective batch size equals micro-batch size times accumulation steps times number of data parallel workers"
+      - "Unlike true large batches, accumulation does not require all data in memory simultaneously and may have different synchronization timing"
+      - "Convergence can differ due to batch normalization statistics and optimizer behavior across update frequency"
+  - id: "dls-dd-007"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["mixed-precision", "bf16", "communication"]
+    question:
+      text:
+        en: "How does mixed precision affect communication (bf16 gradients, fp32 master weights)?"
+        ru: "Как смешанная точность влияет на коммуникации (градиенты в bf16, мастер-веса в fp32)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why keep master weights in fp32 during mixed precision training?"
+      ru:
+        - "Почему при mixed precision обучении мастер-веса хранятся в fp32?"
+    expected_points:
+      - "Gradients computed in lower precision (bf16/fp16) reduce communication volume by ~half compared to fp32"
+      - "All-reduce operations on bf16 gradients are faster and use less bandwidth"
+      - "Master weights and optimizer states remain in fp32 for numerical stability during updates"
+      - "Loss scaling may be needed for fp16 to avoid underflow, while bf16 has wider exponent range reducing scaling needs"
+  - id: "dls-dd-008"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["gradient-compression", "topk", "powersgd"]
+    question:
+      text:
+        en: "What is gradient compression (top-k, powerSGD) and its trade-off?"
+        ru: "Что такое сжатие градиентов (top-k, powerSGD) и в чем его компромисс?"
+      code: null
+    follow_ups:
+      en:
+        - "When might gradient compression hurt convergence?"
+      ru:
+        - "Когда сжатие градиентов может ухудшить сходимость?"
+    expected_points:
+      - "Gradient compression reduces communication by transmitting only most significant gradient values (top-k) or low-rank approximations (powerSGD)"
+      - "Trade-off is reduced communication cost vs loss of gradient information and potential convergence degradation"
+      - "Error compensation/memory mechanisms are often needed to accumulate dropped gradient components"
+      - "Compression is most effective in bandwidth-limited settings but may require tuning of compression ratio"
+  - id: "dls-dd-009"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["nccl", "collective", "algorithms"]
+    question:
+      text:
+        en: "What is NCCL and how does it choose communication algorithms?"
+        ru: "Что такое NCCL и как он выбирает алгоритмы коммуникации?"
+      code: null
+    follow_ups:
+      en:
+        - "What factors influence NCCL algorithm selection?"
+      ru:
+        - "Какие факторы влияют на выбор алгоритма в NCCL?"
+    expected_points:
+      - "NCCL (NVIDIA Collective Communications Library) provides optimized collective primitives for multi-GPU/multi-node training"
+      - "NCCL selects algorithms based on message size, topology (NVLink/PCIe/IB), number of GPUs, and hardware capabilities"
+      - "For small messages it may use tree-based algorithms, for large messages ring or other bandwidth-optimal algorithms"
+      - "NCCL builds topology graphs and uses heuristics/tuning to minimize latency and maximize bandwidth"
+  - id: "dls-dd-010"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["topology", "nvlink", "infiniband"]
+    question:
+      text:
+        en: "How does multi-node topology (NVLink, PCIe, InfiniBand, RoCE) affect training speed?"
+        ru: "Как топология мульти-нодовой системы (NVLink, PCIe, InfiniBand, RoCE) влияет на скорость обучения?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is network bandwidth critical for data parallel training?"
+      ru:
+        - "Почему пропускная способность сети критична для data parallel обучения?"
+    expected_points:
+      - "NVLink provides highest bandwidth for intra-node GPU-GPU communication with low latency"
+      - "PCIe is slower than NVLink and creates bottlenecks for heavy intra-node communication"
+      - "InfiniBand offers high bandwidth and low latency for inter-node communication, critical for scaling beyond single node"
+      - "RoCE provides RDMA over Ethernet but typically has higher latency/jitter than InfiniBand affecting large-scale training efficiency"
+  - id: "dls-dd-011"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["tensor-parallel", "megatron", "matmul"]
+    question:
+      text:
+        en: "What is tensor parallelism, and how do Megatron-style layers split matmuls?"
+        ru: "Что такое tensor parallelism и как слои в стиле Megatron разбивают матричные умножения?"
+      code: null
+    follow_ups:
+      en:
+        - "What communication is needed in tensor parallelism?"
+      ru:
+        - "Какая коммуникация требуется при tensor parallelism?"
+    expected_points:
+      - "Tensor parallelism splits individual tensor operations across multiple GPUs to distribute computation and memory"
+      - "In Megatron, column-parallel linear layers split weight matrix by columns; row-parallel split by rows requiring all-reduce"
+      - "For MLP blocks, first linear is column-parallel followed by activation, second is row-parallel with all-reduce after"
+      - "Attention heads can also be split across GPUs (tensor parallel attention) reducing memory per GPU"
+  - id: "dls-dd-012"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["pipeline-parallel", "microbatches", "bubble", "gpipe"]
+    question:
+      text:
+        en: "What is pipeline parallelism (microbatches, bubble), and what does GPipe do?"
+        ru: "Что такое pipeline parallelism (микробатчи, bubble) и что делает GPipe?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the pipeline bubble and how large is it?"
+      ru:
+        - "Что такое pipeline bubble и какого размера он может быть?"
+    expected_points:
+      - "Pipeline parallelism splits model layers across devices, processing micro-batches through pipeline stages"
+      - "GPipe splits each batch into M micro-batches and uses synchronous pipeline schedule, processing forward then backward"
+      - "Pipeline bubble is idle time when some stages wait for inputs/outputs, proportional to (number of stages - 1)/M"
+      - "GPipe enables training larger models by sharding layers and uses recomputation for memory efficiency"
+  - id: "dls-dd-013"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["pipeline-parallel", "1f1b", "memory"]
+    question:
+      text:
+        en: "How does 1F1B (pipeline schedule) reduce memory vs GPipe?"
+        ru: "Как расписание 1F1B (one-forward-one-backward) экономит память по сравнению с GPipe?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the trade-off of 1F1B schedule?"
+      ru:
+        - "В чем компромисс расписания 1F1B?"
+    expected_points:
+      - "1F1B interleaves forward and backward passes: after warmup, each stage does one forward then one backward per micro-batch cycle"
+      - "Unlike GPipe which stores activations for all micro-batches, 1F1B only needs activations for micro-batches currently in pipeline"
+      - "This reduces peak activation memory from O(M) to O(number of stages) in terms of in-flight micro-batches"
+      - "1F1B maintains similar bubble size but significantly lower memory footprint enabling larger models"
+  - id: "dls-dd-014"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["sequence-parallel", "context-parallel", "long-context"]
+    question:
+      text:
+        en: "What is sequence/context parallelism for long contexts?"
+        ru: "Что такое sequence/context parallelism для обучения на длинных контекстах?"
+      code: null
+    follow_ups:
+      en:
+        - "How does context parallelism interact with attention?"
+      ru:
+        - "Как context parallelism взаимодействует с механизмом внимания?"
+    expected_points:
+      - "Sequence/context parallelism splits input sequences across devices along sequence dimension to handle long contexts beyond single GPU memory"
+      - "For attention, it requires communication like all-gather/ring attention to compute attention over split sequences"
+      - "Techniques like Ring Attention or DeepSpeed Ulysses split Q,K,V across sequence dimension and exchange keys/values"
+      - "Combines with tensor/pipeline parallelism to scale to extremely long contexts while managing communication overhead"
+
+  - id: "dls-dd-015"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["3d-parallelism", "data-parallel", "tensor-parallel", "pipeline-parallel"]
+    question:
+      text:
+        en: "How do you combine data + tensor + pipeline parallelism (3D parallelism)?"
+        ru: "Как совмещают data + tensor + pipeline parallelism (трехмерный параллелизм)?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the relationship between the three dimensions?"
+      ru:
+        - "Как связаны между собой три измерения параллелизма?"
+    expected_points:
+      - "3D parallelism nests three independent parallelism axes: pipeline across layer groups, tensor within each layer, data across replicas"
+      - "Each device belongs to one pipeline stage, one tensor-parallel group, and one data-parallel group"
+      - "Communication occurs within tensor-parallel groups (all-reduce) and data-parallel groups (all-reduce/gradients), plus pipeline point-to-point"
+      - "Configuration trades throughput and memory; larger models favor tensor/pipeline, larger data favors data parallelism"
+  - id: "dls-dd-016"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["parallelism", "configuration", "scaling"]
+    question:
+      text:
+        en: "What is the optimal parallelism configuration given model size and node count?"
+        ru: "Как подобрать оптимальную конфигурацию параллелизма при заданном размере модели и количестве узлов?"
+      code: null
+    follow_ups:
+      en:
+        - "Which parallelism should you maximize first?"
+      ru:
+        - "Какой вид параллелизма стоит максимизировать в первую очередь?"
+    expected_points:
+      - "Start from tensor parallelism within a node (NVLink bandwidth) up to the number of GPUs per node"
+      - "Use pipeline parallelism across nodes when model does not fit with tensor parallelism alone"
+      - "Use data parallelism for throughput scaling once model fits with available memory"
+      - "Minimize cross-node tensor/pipeline communication; keep high-bandwidth collectives intra-node where possible"
+  - id: "dls-dd-017"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gradient-checkpointing", "memory", "compute"]
+    question:
+      text:
+        en: "What is gradient checkpointing and how does it trade compute for memory?"
+        ru: "Что такое gradient checkpointing и как он меняет вычисления на память?"
+      code: null
+    follow_ups:
+      en:
+        - "What is the typical compute overhead?"
+      ru:
+        - "Каков типичный overhead по вычислениям?"
+    expected_points:
+      - "Gradient checkpointing discards intermediate activations during forward pass and recomputes them during backward"
+      - "Reduces activation memory from O(layers) to O(sqrt(layers)) with selective checkpointing"
+      - "Increases compute cost by roughly 30-40% extra forward passes"
+      - "Allows training larger models or larger batch sizes within fixed memory budgets"
+  - id: "dls-dd-018"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["checkpointing", "sharded", "resume"]
+    question:
+      text:
+        en: "How do you checkpoint a large distributed job (sharded checkpoints, resume)?"
+        ru: "Как делать checkpoint в большом распределенном обучении (sharded checkpoints, resume)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you resume from sharded checkpoints?"
+      ru:
+        - "Как возобновить обучение из sharded checkpoints?"
+    expected_points:
+      - "Shard checkpoint state across ranks (FSDP/ZeRO) instead of gathering to rank 0 to avoid memory spikes"
+      - "Save optimizer states, model params, and RNG states per rank with consistent naming"
+      - "Resume by loading each rank's shard and restoring data loader position and RNG state"
+      - "Use async checkpointing to overlap save with training and reduce stall"
+  - id: "dls-dd-019"
+    type: "scenario"
+    difficulty: 5
+    tags: ["fault-tolerance", "stragglers", "failures"]
+    question:
+      text:
+        en: "What is fault tolerance at scale (straggler nodes, node failures) and how do you handle it?"
+        ru: "Что такое отказоустойчивость в масштабе (straggler nodes, отказы узлов) и как с ней справляются?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you detect stragglers?"
+      ru:
+        - "Как обнаруживать straggler-узлы?"
+    expected_points:
+      - "Stragglers slow down synchronous collectives; mitigate with timeout detection and excluding slow ranks"
+      - "Node failures require job restart from last checkpoint; elastic frameworks can replace failed nodes"
+      - "Use checkpointing frequency balancing overhead vs lost work; monitor health and heartbeat"
+      - "Asynchronous all-reduce (e.g. local SGD) reduces sensitivity to stragglers"
+  - id: "dls-dd-020"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["elastic-training", "node-count", "dynamic"]
+    question:
+      text:
+        en: "What is elastic training and what breaks when the node count changes?"
+        ru: "Что такое elastic training и что ломается при изменении числа узлов?"
+      code: null
+    follow_ups:
+      en:
+        - "Which components must be reconfigured on scale change?"
+      ru:
+        - "Какие компоненты нужно переконфигурировать при изменении масштаба?"
+    expected_points:
+      - "Elastic training allows job to grow/shrink number of workers dynamically without full restart"
+      - "Data sharding must be recomputed per rank; batch size and gradient accumulation adjust"
+      - "Optimizer state partitioning changes with world size; checkpoints may need resharding"
+      - "Learning rate scaling and communication topology change; requires careful re-tuning"
+  - id: "dls-dd-021"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["monitoring", "throughput", "mfu"]
+    question:
+      text:
+        en: "How do you monitor a large training job (throughput, MFU, comm time)?"
+        ru: "Как мониторить большое обучение (throughput, MFU, время коммуникаций)?"
+      code: null
+    follow_ups:
+      en:
+        - "What tools are commonly used?"
+      ru:
+        - "Какие инструменты обычно используют?"
+    expected_points:
+      - "Track samples/sec or tokens/sec per GPU as primary throughput metric"
+      - "Measure MFU to see fraction of peak compute actually used"
+      - "Profile communication time with NCCL profiler or torch.profiler to find bottlenecks"
+      - "Monitor memory, loss, grad norms, and per-rank skew to detect issues early"
+  - id: "dls-dd-022"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["mfu", "flops", "efficiency"]
+    question:
+      text:
+        en: "What is model FLOPs utilization (MFU) and what is a good number?"
+        ru: "Что такое model FLOPs utilization (MFU) и какое значение считается хорошим?"
+      code: null
+    follow_ups:
+      en:
+        - "How does MFU differ from hardware FLOPs utilization?"
+      ru:
+        - "Чем MFU отличается от hardware FLOPs utilization?"
+    expected_points:
+      - "MFU is achieved model FLOPs divided by theoretical peak FLOPs of hardware over time"
+      - "It measures useful compute vs peak, excluding communication and overhead"
+      - "Good MFU for large training often ranges 40-60% for well-optimized jobs"
+      - "Higher MFU indicates better kernel efficiency and less communication/idle overhead"
+  - id: "dls-dd-023"
+    type: "scenario"
+    difficulty: 5
+    tags: ["debugging", "nccl", "hang", "oom"]
+    question:
+      text:
+        en: "How do you debug a training hang (NCCL timeout, deadlock, OOM)?"
+        ru: "Как отлаживать зависание обучения (NCCL timeout, deadlock, OOM)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are common root causes?"
+      ru:
+        - "Каковы частые корневые причины?"
+    expected_points:
+      - "Enable NCCL_DEBUG and check for timeout/collective mismatch errors"
+      - "Look for deadlock from uneven code paths or mismatched collectives across ranks"
+      - "OOM manifests as CUDA out of memory; reduce batch size or enable checkpointing"
+      - "Use torchrun fault tolerance and per-rank logs to isolate failing rank"
+  - id: "dls-dd-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["dataset", "sharding", "dataloader"]
+    question:
+      text:
+        en: "What is the impact of dataset loading on distributed training (per-rank sharding)?"
+        ru: "Как загрузка данных влияет на распределенное обучение (sharding на уровне ранков)?"
+      code: null
+    follow_ups:
+      en:
+        - "How do you ensure each rank sees unique data?"
+      ru:
+        - "Как гарантировать, что каждый ранк видит уникальные данные?"
+    expected_points:
+      - "Each rank must receive a disjoint shard of data to avoid duplicate gradients and wasted compute"
+      - "DistributedSampler shards indices by rank and handles shuffling with a shared seed"
+      - "I/O bottlenecks can starve GPUs; use prefetching and multiple workers"
+      - "Checkpointing data loader state enables exact resume across restarts"
+  - id: "dls-dd-025"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["rng", "seeds", "reproducibility"]
+    question:
+      text:
+        en: "How do you handle random number state in distributed training (seeds, generator per rank)?"
+        ru: "Как управлять состоянием генераторов случайных чисел в распределенном обучении (seeds, generator per rank)?"
+      code: null
+    follow_ups:
+      en:
+        - "Should all ranks share the same seed?"
+      ru:
+        - "Должны ли все ранки использовать одинаковый seed?"
+    expected_points:
+      - "Set a base seed and derive per-rank seeds to ensure reproducibility while varying dropout/augmentation across ranks"
+      - "Maintain separate torch generators per rank and device for data augmentation"
+      - "Save and restore RNG states in checkpoints for exact reproducibility"
+      - "Avoid global sync of RNG state which can reduce diversity across replicas"
+  - id: "dls-dd-026"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["local-sgd", "gradient-sync", "communication"]
+    question:
+      text:
+        en: "What is gradient synchronization frequency (local SGD) and when does it help?"
+        ru: "Что такое частота синхронизации градиентов (local SGD) и когда она помогает?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the trade-offs of less frequent sync?"
+      ru:
+        - "Каковы компромиссы менее частой синхронизации?"
+    expected_points:
+      - "Local SGD performs multiple local steps before synchronizing gradients across workers"
+      - "Reduces communication frequency and cost, improving throughput on slow networks"
+      - "Helps when communication dominates; may slow convergence or increase variance"
+      - "Requires tuning sync interval and may combine with momentum/averaging for stability"
+  - id: "dls-dd-027"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["memory-budget", "model-size", "scaling"]
+    question:
+      text:
+        en: "How do you train a very large model that does not fit on a single GPU (memory budget calculation)?"
+        ru: "Как обучать очень большую модель, не помещающуюся на один GPU (расчет бюджета памяти)?"
+      code: null
+    follow_ups:
+      en:
+        - "What components dominate memory usage?"
+      ru:
+        - "Какие компоненты доминируют по памяти?"
+    expected_points:
+      - "Break down memory into parameters, gradients, optimizer states, and activations"
+      - "Estimate per-GPU memory for a given parallelism config and check against capacity"
+      - "Use tensor/pipeline/ZeRO sharding to distribute components across devices"
+      - "Add gradient checkpointing and mixed precision to reduce activation and weight memory"
+  - id: "dls-dd-028"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["activation-memory", "estimation", "training"]
+    question:
+      text:
+        en: "What is activation memory and how to estimate it?"
+        ru: "Что такое activation memory и как ее оценивать?"
+      code: null
+    follow_ups:
+      en:
+        - "How does sequence length affect activation memory?"
+      ru:
+        - "Как длина последовательности влияет на activation memory?"
+    expected_points:
+      - "Activation memory stores intermediate tensors needed for backward pass"
+      - "Scales with batch size, sequence length, hidden size, and number of layers"
+      - "Estimate as sum over layers of input/output tensor sizes times batch and sequence"
+      - "Reduce via gradient checkpointing, smaller micro-batches, or sequence parallelism"
+
+# __PART2__

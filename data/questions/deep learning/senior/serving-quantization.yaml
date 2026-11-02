@@ -1,0 +1,567 @@
+category: "Inference Serving and Quantization"
+track: "deep learning"
+level: "senior"
+description: "Production LLM serving: quantization, compression, batching, and serving infrastructure for senior engineers"
+
+questions:
+  - id: "dls-serve-001"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["quantization", "weights", "activations"]
+    question:
+      text:
+        en: "What is the difference between weight-only and full (weight+activation) quantization?"
+        ru: "В чем разница между квантизацией только весов и полной квантизацией (веса + активации)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does full quantization tend to be more challenging than weight-only quantization?"
+      ru:
+        - "Почему полная квантизация обычно сложнее квантизации только весов?"
+    expected_points:
+      - "Weight-only quantizes only model weights; full quantizes weights and activations"
+      - "Weight-only is easier to deploy and preserves accuracy better in many LLM cases"
+      - "Full quantization enables lower precision math on activations and often faster inference on integer GEMMs"
+      - "Full quantization is more sensitive to activation outliers"
+
+  - id: "dls-serve-002"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["ptq", "qat", "calibration"]
+    question:
+      text:
+        en: "What is PTQ vs QAT and when is each used?"
+        ru: "В чем разница между PTQ и QAT и когда следует использовать каждый из них?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the typical compute and data requirements for each approach?"
+      ru:
+        - "Каковы типичные требования к вычислительным ресурсам и данным для каждого подхода?"
+    expected_points:
+      - "PTQ (Post-Training Quantization) quantizes a trained model without full retraining"
+      - "QAT (Quantization-Aware Training) simulates quantization during fine-tuning or training"
+      - "PTQ is cheaper and faster, used when calibration data is limited or retraining is infeasible"
+      - "QAT is more accurate at low bitwidths but requires training compute and access to training data"
+
+  - id: "dls-serve-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["gptq", "hessian", "ptq"]
+    question:
+      text:
+        en: "What is GPTQ and how does it work (Hessian-based)?"
+        ru: "Что такое GPTQ и как он работает (на основе матрицы Гессе)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is GPTQ considered efficient for large LLMs compared to naive layer-wise quantization?"
+      ru:
+        - "Почему GPTQ считается эффективным для больших LLM по сравнению с наивной послойной квантизацией?"
+    expected_points:
+      - "GPTQ is a one-shot weight-only PTQ method for LLMs"
+      - "It uses approximate second-order information from the Hessian of layer reconstruction loss"
+      - "Weights are quantized column/group-wise with error compensation to minimize quantization error"
+      - "It can achieve 4-bit with minimal accuracy loss and runs efficiently via layer-wise processing"
+
+  - id: "dls-serve-004"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["awq", "activation", "ptq"]
+    question:
+      text:
+        en: "What is AWQ and why is it popular for LLMs?"
+        ru: "Что такое AWQ и почему он популярен для LLM?"
+      code: null
+    follow_ups:
+      en:
+        - "How does AWQ differ from GPTQ in its approach to quantization?"
+      ru:
+        - "Чем AWQ отличается от GPTQ в подходе к квантизации?"
+    expected_points:
+      - "AWQ (Activation-aware Weight Quantization) is a weight-only PTQ method"
+      - "It protects salient weights by observing activation magnitudes rather than just weight values"
+      - "Uses per-channel scaling of weights based on activation statistics to preserve important channels"
+      - "Popular due to strong accuracy at 4-bit, simple deployment, and good hardware compatibility"
+
+  - id: "dls-serve-005"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["smoothquant", "outliers", "activations"]
+    question:
+      text:
+        en: "What is SmoothQuant and how does it handle activation outliers?"
+        ru: "Что такое SmoothQuant и как он справляется с выбросами в активациях?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is migrating quantization difficulty from activations to weights beneficial?"
+      ru:
+        - "Почему выгодно перенести сложность квантизации с активаций на веса?"
+    expected_points:
+      - "SmoothQuant is a post-training method for W8A8 (weight and activation) quantization"
+      - "It smooths activation outliers by mathematically scaling them down and scaling corresponding weights up"
+      - "The transformation is offline and preserves mathematical equivalence of the model"
+      - "This makes activations easier to quantize to INT8 while keeping weights quantizable with minimal accuracy loss"
+
+  - id: "dls-serve-006"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["int4", "accuracy", "tradeoff"]
+    question:
+      text:
+        en: "What is the impact of INT4 quantization on model quality?"
+        ru: "Как влияет квантизация в INT4 на качество модели?"
+      code: null
+    follow_ups:
+      en:
+        - "In what cases can INT4 cause noticeable degradation versus larger bitwidths?"
+      ru:
+        - "В каких случаях INT4 может привести к заметному ухудшению качества по сравнению с большими битностями?"
+    expected_points:
+      - "INT4 can achieve significant memory and speed gains with small quality loss for many LLMs"
+      - "Weight-only INT4 is often acceptable; W4A4 is more sensitive to outliers and implementation details"
+      - "Degradation depends on model size, architecture, calibration data, and quantization method used"
+      - "Very small models or tasks requiring high precision may show larger drops"
+
+  - id: "dls-serve-007"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["fp8", "training", "inference"]
+    question:
+      text:
+        en: "What is FP8 and why is it emerging for training/inference?"
+        ru: "Что такое FP8 и почему он набирает популярность для обучения и инференса?"
+      code: null
+    follow_ups:
+      en:
+        - "How does FP8 compare to INT8 in terms of dynamic range and usability?"
+      ru:
+        - "Как FP8 соотносится с INT8 по диапазону значений и удобству использования?"
+    expected_points:
+      - "FP8 is an 8-bit floating point format (E4M3 and E5M2 variants) with exponent and mantissa"
+      - "It offers better dynamic range than INT8, helping with activation outliers"
+      - "Supported by modern GPUs (H100, etc.), enabling faster tensor core operations"
+      - "Emerging for both training (mixed precision) and inference due to efficiency and easier accuracy preservation"
+
+  - id: "dls-serve-008"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["kv-cache", "quantization", "memory"]
+    question:
+      text:
+        en: "How do you quantize the KV cache and what is the quality trade-off?"
+        ru: "Как квантизировать KV-кеш и каков компромисс в качестве?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is KV cache quantization especially important for long-context serving?"
+      ru:
+        - "Почему квантизация KV-кеша особенно важна при обслуживании с большим контекстом?"
+    expected_points:
+      - "KV cache can be quantized per-token or per-channel to lower precision (INT8, INT4, FP8)"
+      - "Reduces memory usage and can improve throughput for long contexts and high batch sizes"
+      - "Quality trade-off increases as bitwidth drops, especially for very long sequences or sensitive tasks"
+      - "Methods often use per-token scaling or asymmetric quantization to preserve accuracy"
+
+  - id: "dls-serve-009"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["ptq", "calibration", "data"]
+    question:
+      text:
+        en: "What is the calibration data requirement for PTQ?"
+        ru: "Каковы требования к калибровочным данным для PTQ?"
+      code: null
+    follow_ups:
+      en:
+        - "What happens if calibration data is not representative of the target distribution?"
+      ru:
+        - "Что произойдет, если калибровочные данные не репрезентативны для целевого распределения?"
+    expected_points:
+      - "PTQ needs a small calibration dataset to collect activation statistics or Hessians"
+      - "Data should be representative of the domain/tasks the model will see in production"
+      - "Usually only dozens to a few hundred samples are sufficient for most LLM PTQ methods"
+      - "Poor or biased calibration can lead to accuracy degradation, especially for full quantization"
+
+  - id: "dls-serve-010"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["evaluation", "perplexity", "metrics"]
+    question:
+      text:
+        en: "How do you evaluate the quality loss of a quantized model (perplexity, task metrics)?"
+        ru: "Как оценить потерю качества квантизированной модели (perplexity, метрики задач)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why is it important to evaluate on both general language modeling and downstream tasks?"
+      ru:
+        - "Почему важно оценивать как на задаче языкового моделирования в целом, так и на прикладных задачах?"
+    expected_points:
+      - "Measure perplexity on held-out corpora (like WikiText) to detect general language modeling degradation"
+      - "Run downstream benchmarks (MMLU, HELM, etc.) to assess task-specific performance"
+      - "Compare quantized vs full precision model on the same evaluation setup"
+      - "Look for small, acceptable drops; large drops may require different quantization method or bitwidth"
+
+  - id: "dls-serve-011"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["pruning", "structured", "unstructured"]
+    question:
+      text:
+        en: "What is pruning (structured vs unstructured) and its serving benefit?"
+        ru: "Что такое pruning (структурированный и неструктурированный) и в чем его польза для инференса?"
+      code: null
+    follow_ups:
+      en:
+        - "Which type of pruning is easier to accelerate on standard GPUs?"
+      ru:
+        - "Какой тип pruning проще ускорить на обычных GPU?"
+    expected_points:
+      - "Pruning removes weights/connections to reduce model size and compute"
+      - "Unstructured pruning removes individual weights (sparse matrices) with minimal accuracy loss"
+      - "Structured pruning removes entire channels/heads/layers for regular sparsity patterns"
+      - "Structured pruning gives better real speedup on hardware; unstructured needs specialized sparse kernels"
+
+  - id: "dls-serve-012"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["sparsity", "nvidia", "ampere"]
+    question:
+      text:
+        en: "What is 2:4 sparsity and how do GPUs exploit it?"
+        ru: "Что такое разреженность 2:4 и как GPU используют ее?"
+      code: null
+    follow_ups:
+      en:
+        - "What hardware support is required to get speedup from 2:4 sparsity?"
+      ru:
+        - "Какая аппаратная поддержка требуется для ускорения при использовании 2:4 разреженности?"
+    expected_points:
+      - "2:4 sparsity means in every block of 4 weights, exactly 2 are zero (50% sparsity)"
+      - "NVIDIA Ampere and newer GPUs have Sparse Tensor Cores that accelerate 2:4 sparse GEMMs"
+      - "Requires the sparse matrix to be stored in compressed format"
+      - "Can provide up to ~2x speedup for supported matrix multiply operations with acceptable accuracy loss"
+
+  - id: "dls-serve-013"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["distillation", "logits", "features"]
+    question:
+      text:
+        en: "How does knowledge distillation produce a smaller model (logits vs features)?"
+        ru: "Как дистилляция знаний позволяет получить меньшую модель (logits vs признаки)?"
+      code: null
+    follow_ups:
+      en:
+        - "When might feature-based distillation be preferred over logit-based distillation?"
+      ru:
+        - "Когда feature-based дистилляция может быть предпочтительнее logit-based?"
+    expected_points:
+      - "Knowledge distillation trains a smaller student model to mimic a larger teacher model"
+      - "Logit-based distillation matches softened output probabilities (temperature-scaled) between teacher and student"
+      - "Feature-based distillation matches intermediate representations (hidden states/attention maps)"
+      - "Feature matching can help students learn richer representations, often combined with logit matching"
+
+  - id: "dls-serve-014"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["onnx", "runtime", "serving"]
+    question:
+      text:
+        en: "What is the role of the ONNX runtime in serving?"
+        ru: "Какова роль ONNX Runtime при инференсе?"
+      code: null
+    follow_ups:
+      en:
+        - "What are some advantages of using ONNX Runtime over a framework's native runtime?"
+      ru:
+        - "Каковы преимущества использования ONNX Runtime по сравнению с нативным runtime фреймворка?"
+    expected_points:
+      - "ONNX Runtime is a cross-platform inference engine for models in ONNX format"
+      - "Provides optimized execution via EPs (Execution Providers) for CPU, GPU, TensorRT, OpenVINO, etc."
+      - "Enables model portability across frameworks and hardware backends"
+      - "Offers performance optimizations like graph fusion, quantization support, and efficient memory management"
+
+  - id: "dls-serve-015"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["onnx", "runtime", "execution"]
+    question:
+      text:
+        en: "What is the role of the ONNX Runtime in serving?"
+        ru: "Какова роль ONNX Runtime при инференсе?"
+      code: null
+    follow_ups:
+      en:
+        - "What are some advantages of using ONNX Runtime over a framework's native runtime?"
+      ru:
+        - "Каковы преимущества использования ONNX Runtime по сравнению с нативным runtime фреймворка?"
+    expected_points:
+      - "ONNX Runtime is a cross-platform inference engine for models in ONNX format"
+      - "Provides optimized execution via EPs for CPU, GPU, TensorRT, OpenVINO, and others"
+      - "Enables model portability across frameworks and hardware backends"
+      - "Offers graph optimizations like fusion, quantization support, and efficient memory management"
+
+  - id: "dls-serve-016"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["tensorrt", "fusion", "optimization"]
+    question:
+      text:
+        en: "What is TensorRT and how does it optimize inference (kernel fusion, FP16/INT8)?"
+        ru: "Что такое TensorRT и как он оптимизирует инференс (слияние ядер, FP16/INT8)?"
+      code: null
+    follow_ups:
+      en:
+        - "When would you prefer TensorRT over a general-purpose inference runtime?"
+      ru:
+        - "Когда TensorRT предпочтительнее универсального inference-рантайма?"
+    expected_points:
+      - "TensorRT is NVIDIA's high-performance deep learning inference optimizer and runtime"
+      - "Performs layer/kernel fusion to reduce overhead and memory transfers"
+      - "Supports precision reduction to FP16 and INT8 via calibration for faster tensor core execution"
+      - "Builds optimized engines for specific GPU architectures to maximize throughput and latency"
+
+  - id: "dls-serve-017"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["vllm", "batching", "continuous"]
+    question:
+      text:
+        en: "How do you serve an LLM with continuous batching (vLLM design)?"
+        ru: "Как обслуживать LLM с continuous batching (подход vLLM)?"
+      code: null
+    follow_ups:
+      en:
+        - "How is continuous batching different from static batching?"
+      ru:
+        - "Чем continuous batching отличается от статического батчинга?"
+    expected_points:
+      - "Continuous batching adds and removes requests from the batch at each iteration as they arrive/complete"
+      - "vLLM uses an iteration-level scheduler to form batches dynamically across prefill and decode"
+      - "This maximizes GPU utilization compared to waiting for a fixed batch to finish"
+      - "Enables higher throughput and lower average latency in multi-tenant serving"
+
+  - id: "dls-serve-018"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["pagedattention", "kv", "memory"]
+    question:
+      text:
+        en: "What is PagedAttention and how does it improve throughput?"
+        ru: "Что такое PagedAttention и как он повышает пропускную способность?"
+      code: null
+    follow_ups:
+      en:
+        - "How is PagedAttention similar to virtual memory in operating systems?"
+      ru:
+        - "Чем PagedAttention похож на виртуальную память в операционных системах?"
+    expected_points:
+      - "PagedAttention manages KV cache in fixed-size blocks (pages) instead of contiguous arrays"
+      - "Allows flexible allocation, sharing of blocks across requests (e.g. prefix caching), and less fragmentation"
+      - "Improves memory utilization, enabling larger batch sizes and longer contexts on same GPU"
+      - "Leads to higher throughput and better scalability for LLM serving"
+
+  - id: "dls-serve-019"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["prefill", "decode", "phases"]
+    question:
+      text:
+        en: "What is the difference between prefill and decode phases, and why serve them differently?"
+        ru: "В чем разница между фазами prefill и decode, и почему их нужно обрабатывать по-разному?"
+      code: null
+    follow_ups:
+      en:
+        - "Which phase is typically more compute-bound vs memory-bound?"
+      ru:
+        - "Какая фаза обычно ограничена вычислениями, а какая - памятью?"
+    expected_points:
+      - "Prefill processes the entire input prompt in parallel to generate first tokens and build KV cache"
+      - "Decode generates tokens autoregressively one (or few) at a time using the KV cache"
+      - "Prefill is compute-heavy (large matrix multiplies), decode is memory-bandwidth heavy (KV cache access)"
+      - "Serving differently (e.g. disaggregation, different batching) optimizes for their distinct bottlenecks"
+
+  - id: "dls-serve-020"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["disaggregated", "prefill", "decode"]
+    question:
+      text:
+        en: "What is disaggregated serving (separate prefill/decode pools)?"
+        ru: "Что такое раздельный (disaggregated) сервис (отдельные пулы prefill/decode)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the benefits and potential overheads of disaggregated serving?"
+      ru:
+        - "Каковы преимущества и потенциальные издержки раздельного сервиса?"
+    expected_points:
+      - "Disaggregated serving runs prefill and decode on different GPU pools with independent scaling"
+      - "Allows optimizing hardware/parallelism per phase and avoiding interference between them"
+      - "Improves resource utilization and can meet different SLOs for TTFT and TPOT separately"
+      - "Requires KV cache transfer between pools which adds network overhead and complexity"
+
+  - id: "dls-serve-021"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["speculative", "draft", "decoding"]
+    question:
+      text:
+        en: "How does speculative decoding work, and when does it help?"
+        ru: "Как работает speculative decoding и когда он полезен?"
+      code: null
+    follow_ups:
+      en:
+        - "What factors affect the acceptance rate of draft tokens?"
+      ru:
+        - "Какие факторы влияют на долю принимаемых draft-токенов?"
+    expected_points:
+      - "A smaller draft model proposes multiple tokens, and the target model verifies them in parallel"
+      - "If accepted, multiple tokens are generated per target model forward pass, reducing latency"
+      - "Helps most when draft and target are well-aligned and memory bandwidth is the bottleneck"
+      - "Gains diminish if acceptance rate is low or if draft overhead outweighs savings"
+
+  - id: "dls-serve-022"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["scheduler", "priority", "slo"]
+    question:
+      text:
+        en: "What is the role of the scheduler in an LLM server (request priority, SLO)?"
+        ru: "Какова роль планировщика (scheduler) в LLM-сервере (приоритеты запросов, SLO)?"
+      code: null
+    follow_ups:
+      en:
+        - "How might a scheduler balance fairness and throughput?"
+      ru:
+        - "Как планировщик может балансировать справедливость и пропускную способность?"
+    expected_points:
+      - "The scheduler decides which requests to run when, forming batches across prefill/decode"
+      - "Handles priorities (e.g. paid tiers), fairness, and admission control based on capacity"
+      - "Works to meet SLOs like TTFT and TPOT while maximizing GPU utilization"
+      - "Must coordinate with KV cache management, preemption, and possibly disaggregated pools"
+
+  - id: "dls-serve-023"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["ttft", "tpot", "slo", "metrics"]
+    question:
+      text:
+        en: "How do you set latency SLOs (TTFT, TPOT) and measure them?"
+        ru: "Как устанавливать SLO по задержке (TTFT, TPOT) и как их измерять?"
+      code: null
+    follow_ups:
+      en:
+        - "What factors make it hard to guarantee consistent SLOs under load?"
+      ru:
+        - "Что затрудняет гарантированное соблюдение SLO под нагрузкой?"
+    expected_points:
+      - "TTFT (Time To First Token) is time from request arrival to first generated token; TPOT (Time Per Output Token) is average time between subsequent tokens"
+      - "SLOs are set based on user experience, use case (chat vs batch), and cost/latency trade-offs"
+      - "Measured via server logs/timings, load tests, and percentiles (p50/p90/p99) in production"
+      - "Queueing, batch size, context length, and KV cache pressure can cause SLO violations under load"
+
+  - id: "dls-serve-024"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["prefix", "caching", "cost"]
+    question:
+      text:
+        en: "What is prefix caching and how does it reduce cost?"
+        ru: "Что такое prefix caching и как он снижает стоимость?"
+      code: null
+    follow_ups:
+      en:
+        - "What kinds of workloads benefit most from prefix caching?"
+      ru:
+        - "Какие рабочие нагрузки больше всего выигрывают от prefix caching?"
+    expected_points:
+      - "Prefix caching stores KV states for common prompt prefixes across requests"
+      - "On cache hit, prefill computation for the shared prefix is skipped, saving compute and time"
+      - "Reduces cost and latency, especially for multi-turn chats, RAG with shared context, or system prompts"
+      - "Requires efficient KV block management (often via PagedAttention) and cache keying strategy"
+
+  - id: "dls-serve-025"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["multi-model", "batching", "partitioning"]
+    question:
+      text:
+        en: "How do you serve multiple models on one GPU (batching, memory partitioning)?"
+        ru: "Как обслуживать несколько моделей на одном GPU (батчинг, разделение памяти)?"
+      code: null
+    follow_ups:
+      en:
+        - "What are the trade-offs between time-multiplexing and spatial partitioning?"
+      ru:
+        - "Каковы компромиссы между временным мультиплексированием и пространственным разделением?"
+    expected_points:
+      - "Time-multiplexing runs models sequentially by swapping weights; spatial partitioning splits GPU resources (MIG, vGPU) between models"
+      - "Continuous batching is typically per model or via a multi-tenant scheduler routing to model instances"
+      - "Memory must be partitioned carefully to avoid OOM; KV cache is tracked per model/instance"
+      - "Trade-offs: spatial gives isolation but may underutilize if loads uneven; time-multiplexing shares fully but has swap overhead"
+
+  - id: "dls-serve-026"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["on-device", "coreml", "llamacpp"]
+    question:
+      text:
+        en: "What is on-device serving (CoreML, NNAPI, llama.cpp) and its constraints?"
+        ru: "Что такое on-device инференс (CoreML, NNAPI, llama.cpp) и его ограничения?"
+      code: null
+    follow_ups:
+      en:
+        - "When is on-device serving preferable to cloud serving?"
+      ru:
+        - "Когда on-device инференс предпочтительнее облачного?"
+    expected_points:
+      - "On-device serving runs models locally on phones/laptops/edge devices using runtimes like CoreML, NNAPI, or llama.cpp"
+      - "Constraints include limited memory/compute, battery, thermal limits, and smaller model sizes"
+      - "Often requires quantized models (GGUF/GGML) and optimized kernels"
+      - "Preferred for privacy, offline use, low latency, or when network is unreliable/costly"
+
+  - id: "dls-serve-027"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gpu", "memory", "cost"]
+    question:
+      text:
+        en: "How do you choose the GPU for a serving job (memory vs compute, cost)?"
+        ru: "Как выбрать GPU для инференса (память vs производительность, стоимость)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why might a cheaper GPU with more memory be better than a faster one for long-context serving?"
+      ru:
+        - "Почему более дешевый GPU с большим объемом памяти может быть лучше, чем более быстрый, для длинных контекстов?"
+    expected_points:
+      - "Key factors: model size, KV cache needs (context length + batch), required throughput/latency, and budget"
+      - "Memory capacity limits max context/batch; compute/memory bandwidth affect tokens/s and latency"
+      - "For long-context or large batches, memory often dominates; for short prompts/high throughput small batches, compute matters"
+      - "Consider total cost of ownership (price/perf, utilization) and availability of optimized runtimes"
+
+  - id: "dls-serve-028"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["batch", "throughput", "prefill", "decode"]
+    question:
+      text:
+        en: "What is the impact of batch size on LLM throughput (prefill vs decode)?"
+        ru: "Как размер батча влияет на пропускную способность LLM (prefill vs decode)?"
+      code: null
+    follow_ups:
+      en:
+        - "Why does increasing batch size help decode more than prefill in many cases?"
+      ru:
+        - "Почему увеличение батча чаще больше помогает decode, чем prefill?"
+    expected_points:
+      - "Larger batch size improves GPU utilization and throughput (tokens/s) by amortizing overhead"
+      - "Prefill scales with batch but is compute-bound; benefits taper as compute is saturated"
+      - "Decode is memory-bandwidth bound and benefits strongly from batching (better KV cache reuse)"
+      - "Trade-off: larger batches increase latency (queueing/TTFT/TPOT) so must balance against SLOs"
+
+# __PART2__
