@@ -17,6 +17,8 @@ from app.interview.domain.events import (
     AnswerSavedEvent,
     EvaluatingEvent,
     InterviewEvent,
+    QuestionAssistEvent,
+    QuestionAssistKind,
     TranscriptEvent,
 )
 from app.interview.domain.exceptions import InterviewNotFoundError
@@ -539,6 +541,70 @@ class SubmitTheoryAnswer:
             evaluation=evaluation,
             follow_up_needed=follow_up_needed,
             follow_up_text=follow_up_text,
+        )
+
+    async def stream_question_assist(
+        self,
+        interview_id: str,
+        question_id: str,
+        kind: QuestionAssistKind,
+        provider: AIProvider,
+    ) -> AsyncIterator[InterviewEvent]:
+        """Generate a clarification or model answer for the open question.
+
+        The round is not consumed: no answer row is written and navigation is
+        unchanged, so the candidate can still answer the question.
+
+        Args:
+            interview_id: The session UUID.
+            question_id: YAML question ID of the open task.
+            kind: ``clarification`` to reword the question, ``hint`` to generate
+                a model answer.
+            provider: AI provider for generation.
+
+        Yields:
+            ``EvaluatingEvent`` followed by one ``QuestionAssistEvent``.
+
+        Raises:
+            InterviewNotFoundError: If the interview does not exist.
+            InterviewNotActiveError: If the interview is completed.
+            TheorySectionNotFoundError: If the theory section does not exist.
+            TheorySectionNotActiveError: If the theory section is not active.
+            UnansweredTaskNotFoundError: If the question has no open round.
+        """
+        self._ensure_interview_active(interview_id)
+
+        section = self._uow.theory_sections.get_aggregate(interview_id)
+        if section is None:
+            raise TheorySectionNotFoundError(interview_id)
+
+        section.ensure_active()
+
+        task = section.find_unanswered_for_question(question_id)
+        yield EvaluatingEvent()
+
+        if kind == "clarification":
+            result = await TheoryEvaluator.clarify_question(
+                provider=provider,
+                locale=section.locale,
+                question_text=task.question_text,
+                question_code=task.question_code,
+            )
+            text = result.clarification
+        else:
+            result = await TheoryEvaluator.generate_model_answer(
+                provider=provider,
+                locale=section.locale,
+                question_text=task.question_text,
+                question_code=task.question_code,
+                expected_points=task.expected_points,
+            )
+            text = result.model_answer
+
+        yield QuestionAssistEvent(
+            kind=kind,
+            question_id=question_id,
+            text=text,
         )
 
     async def stream_audio_answer_submission(

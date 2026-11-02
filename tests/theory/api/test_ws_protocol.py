@@ -7,6 +7,7 @@ from app.interview.domain.events import (
     AnswerSavedEvent,
     EvaluatingEvent,
     InterviewCompletedEvent,
+    QuestionAssistEvent,
     TranscriptEvent,
 )
 from app.theory.api.ws_protocol import event_to_message, events_to_messages
@@ -47,6 +48,23 @@ def test_event_to_message_transcript():
         "question_id": "q1",
         "round": 0,
         "text": "spoken answer text",
+    }
+
+
+def test_event_to_message_question_assist():
+    """Test QuestionAssistEvent maps to question_assist message."""
+    message = event_to_message(
+        QuestionAssistEvent(
+            kind="hint",
+            question_id="q1",
+            text="Model answer text",
+        )
+    )
+    assert message == {
+        "type": "question_assist",
+        "kind": "hint",
+        "question_id": "q1",
+        "text": "Model answer text",
     }
 
 

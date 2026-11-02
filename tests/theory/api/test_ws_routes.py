@@ -239,3 +239,67 @@ class TestTheoryWebSocket:
             response = ws.receive_json()
             assert response["type"] == "error"
             assert "Invalid question" in response["message"]
+
+    def test_websocket_clarify_invokes_assist(self, client):
+        """Test WebSocket clarify message invokes question assist with kind."""
+        stream_calls: list[tuple[str, str, str]] = []
+
+        async def mock_stream(
+            interview_id: str,
+            question_id: str,
+            kind: str,
+            **kwargs: Any,
+        ) -> None:
+            stream_calls.append((interview_id, question_id, kind))
+            return
+            yield  # type: ignore[misc, unreachable]
+
+        with (
+            patch(
+                "app.theory.use_cases.submit_answer.SubmitTheoryAnswer.stream_question_assist",
+                side_effect=mock_stream,
+            ),
+            client.websocket_connect("/interview/test-id/theory/ws") as ws,
+        ):
+            ws.send_json({"type": "clarify", "question_id": "ds-001"})
+            for _ in range(100):
+                if stream_calls:
+                    break
+                time.sleep(0.01)
+            assert stream_calls == [("test-id", "ds-001", "clarification")]
+
+    def test_websocket_hint_invokes_assist(self, client):
+        """Test WebSocket hint message invokes question assist with kind."""
+        stream_calls: list[tuple[str, str, str]] = []
+
+        async def mock_stream(
+            interview_id: str,
+            question_id: str,
+            kind: str,
+            **kwargs: Any,
+        ) -> None:
+            stream_calls.append((interview_id, question_id, kind))
+            return
+            yield  # type: ignore[misc, unreachable]
+
+        with (
+            patch(
+                "app.theory.use_cases.submit_answer.SubmitTheoryAnswer.stream_question_assist",
+                side_effect=mock_stream,
+            ),
+            client.websocket_connect("/interview/test-id/theory/ws") as ws,
+        ):
+            ws.send_json({"type": "hint", "question_id": "ds-001"})
+            for _ in range(100):
+                if stream_calls:
+                    break
+                time.sleep(0.01)
+            assert stream_calls == [("test-id", "ds-001", "hint")]
+
+    def test_websocket_clarify_missing_question_id(self, client):
+        """Test WebSocket clarify returns an error without a question id."""
+        with client.websocket_connect("/interview/test-id/theory/ws") as ws:
+            ws.send_json({"type": "clarify"})
+            response = ws.receive_json()
+            assert response["type"] == "error"
+            assert "question_id" in response["message"]

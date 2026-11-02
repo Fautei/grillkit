@@ -3,7 +3,10 @@
 """Semantic events emitted by interview application services."""
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
+
+
+QuestionAssistKind = Literal["clarification", "hint"]
 
 
 @dataclass(frozen=True)
@@ -61,6 +64,21 @@ class TranscriptEvent:
 
 
 @dataclass(frozen=True)
+class QuestionAssistEvent:
+    """AI clarification or model answer generated for the open question.
+
+    Attributes:
+        kind: ``clarification`` (reworded question) or ``hint`` (model answer).
+        question_id: YAML question ID the assist payload belongs to.
+        text: Generated clarification or model answer text.
+    """
+
+    kind: QuestionAssistKind
+    question_id: str
+    text: str
+
+
+@dataclass(frozen=True)
 class InterviewCompletedEvent:
     """Entire interview session was evaluated and marked complete.
 
@@ -79,6 +97,7 @@ InterviewEvent = (
     AnswerSavedEvent
     | EvaluatingEvent
     | TranscriptEvent
+    | QuestionAssistEvent
     | AnswerFeedbackEvent
     | InterviewCompletedEvent
 )

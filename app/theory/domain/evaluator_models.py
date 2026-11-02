@@ -10,6 +10,8 @@ __all__ = [
     "AnswerEvaluation",
     "FollowUpEvaluation",
     "InterviewEvaluation",
+    "ModelAnswer",
+    "QuestionClarification",
     "SectionEvaluation",
 ]
 
@@ -51,4 +53,28 @@ class FollowUpEvaluation(BaseModel):
     )
     follow_up_question: str | None = Field(
         None, description="Next follow-up question text"
+    )
+
+
+class QuestionClarification(BaseModel):
+    """AI clarification of an ambiguous interview question.
+
+    Attributes:
+        clarification: Reworded, unambiguous question text.
+    """
+
+    clarification: str = Field(
+        ..., description="Reworded, unambiguous version of the question"
+    )
+
+
+class ModelAnswer(BaseModel):
+    """AI-generated reference (model) answer for an interview question.
+
+    Attributes:
+        model_answer: Concise reference answer text.
+    """
+
+    model_answer: str = Field(
+        ..., description="Concise reference answer covering the key points"
     )

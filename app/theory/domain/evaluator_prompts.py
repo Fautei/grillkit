@@ -81,6 +81,22 @@ If the follow-up scores 2 or below AND this is not the second follow-up,
 you may set needs_further_follow_up to true with another question.
 Otherwise set it to false."""
 
+QUESTION_CLARIFICATION_INSTRUCTIONS = """You are a technical interviewer. The candidate asked you to clarify the wording of the question you just asked.
+
+Rephrase the question so it is unambiguous and easier to understand:
+- Keep the original meaning and scope exactly the same; do not narrow or expand it.
+- Define any jargon, acronyms, or ambiguous terms that appear in the question.
+- If the question includes a code block, explain what the code does and what is being asked about it.
+- Do NOT give the answer, hints, or the expected result — only clarify what is being asked.
+- Keep it to at most 4 sentences."""
+
+MODEL_ANSWER_INSTRUCTIONS = """You are a technical interviewer. The candidate asked for a hint: generate a model (reference) answer for the current question.
+
+Write a concise model answer that a strong candidate would give:
+- Use the expected rubric points as a checklist; you may add other important details.
+- Use short paragraphs or bullet points; keep it under 150 words.
+- Do not evaluate or grade — provide the reference answer only."""
+
 SECTION_EVALUATION_INSTRUCTIONS = """You are a technical interviewer providing a section-level evaluation.
 Review all question-answer pairs from this interview section and provide:
 1. Section narrative feedback summarizing performance in this section only

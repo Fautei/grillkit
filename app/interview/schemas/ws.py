@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from app.interview.domain.events import QuestionAssistKind
+
 
 class AnswerSavedMessage(BaseModel):
     """Server message emitted after answer text is persisted."""
@@ -31,6 +33,17 @@ class TranscriptMessage(BaseModel):
     type: Literal["transcript"] = "transcript"
     question_id: str
     round: int
+    text: str
+
+
+class QuestionAssistMessage(BaseModel):
+    """Server message with an AI clarification or model answer for a question."""
+
+    model_config = ConfigDict(frozen=True)
+
+    type: Literal["question_assist"] = "question_assist"
+    kind: QuestionAssistKind
+    question_id: str
     text: str
 
 

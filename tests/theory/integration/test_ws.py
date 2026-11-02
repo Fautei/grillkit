@@ -136,6 +136,63 @@ def test_websocket_answer_ai_failure_returns_error(client, isolated_db):
     assert "/config" in err["message"].lower()
 
 
+def test_websocket_clarify_returns_question_assist(
+    client, isolated_db, override_ws_ai_provider
+):
+    """WS clarify generates a clarification without consuming the round."""
+    interview_id = _seed_interview("ws-clarify-1")
+    override_ws_ai_provider(
+        client,
+        ['{"clarification": "A list is a mutable ordered collection."}'],
+    )
+
+    with client.websocket_connect(f"/interview/{interview_id}/theory/ws") as ws:
+        ws.send_json({"type": "clarify", "question_id": "q1"})
+        assert ws.receive_json() == {"type": "evaluating"}
+        assist = ws.receive_json()
+
+    assert assist == {
+        "type": "question_assist",
+        "kind": "clarification",
+        "question_id": "q1",
+        "text": "A list is a mutable ordered collection.",
+    }
+
+    reloaded = InterviewQuery.load(interview_id)
+    assert reloaded is not None
+    q1 = next(a for a in reloaded.answers if a.question_id == "q1")
+    assert q1.answer_text is None
+    assert len(reloaded.answers) == 2
+
+
+def test_websocket_hint_returns_model_answer(
+    client, isolated_db, override_ws_ai_provider
+):
+    """WS hint generates a model answer without consuming the round."""
+    interview_id = _seed_interview("ws-hint-1")
+    override_ws_ai_provider(
+        client,
+        ['{"model_answer": "Lists are mutable, tuples are immutable."}'],
+    )
+
+    with client.websocket_connect(f"/interview/{interview_id}/theory/ws") as ws:
+        ws.send_json({"type": "hint", "question_id": "q1"})
+        assert ws.receive_json() == {"type": "evaluating"}
+        assist = ws.receive_json()
+
+    assert assist == {
+        "type": "question_assist",
+        "kind": "hint",
+        "question_id": "q1",
+        "text": "Lists are mutable, tuples are immutable.",
+    }
+
+    reloaded = InterviewQuery.load(interview_id)
+    assert reloaded is not None
+    q1 = next(a for a in reloaded.answers if a.question_id == "q1")
+    assert q1.answer_text is None
+
+
 def test_websocket_timeout_scores_zero(client, isolated_db, override_ws_ai_provider):
     """WS timeout records zero score and advances without AI."""
     interview_id = "ws-timeout-1"

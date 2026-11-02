@@ -7,6 +7,7 @@ import logging
 from typing import Any
 
 from app.ai.base import AIProvider
+from app.interview.domain.events import QuestionAssistKind
 from app.interview.domain.exceptions import InterviewDomainError
 from app.interview.queries.loader import InterviewLoader as InterviewQuery
 from app.interview.support.ai_errors import ai_error_message_for_client
@@ -73,6 +74,20 @@ class TheoryWebSocketService:
                 yield message
             return
 
+        if msg_type in ("clarify", "hint"):
+            kind: QuestionAssistKind = (
+                "clarification" if msg_type == "clarify" else "hint"
+            )
+            async for message in TheoryWebSocketService._handle_question_assist(
+                raw,
+                kind=kind,
+                interview_id=interview_id,
+                provider=provider,
+                submission_service=submission_service,
+            ):
+                yield message
+            return
+
         if msg_type == "ping":
             yield TheoryWebSocketService._handle_ping(
                 interview_id,
@@ -124,6 +139,43 @@ class TheoryWebSocketService:
         except Exception as exc:
             logger.exception(
                 "WebSocket AI evaluation failed for session %s",
+                interview_id,
+            )
+            yield {
+                "type": "error",
+                "message": ai_error_message_for_client(exc),
+            }
+
+    @staticmethod
+    async def _handle_question_assist(
+        raw: dict[str, Any],
+        *,
+        kind: QuestionAssistKind,
+        interview_id: str,
+        provider: AIProvider,
+        submission_service: TheorySubmissionService,
+    ) -> AsyncIterator[dict[str, Any]]:
+        question_id = raw.get("question_id", "")
+        if not question_id:
+            yield {
+                "type": "error",
+                "message": "question_id is required",
+            }
+            return
+
+        try:
+            async for event in submission_service.stream_question_assist(
+                interview_id=interview_id,
+                question_id=question_id,
+                kind=kind,
+                provider=provider,
+            ):
+                yield event_to_message(event)
+        except (InterviewDomainError, TheoryDomainError) as exc:
+            yield domain_error_to_wire(exc)
+        except Exception as exc:
+            logger.exception(
+                "WebSocket question assist failed for session %s",
                 interview_id,
             )
             yield {

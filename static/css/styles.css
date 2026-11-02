@@ -1004,6 +1004,28 @@ textarea.form-control {
     flex-shrink: 0;
 }
 
+.composer-footer .btn-question-assist {
+    flex-shrink: 0;
+}
+
+/* AI clarification / model answer bubble */
+.chat-message.question-assist {
+    margin-left: 2rem;
+}
+
+.chat-message.question-assist .chat-bubble.question-assist-bubble {
+    border: 1px dashed var(--accent-primary);
+    background-color: var(--accent-light);
+}
+
+.chat-message.question-assist .chat-bubble.question-assist-bubble strong {
+    color: var(--accent-hover);
+}
+
+.chat-message.question-assist .question-assist-text {
+    white-space: pre-line;
+}
+
 .question-bubble-header {
     display: flex;
     align-items: center;

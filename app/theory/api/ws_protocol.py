@@ -10,6 +10,7 @@ from app.interview.domain.events import (
     EvaluatingEvent,
     InterviewCompletedEvent,
     InterviewEvent,
+    QuestionAssistEvent,
     TranscriptEvent,
 )
 from app.interview.domain.exceptions import InterviewDomainError
@@ -18,6 +19,7 @@ from app.interview.schemas.ws import (
     AnswerSavedMessage,
     EvaluatingMessage,
     InterviewCompletedMessage,
+    QuestionAssistMessage,
     TranscriptMessage,
     server_message_to_dict,
 )
@@ -51,6 +53,7 @@ def server_message_from_event(
     AnswerSavedMessage
     | EvaluatingMessage
     | TranscriptMessage
+    | QuestionAssistMessage
     | AnswerFeedbackMessage
     | InterviewCompletedMessage
 ):
@@ -73,6 +76,12 @@ def server_message_from_event(
         return TranscriptMessage(
             question_id=event.question_id,
             round=event.round,
+            text=event.text,
+        )
+    if isinstance(event, QuestionAssistEvent):
+        return QuestionAssistMessage(
+            kind=event.kind,
+            question_id=event.question_id,
             text=event.text,
         )
     if isinstance(event, AnswerFeedbackEvent):

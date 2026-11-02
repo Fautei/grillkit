@@ -174,6 +174,16 @@
                 </button>
                 <span id="audio-record-hint" class="audio-record-hint" hidden>Recording… click Cancel or Send audio</span>
                 {% endif %}
+                <button type="button" id="clarify-btn" class="btn btn-secondary btn-question-assist"
+                        onclick="requestClarification()"
+                        title="Ask the AI to clarify the wording of this question">
+                    Clarify question
+                </button>
+                <button type="button" id="hint-btn" class="btn btn-secondary btn-question-assist"
+                        onclick="requestHint()"
+                        title="Generate a model answer for this question">
+                    Hint
+                </button>
                 <button type="button" id="submit-btn" class="btn btn-primary" onclick="submitAnswer()">Submit Answer</button>
             </div>
             <div id="evaluating-indicator" class="evaluating-indicator" style="display:none;">
@@ -230,7 +240,59 @@ window.grillkitCodingBootstrap = {
     let isSubmitting = false;
     let interviewFinished = false;
     window.isSubmitting = false;
+    let assistInFlight = false;
     let evaluationWatchdogTimer = null;
+
+    function updateAssistButtons() {
+        const clarifyBtn = document.getElementById('clarify-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const disabled = isSubmitting || assistInFlight;
+        if (clarifyBtn) clarifyBtn.disabled = disabled;
+        if (hintBtn) hintBtn.disabled = disabled;
+    }
+
+    function finishQuestionAssist() {
+        if (!assistInFlight) return;
+        assistInFlight = false;
+        clearEvaluationWatchdog();
+        showEvaluating(false);
+        updateAssistButtons();
+    }
+
+    function requestQuestionAssist(kind) {
+        if (isSubmitting || assistInFlight || !currentQuestionId) return;
+        if (!ws || ws.readyState !== WebSocket.OPEN) return;
+        assistInFlight = true;
+        updateAssistButtons();
+        showEvaluating(true, kind === 'hint' ? 'AI is writing a model answer…' : 'AI is clarifying the question…');
+        startEvaluationWatchdog();
+        ws.send(JSON.stringify({
+            type: kind === 'hint' ? 'hint' : 'clarify',
+            question_id: currentQuestionId
+        }));
+    }
+
+    function requestClarification() {
+        requestQuestionAssist('clarification');
+    }
+
+    function requestHint() {
+        requestQuestionAssist('hint');
+    }
+
+    function showQuestionAssistBubble(data) {
+        const chatContainer = document.getElementById('chat-container');
+        if (!chatContainer) return;
+        const label = data.kind === 'hint' ? 'Model answer' : 'Clarification';
+        const div = document.createElement('div');
+        div.className = 'chat-message question-assist';
+        div.innerHTML =
+            '<div class="chat-bubble question-assist-bubble">' +
+            '<strong>' + label + ':</strong>' +
+            '<div class="question-assist-text">' + escapeHtml(data.text) + '</div></div>';
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 
     function stopQuestionTimer() {
         if (window.grillkitQuestionTimer) {
@@ -315,7 +377,9 @@ window.grillkitCodingBootstrap = {
                 showEvaluating(false);
                 isSubmitting = false;
                 window.isSubmitting = false;
+                assistInFlight = false;
                 enableForm(true);
+                updateAssistButtons();
                 showError(
                     'Connection lost during evaluation. Your answer may have been saved — refresh the page.'
                 );
@@ -369,6 +433,13 @@ window.grillkitCodingBootstrap = {
                 showNextAfterFeedback(data);
                 break;
 
+            case 'question_assist':
+                finishQuestionAssist();
+                if (data.question_id === currentQuestionId) {
+                    showQuestionAssistBubble(data);
+                }
+                break;
+
             case 'interview_completed':
                 clearEvaluationWatchdog();
                 showEvaluating(false);
@@ -392,7 +463,9 @@ window.grillkitCodingBootstrap = {
                 showEvaluating(false);
                 isSubmitting = false;
                 window.isSubmitting = false;
+                assistInFlight = false;
                 enableForm(true);
+                updateAssistButtons();
                 showError(data.message);
                 break;
         }
@@ -411,10 +484,11 @@ window.grillkitCodingBootstrap = {
         const timeoutMs = (llmRequestTimeoutSeconds * 1000) + graceMs;
         evaluationWatchdogTimer = setTimeout(function() {
             evaluationWatchdogTimer = null;
-            if (!isSubmitting) return;
+            if (!isSubmitting && !assistInFlight) return;
             showEvaluating(false);
             isSubmitting = false;
             window.isSubmitting = false;
+            assistInFlight = false;
             enableForm(true);
             showError(
                 'AI evaluation is taking too long. Check /config (model running and timeout), then try again.'
@@ -489,10 +563,16 @@ window.grillkitCodingBootstrap = {
         textarea.focus();
     }
 
-    function showEvaluating(visible) {
+    function showEvaluating(visible, message) {
         const indicator = document.getElementById('evaluating-indicator');
         if (indicator) {
             indicator.style.display = visible ? 'flex' : 'none';
+            if (visible && message) {
+                const label = indicator.querySelector('span');
+                if (label) {
+                    label.textContent = message;
+                }
+            }
         }
     }
 
@@ -644,6 +724,7 @@ window.grillkitCodingBootstrap = {
             audioSendBtn.disabled = audioCaptureActive ? false : true;
         }
         if (endBtn && enabled) endBtn.disabled = false;
+        updateAssistButtons();
     }
 
     window.grillkitHandleInterviewEvent = handleWsMessage;

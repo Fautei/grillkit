@@ -17,10 +17,14 @@ from app.shared.structured_evaluation import (
 from app.theory.domain.evaluator_models import (
     AnswerEvaluation,
     FollowUpEvaluation,
+    ModelAnswer,
+    QuestionClarification,
 )
 from app.theory.domain.evaluator_prompts import (
     ANSWER_EVALUATION_INSTRUCTIONS,
     FOLLOW_UP_EVALUATION_INSTRUCTIONS,
+    MODEL_ANSWER_INSTRUCTIONS,
+    QUESTION_CLARIFICATION_INSTRUCTIONS,
     SECTION_EVALUATION_INSTRUCTIONS,
     SESSION_EVALUATION_INSTRUCTIONS,
     build_evaluator_instructions,
@@ -31,6 +35,8 @@ __all__ = [
     "AnswerEvaluation",
     "FollowUpEvaluation",
     "InterviewEvaluation",
+    "ModelAnswer",
+    "QuestionClarification",
     "SectionEvaluation",
     "TheoryEvaluator",
 ]
@@ -316,6 +322,75 @@ class TheoryEvaluator:
             response_model=FollowUpEvaluation,
             user_text=user_text,
             audio_wav=audio_wav,
+        )
+
+    @staticmethod
+    async def clarify_question(
+        provider: AIProvider,
+        question_text: str,
+        locale: str = DEFAULT_LOCALE,
+        question_code: str | None = None,
+    ) -> QuestionClarification:
+        """Ask the AI to reword an ambiguous interview question.
+
+        Args:
+            provider: Configured AI provider instance.
+            question_text: The question text to clarify.
+            locale: Locale for the clarification text.
+            question_code: Optional code snippet from the question.
+
+        Returns:
+            QuestionClarification with the reworded question text.
+
+        Raises:
+            ValueError: If AI response is invalid or connection fails.
+        """
+        question = TheoryEvaluator._format_question(question_text, question_code)
+        user_text = f"Question:\n{question}"
+        return await TheoryEvaluator._evaluate_with_schema(
+            provider,
+            locale=locale,
+            instructions=QUESTION_CLARIFICATION_INSTRUCTIONS,
+            response_model=QuestionClarification,
+            user_text=user_text,
+        )
+
+    @staticmethod
+    async def generate_model_answer(
+        provider: AIProvider,
+        question_text: str,
+        locale: str = DEFAULT_LOCALE,
+        question_code: str | None = None,
+        expected_points: tuple[str, ...] | None = None,
+    ) -> ModelAnswer:
+        """Generate a concise reference (model) answer for an interview question.
+
+        Args:
+            provider: Configured AI provider instance.
+            question_text: The question text to answer.
+            locale: Locale for the model answer text.
+            question_code: Optional code snippet from the question.
+            expected_points: Rubric bullets guiding the reference answer.
+
+        Returns:
+            ModelAnswer with the reference answer text.
+
+        Raises:
+            ValueError: If AI response is invalid or connection fails.
+        """
+        question = TheoryEvaluator._format_question(question_text, question_code)
+        rubric = format_expected_rubric(expected_points)
+        user_text = (
+            f"Question:\n{question}\n\n"
+            "Expected rubric points (checklist for the model answer):\n"
+            f"{rubric}"
+        )
+        return await TheoryEvaluator._evaluate_with_schema(
+            provider,
+            locale=locale,
+            instructions=MODEL_ANSWER_INSTRUCTIONS,
+            response_model=ModelAnswer,
+            user_text=user_text,
         )
 
     @staticmethod
