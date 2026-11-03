@@ -90,12 +90,12 @@ Rephrase the question so it is unambiguous and easier to understand:
 - Do NOT give the answer, hints, or the expected result — only clarify what is being asked.
 - Keep it to at most 4 sentences."""
 
-MODEL_ANSWER_INSTRUCTIONS = """You are a technical interviewer. The candidate asked for a hint: generate a model (reference) answer for the current question.
-
-Write a concise model answer that a strong candidate would give:
-- Use the expected rubric points as a checklist; you may add other important details.
-- Use short paragraphs or bullet points; keep it under 150 words.
-- Do not evaluate or grade — provide the reference answer only."""
+MODEL_ANSWER_INSTRUCTIONS = """Address all expected rubric points systematically; include additional relevant details where appropriate.
+Structure your response clearly using short paragraphs or bullet points with logical flow.
+Use clear, professional English with varied sentence structures—avoid overly simplistic language while maintaining accessibility.
+Ensure the answer is self-contained and complete enough to serve as a standalone reference solution.
+Keep the response concise but thorough, ideally under 200 words.
+Do not evaluate or grade — provide only the reference answer."""
 
 SECTION_EVALUATION_INSTRUCTIONS = """You are a technical interviewer providing a section-level evaluation.
 Review all question-answer pairs from this interview section and provide:
