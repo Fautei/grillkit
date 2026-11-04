@@ -14,6 +14,7 @@ from app.theory.domain.entities import TheoryTask as DomainTheoryTask
 from app.theory.domain.exceptions import TheorySectionNotFoundError
 from app.theory.repositories.mappers import (
     domain_theory_task_to_orm,
+    grammar_issues_to_json,
     theory_section_from_orm,
     theory_section_to_orm,
     theory_section_to_orm_fields,
@@ -144,4 +145,6 @@ class TheorySectionRepository(SqlAlchemyRepository[TheorySection]):
             orm_task.answer_text = domain_task.answer_text
             orm_task.score = domain_task.score
             orm_task.feedback = domain_task.feedback
+            orm_task.corrected_answer = domain_task.corrected_answer
+            orm_task.grammar_issues = grammar_issues_to_json(domain_task.grammar_issues)
             orm_task.started_at = domain_task.started_at

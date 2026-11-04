@@ -8,7 +8,11 @@ from typing import Literal
 from app.ai.base import AIProvider, AudioCapableProvider, GenerationResult, Message
 from app.coding.domain.evaluator_models import CodingAnswerEvaluation
 from app.shared.evaluation_models import SectionEvaluation
-from app.theory.domain.evaluator_models import AnswerEvaluation, FollowUpEvaluation
+from app.theory.domain.evaluator_models import (
+    AnswerEvaluation,
+    AnswerGrammarAnalysis,
+    FollowUpEvaluation,
+)
 
 
 def answer_evaluation_json(
@@ -115,6 +119,27 @@ def section_evaluation_json(
         section_feedback=section_feedback,
         topics_to_review=topics_to_review or [],
         strengths_summary=strengths_summary or ["clear answers"],
+    )
+    return payload.model_dump_json()
+
+
+def grammar_analysis_json(
+    *,
+    corrected_answer: str,
+    issues: list[dict[str, str]] | None = None,
+) -> str:
+    """Build JSON text matching ``AnswerGrammarAnalysis`` for a fake provider.
+
+    Args:
+        corrected_answer: Grammar-only corrected reference answer.
+        issues: Grammar issue rows (excerpt, correction, note).
+
+    Returns:
+        Serialized JSON string.
+    """
+    payload = AnswerGrammarAnalysis(
+        corrected_answer=corrected_answer,
+        issues=issues or [],
     )
     return payload.model_dump_json()
 

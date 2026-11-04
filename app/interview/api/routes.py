@@ -13,6 +13,7 @@ from app.interview.api.deps import ActiveSessionPageDep
 from app.interview.api.errors import http_exception_from_domain_error
 from app.interview.domain.exceptions import InterviewDomainError
 from app.platform.api.deps import ConfigServiceDep, SpeechRuntimeDep
+from app.question_voice.use_cases.generate_answer_audio import GenerateAnswerAudio
 from app.question_voice.use_cases.generate_question_audio import GenerateQuestionAudio
 from app.shared.infrastructure.gateways.tts_exceptions import (
     QuestionVoiceDisabledError,
@@ -123,3 +124,38 @@ async def question_audio(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     return FileResponse(path, media_type="audio/wav", filename="question.wav")
+
+
+@router.get("/{interview_id}/answer-audio")
+async def answer_audio(
+    interview_id: str,
+    coordinator: SpeechRuntimeDep,
+    answer_id: int,
+) -> FileResponse:
+    """Stream WAV audio for a submitted answer (reference pronunciation).
+
+    Args:
+        interview_id: Interview session UUID.
+        coordinator: App-lifetime speech runtime coordinator.
+        answer_id: Answer row primary key whose text should be synthesized.
+
+    Returns:
+        ``audio/wav`` file from cache or TTS synthesis.
+
+    Raises:
+        HTTPException: When voice is disabled, the answer is invalid, or TTS fails.
+    """
+    try:
+        path = await GenerateAnswerAudio.execute(
+            coordinator.tts, interview_id, answer_id
+        )
+    except QuestionVoiceDisabledError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except QuestionVoiceSynthesisError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except InterviewDomainError as exc:
+        raise http_exception_from_domain_error(exc) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    return FileResponse(path, media_type="audio/wav", filename="answer.wav")

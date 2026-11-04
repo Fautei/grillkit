@@ -283,3 +283,120 @@ class TestQuestionAudioApi:
         assert response.status_code == 200
         assert response.headers["content-type"].startswith("audio/wav")
         assert response.content == b"RIFF"
+
+
+class TestAnswerAudioApi:
+    """Tests for GET /interview/{id}/answer-audio."""
+
+    def test_answer_audio_requires_voice_enabled(
+        self, client, isolated_db, temp_questions_dir, monkeypatch, tmp_path
+    ):
+        """Disabled voice returns 404."""
+        del temp_questions_dir
+        monkeypatch.setattr("random.shuffle", lambda items: None)
+        config = AppConfig(
+            provider_type="openai-compatible",
+            base_url="http://localhost",
+            model="gpt-4",
+            question_voice_enabled=False,
+        )
+        from app.interview.domain.value_objects import (
+            SessionSelection,
+            TrackSelection,
+        )
+        from app.shared.infrastructure.gateways.tts_exceptions import (
+            QuestionVoiceDisabledError,
+        )
+
+        interview = create_session(
+            SessionSelection.theory_only(
+                sources=(
+                    TrackSelection(
+                        track="python",
+                        level="junior",
+                        categories=("data-structures",),
+                    ),
+                ),
+                question_count=1,
+            ),
+            locale="en",
+        )
+        reloaded = InterviewQuery.load(interview.id)
+        assert reloaded is not None
+        answer = reloaded.answers[0]
+        with (
+            patch(
+                "app.platform.domain.config.ConfigService.get_config",
+                return_value=config,
+            ),
+            patch(
+                "app.interview.api.routes.GenerateAnswerAudio.execute",
+                new_callable=AsyncMock,
+                side_effect=QuestionVoiceDisabledError(),
+            ),
+        ):
+            response = client.get(
+                f"/interview/{interview.id}/answer-audio",
+                params={"answer_id": answer.id},
+            )
+        assert response.status_code == 404
+
+    def test_answer_audio_streams_cached_wav(
+        self,
+        client,
+        isolated_db,
+        temp_questions_dir,
+        monkeypatch,
+        tmp_path,
+        voice_config,
+    ):
+        """Enabled voice streams the synthesized WAV for the requested answer."""
+        del temp_questions_dir
+        monkeypatch.setattr("random.shuffle", lambda items: None)
+        from app.interview.domain.value_objects import (
+            SessionSelection,
+            TrackSelection,
+        )
+
+        interview = create_session(
+            SessionSelection.theory_only(
+                sources=(
+                    TrackSelection(
+                        track="python",
+                        level="junior",
+                        categories=("data-structures",),
+                    ),
+                ),
+                question_count=1,
+            ),
+            locale="en",
+        )
+        reloaded = InterviewQuery.load(interview.id)
+        assert reloaded is not None
+        answer = reloaded.answers[0]
+        wav_path = tmp_path / "answer.wav"
+        wav_path.write_bytes(b"RIFF")
+
+        with (
+            patch(
+                "app.platform.domain.config.ConfigService.get_config",
+                return_value=voice_config,
+            ),
+            patch(
+                "app.interview.api.routes.GenerateAnswerAudio.execute",
+                new_callable=AsyncMock,
+                return_value=Path(wav_path),
+            ) as execute,
+        ):
+            response = client.get(
+                f"/interview/{interview.id}/answer-audio",
+                params={"answer_id": answer.id},
+            )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("audio/wav")
+        assert response.content == b"RIFF"
+        execute.assert_awaited_once()
+        call_args = execute.await_args.args
+        assert call_args[1] == interview.id
+        assert call_args[2] == answer.id

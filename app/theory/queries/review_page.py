@@ -12,6 +12,7 @@ from app.interview.queries.review_context import (
     shared_review_fields,
 )
 from app.interview.repositories.uow import InterviewUnitOfWork
+from app.platform.domain.config import ConfigService
 from app.theory.queries.loader import TheorySectionLoader
 from app.theory.schemas.review import TheoryReviewContext
 from app.theory.schemas.theory import TheoryTaskRead
@@ -66,6 +67,8 @@ class TheoryReviewPage:
             total_score=section.total_score(),
             max_score=section.max_score(),
         )
+        config = ConfigService.get_config()
+        question_voice_enabled = bool(config and config.question_voice_enabled)
 
         return TheoryReviewContext(
             **{
@@ -73,6 +76,7 @@ class TheoryReviewPage:
                 **scores,
                 "section_feedback": section_feedback,
                 "answers": answers,
+                "question_voice_enabled": question_voice_enabled,
             }
         )
 

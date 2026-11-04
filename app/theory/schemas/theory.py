@@ -20,6 +20,8 @@ class TheoryTaskRead(BaseModel):
         answer_text: User answer text, or None when unanswered.
         score: AI score for the round, or None when not evaluated.
         feedback: AI-generated feedback text, or None.
+        corrected_answer: Grammatically corrected reference version, or None.
+        grammar_issues: Grammar issue rows for highlighting, or None when not analyzed.
         started_at: When the round timer started, or None.
     """
 
@@ -34,4 +36,6 @@ class TheoryTaskRead(BaseModel):
     answer_text: str | None
     score: int | None
     feedback: str | None = None
+    corrected_answer: str | None = None
+    grammar_issues: list[dict[str, str]] | None = None
     started_at: datetime | None

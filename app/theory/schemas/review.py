@@ -24,6 +24,7 @@ class TheoryReviewContext(BaseModel):
         section_feedback: Resolved section narrative payload.
         answers: All answered theory task rounds for chat history.
         results_url: Relative URL for the session results hub.
+        question_voice_enabled: Whether Piper TTS answer playback is available.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -37,3 +38,4 @@ class TheoryReviewContext(BaseModel):
     section_feedback: dict[str, Any]
     answers: list[TheoryTaskRead]
     results_url: str
+    question_voice_enabled: bool = False

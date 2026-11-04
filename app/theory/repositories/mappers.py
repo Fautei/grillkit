@@ -51,6 +51,43 @@ def _expected_points_from_json(raw: str | None) -> tuple[str, ...]:
     return tuple(str(point) for point in data)
 
 
+def grammar_issues_to_json(
+    issues: tuple[dict[str, str], ...] | None,
+) -> str | None:
+    """Serialize grammar issue rows for ORM storage.
+
+    Args:
+        issues: Domain grammar issue rows, or None when not analyzed.
+
+    Returns:
+        JSON array string, or None when no analysis exists.
+    """
+    if issues is None:
+        return None
+    return json.dumps(list(issues), separators=(",", ":"))
+
+
+def grammar_issues_from_json(raw: str | None) -> tuple[dict[str, str], ...] | None:
+    """Deserialize grammar issue rows from an ORM column.
+
+    Args:
+        raw: JSON array string, or None when not analyzed.
+
+    Returns:
+        Tuple of grammar issue dicts, or None when no analysis exists.
+    """
+    if raw is None:
+        return None
+    data = json.loads(raw)
+    if not isinstance(data, list):
+        return None
+    return tuple(
+        {str(key): str(value) for key, value in item.items()}
+        for item in data
+        if isinstance(item, dict)
+    )
+
+
 def _question_ids_from_tasks(tasks: tuple[DomainTheoryTask, ...]) -> tuple[str, ...]:
     """Derive ordered question IDs from initial task rounds.
 
@@ -94,6 +131,8 @@ def theory_task_from_orm(
         answer_text=answer.answer_text,
         score=answer.score,
         feedback=answer.feedback,
+        corrected_answer=answer.corrected_answer,
+        grammar_issues=grammar_issues_from_json(answer.grammar_issues),
         started_at=answer.started_at,
         created_at=answer.created_at,
     )
@@ -127,6 +166,8 @@ def domain_theory_task_to_orm(
         answer_text=task.answer_text,
         score=task.score,
         feedback=task.feedback,
+        corrected_answer=task.corrected_answer,
+        grammar_issues=grammar_issues_to_json(task.grammar_issues),
         started_at=task.started_at,
         created_at=task.created_at,
     )
@@ -238,5 +279,11 @@ def theory_task_read_from_domain(task: DomainTheoryTask) -> TheoryTaskRead:
         answer_text=task.answer_text,
         score=task.score,
         feedback=task.feedback,
+        corrected_answer=task.corrected_answer,
+        grammar_issues=(
+            [dict(issue) for issue in task.grammar_issues]
+            if task.grammar_issues is not None
+            else None
+        ),
         started_at=task.started_at,
     )

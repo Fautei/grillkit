@@ -90,12 +90,12 @@ Rephrase the question so it is unambiguous and easier to understand:
 - Do NOT give the answer, hints, or the expected result — only clarify what is being asked.
 - Keep it to at most 4 sentences."""
 
-MODEL_ANSWER_INSTRUCTIONS = """Address all expected rubric points systematically; include additional relevant details where appropriate.
-Structure your response clearly using short paragraphs or bullet points with logical flow.
-Use clear, professional English with varied sentence structures—avoid overly simplistic language while maintaining accessibility.
-Ensure the answer is self-contained and complete enough to serve as a standalone reference solution.
-Keep the response concise but thorough, ideally under 200 words.
-Do not evaluate or grade — provide only the reference answer."""
+MODEL_ANSWER_INSTRUCTIONS = """This is an interview question. 
+You should put yourself in the candidate's shoes and provide a well-articulated, 
+comprehensive response—as if you were answering this question during an actual 
+job interview. The text should follow the question naturally, just as it would 
+in a real-life conversation. Do not include any formulas or code snippets; 
+if such elements are necessary, they must be described in words."""
 
 SECTION_EVALUATION_INSTRUCTIONS = """You are a technical interviewer providing a section-level evaluation.
 Review all question-answer pairs from this interview section and provide:

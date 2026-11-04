@@ -9,13 +9,14 @@ from pydantic import BaseModel
 from app.ai.base import AIProvider, Message
 from app.shared.evaluation_models import InterviewEvaluation, SectionEvaluation
 from app.shared.json_parser import build_prompt_with_schema
-from app.shared.locales import DEFAULT_LOCALE
+from app.shared.locales import DEFAULT_LOCALE, language_instruction
 from app.shared.structured_evaluation import (
     evaluate_with_schema,
     generate_and_parse_json_response,
 )
 from app.theory.domain.evaluator_models import (
     AnswerEvaluation,
+    AnswerGrammarAnalysis,
     FollowUpEvaluation,
     ModelAnswer,
     QuestionClarification,
@@ -30,9 +31,11 @@ from app.theory.domain.evaluator_prompts import (
     build_evaluator_instructions,
     format_expected_rubric,
 )
+from app.theory.domain.grammar_prompts import GRAMMAR_ANALYSIS_INSTRUCTIONS
 
 __all__ = [
     "AnswerEvaluation",
+    "AnswerGrammarAnalysis",
     "FollowUpEvaluation",
     "InterviewEvaluation",
     "ModelAnswer",
@@ -391,6 +394,41 @@ class TheoryEvaluator:
             instructions=MODEL_ANSWER_INSTRUCTIONS,
             response_model=ModelAnswer,
             user_text=user_text,
+        )
+
+    @staticmethod
+    async def analyze_answer_grammar(
+        provider: AIProvider,
+        answer_text: str,
+        locale: str = DEFAULT_LOCALE,
+    ) -> AnswerGrammarAnalysis:
+        """Analyze an answer's grammar for language training highlighting.
+
+        Unlike answer evaluation, this focuses only on language (grammar,
+        spelling, agreement, punctuation) and not on technical substance.
+
+        Args:
+            provider: Configured AI provider instance.
+            answer_text: The user's answer to proofread.
+            locale: Interview locale for the analysis language.
+
+        Returns:
+            AnswerGrammarAnalysis with a corrected version and verbatim issues.
+
+        Raises:
+            ValueError: If AI response is invalid or connection fails.
+        """
+        system_prompt = build_prompt_with_schema(
+            f"{language_instruction(locale)}\n\n{GRAMMAR_ANALYSIS_INSTRUCTIONS}",
+            AnswerGrammarAnalysis,
+        )
+        user_text = f"Answer to proofread:\n{answer_text}"
+        return await evaluate_with_schema(
+            provider,
+            system_prompt=system_prompt,
+            response_model=AnswerGrammarAnalysis,
+            user_text=user_text,
+            max_tokens=2000,
         )
 
     @staticmethod

@@ -24,8 +24,11 @@ from app.interview.api.deps import (
     TheorySubmissionServiceDep,
 )
 from app.shared.api.negotiated_response import safe_send_json
+from app.shared.application.uow_deps import UoWDep
 from app.theory.api.audio_answer import TheoryAudioAnswerAdapter
 from app.theory.api.ws_session import TheoryWebSocketService
+from app.theory.domain.exceptions import TheorySectionNotFoundError
+from app.theory.use_cases.answer_grammar import AnswerGrammarService
 
 router = APIRouter(prefix="/interview", tags=["theory"])
 
@@ -76,6 +79,46 @@ async def submit_theory_audio_answer(
         ),
         media_type="application/x-ndjson",
     )
+
+
+@router.post("/{interview_id}/theory/answer-grammar")
+async def theory_answer_grammar(
+    interview_id: str,
+    provider: AIProviderDep,
+    uow: UoWDep,
+    answer_id: int,
+) -> dict[str, object]:
+    """Generate or return cached grammar analysis for one submitted answer.
+
+    Args:
+        interview_id: Interview session UUID.
+        provider: AI provider for grammar analysis.
+        uow: Request-scoped unit of work.
+        answer_id: Answer row primary key to analyze.
+
+    Returns:
+        JSON with ``corrected_answer`` and ``grammar_issues`` for highlighting.
+
+    Raises:
+        HTTPException: When the section is missing (404) or analysis fails (502).
+    """
+    service = AnswerGrammarService(uow)
+    try:
+        read = await service.analyze(
+            interview_id=interview_id,
+            answer_id=answer_id,
+            provider=provider,
+        )
+    except TheorySectionNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return {
+        "answer_id": read.id,
+        "corrected_answer": read.corrected_answer,
+        "grammar_issues": read.grammar_issues or [],
+    }
 
 
 async def handle_theory_websocket(

@@ -61,7 +61,17 @@
 
                 <div class="chat-message answer" data-question-id="{{ answer.question_id }}" data-round="{{ answer.round }}">
                     <div class="chat-bubble answer-bubble">
-                        <strong>You:</strong> {{ answer.answer_text }}
+                        <div class="answer-play-row">
+                            <strong>You:</strong>
+                            {% if question_voice_enabled %}
+                            <button type="button" class="btn btn-sm btn-outline btn-answer-play"
+                                    data-interview-id="{{ interview_id }}"
+                                    data-answer-id="{{ answer.id }}"
+                                    aria-label="Play answer" title="Play answer"
+                                    aria-pressed="false">Play</button>
+                            {% endif %}
+                        </div>
+                        <span class="answer-grammar" data-answer-id="{{ answer.id }}" data-interview-id="{{ interview_id }}">{{ answer.answer_text }}</span>
                     </div>
                 </div>
 
@@ -86,6 +96,7 @@
 
 {% block scripts %}
 <script src="/static/js/known_questions.js?v={{ static_version('js/known_questions.js') }}"></script>
+<script src="/static/js/answer_voice.js?v={{ static_version('js/answer_voice.js') }}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         if (window.KnownQuestions) {

@@ -38,6 +38,8 @@ class TheoryTask(TimedTask):
         answer_text: User answer text, or None when unanswered.
         score: AI score for the round, or None when not evaluated.
         feedback: AI-generated feedback text, or None.
+        corrected_answer: Grammatically corrected reference version of the answer.
+        grammar_issues: Grammar issues for language highlighting, or None when not analyzed.
         started_at: When the round timer started, or None.
         created_at: When this task row was created.
     """
@@ -59,6 +61,8 @@ class TheoryTask(TimedTask):
     started_at: datetime | None
     created_at: datetime
     expected_points: tuple[str, ...] = ()
+    corrected_answer: str | None = None
+    grammar_issues: tuple[dict[str, str], ...] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -241,6 +245,34 @@ class TheorySection(Section[TheoryTask]):
         """
         tasks = tuple(
             replace(task, answer_text=text) if task.id == task_id else task
+            for task in self.tasks
+        )
+        return replace(self, tasks=tasks)
+
+    def with_grammar(
+        self,
+        task_id: int,
+        corrected_answer: str | None,
+        grammar_issues: tuple[dict[str, str], ...] | None,
+    ) -> TheorySection:
+        """Return aggregate with grammar analysis stored on the given task.
+
+        Args:
+            task_id: Primary key of the task row to update.
+            corrected_answer: Grammatically corrected reference version, or None.
+            grammar_issues: Grammar issue rows for highlighting, or None.
+
+        Returns:
+            A new aggregate with grammar fields set on the target task.
+        """
+        tasks = tuple(
+            replace(
+                task,
+                corrected_answer=corrected_answer,
+                grammar_issues=grammar_issues,
+            )
+            if task.id == task_id
+            else task
             for task in self.tasks
         )
         return replace(self, tasks=tasks)

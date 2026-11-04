@@ -127,6 +127,10 @@ class Answer(Base):
         answer_text: User's answer text (None if skipped).
         score: AI-assigned score (1-5, or 0 on timeout), None if not yet evaluated.
         feedback: AI-generated feedback text.
+        corrected_answer: Grammatically corrected reference version of the answer,
+            used for language training and reference TTS (None until analyzed).
+        grammar_issues: JSON array of grammar issues (excerpt, correction, note)
+            used to highlight the answer for language training (None until analyzed).
         started_at: When this round became active for the user (None if timer off).
         created_at: Timestamp when this answer was recorded.
         theory_section: Back-reference to the parent TheorySection.
@@ -148,6 +152,8 @@ class Answer(Base):
     answer_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     feedback: Mapped[str | None] = mapped_column(Text, nullable=True)
+    corrected_answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    grammar_issues: Mapped[str | None] = mapped_column(Text, nullable=True)
     started_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

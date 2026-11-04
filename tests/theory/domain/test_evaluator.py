@@ -7,7 +7,12 @@ import pytest
 from app.ai.audio_probe import minimal_wav_bytes
 from app.theory.domain.evaluator import TheoryEvaluator as TheoryEvaluatorService
 from app.theory.domain.evaluator_prompts import format_expected_rubric
-from tests.fakes import FakeProvider, answer_evaluation_json, follow_up_evaluation_json
+from tests.fakes import (
+    FakeProvider,
+    answer_evaluation_json,
+    follow_up_evaluation_json,
+    grammar_analysis_json,
+)
 
 
 def test_format_expected_rubric_empty() -> None:
@@ -107,3 +112,31 @@ async def test_evaluate_with_audio_follow_up_round() -> None:
     assert evaluation.score == 3
     assert follow_up_needed is False
     assert follow_up_text == "One more detail?"
+
+
+@pytest.mark.asyncio
+async def test_analyze_answer_grammar_parses_issues() -> None:
+    """Grammar analysis returns a corrected answer and verbatim issues."""
+    provider = FakeProvider(
+        [
+            grammar_analysis_json(
+                corrected_answer="It is a list of items.",
+                issues=[
+                    {
+                        "excerpt": "It",
+                        "correction": "This",
+                        "note": "word choice",
+                    }
+                ],
+            )
+        ]
+    )
+    analysis = await TheoryEvaluatorService.analyze_answer_grammar(
+        provider=provider,
+        answer_text="It a list of items.",
+        locale="en",
+    )
+    assert analysis.corrected_answer == "It is a list of items."
+    assert len(analysis.issues) == 1
+    assert analysis.issues[0].excerpt == "It"
+    assert analysis.issues[0].correction == "This"

@@ -8,7 +8,9 @@ from app.shared.evaluation_models import InterviewEvaluation, SectionEvaluation
 
 __all__ = [
     "AnswerEvaluation",
+    "AnswerGrammarAnalysis",
     "FollowUpEvaluation",
+    "GrammarIssue",
     "InterviewEvaluation",
     "ModelAnswer",
     "QuestionClarification",
@@ -77,4 +79,36 @@ class ModelAnswer(BaseModel):
 
     model_answer: str = Field(
         ..., description="Concise reference answer covering the key points"
+    )
+
+
+class GrammarIssue(BaseModel):
+    """One grammar/style problem in the candidate's answer.
+
+    Attributes:
+        excerpt: Verbatim substring copied from the answer that is incorrect.
+        correction: The corrected replacement for ``excerpt``.
+        note: Short optional explanation of the problem.
+    """
+
+    excerpt: str = Field(..., description="Exact substring of the answer to highlight")
+    correction: str = Field(..., description="Corrected replacement for the excerpt")
+    note: str | None = Field(None, description="Brief explanation, if useful")
+
+
+class AnswerGrammarAnalysis(BaseModel):
+    """Grammar-focused analysis of one answer for language training.
+
+    Attributes:
+        corrected_answer: Grammatically corrected version of the answer, used as
+            the reference for highlighting and text-to-speech playback.
+        issues: Ordered list of grammar issues with verbatim excerpts to highlight.
+    """
+
+    corrected_answer: str = Field(
+        ..., description="Grammar-only corrected version of the answer text"
+    )
+    issues: list[GrammarIssue] = Field(
+        default_factory=list,
+        description="Grammar issues, each excerpt a verbatim substring of the answer",
     )
