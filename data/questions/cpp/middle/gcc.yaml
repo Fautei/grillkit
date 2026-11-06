@@ -1,0 +1,92 @@
+category: "GCC Toolchain in Practice"
+track: "cpp"
+level: "middle"
+
+description: "Linking shared libraries, sanitizers, and optimization levels"
+
+questions:
+  - id: "gcc-m-001"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gcc", "linking", "shared-library", "rpath"]
+
+    question:
+      text:
+        en: "Explain shared-library linking in GCC/Linux: why `-fPIC` is required for `.so`, what `soname` is, how `rpath`/`runpath` and `$ORIGIN` affect runtime lookup, and how a linker version script hides private symbols. Why does link order matter for static archives, and how do `--start-group/--end-group` help?"
+        ru: "Объясните линковку динамических библиотек GCC/Linux: зачем для `.so` нужен `-fPIC`, что такое `soname`, как `rpath`/`runpath` и `$ORIGIN` влияют на поиск runtime, и как version-скрипт линкера скрывает приватные символы. Почему важен порядок линковки статических архивов и как помогают `--start-group/--end-group`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you inspect the SONAME and DT_RUNPATH of a binary (readelf -d, objdump -p)?"
+        - "What is the difference between -Wl,-rpath and LD_LIBRARY_PATH for deployment?"
+        - "What happens if two loaded shared libraries define the same symbol with different implementations?"
+      ru:
+        - "Как посмотреть SONAME и DT_RUNPATH бинарника (readelf -d, objdump -p)?"
+        - "Чем -Wl,-rpath отличается от LD_LIBRARY_PATH при деплое?"
+        - "Что произойдёт, если две загруженные .so определяют один символ с разными реализациями?"
+
+    expected_points:
+      - "Shared objects need position-independent code (-fPIC) so the loader can relocate them at arbitrary addresses"
+      - "SONAME (linker flag -Wl,-soname) is the ABI version recorded in consumers and used at runtime, e.g. libfoo.so.1"
+      - "DT_RUNPATH/DT_RPATH store embedded search paths; $ORIGIN makes them relative to the executable; LD_LIBRARY_PATH is environment-based and generally discouraged in deployment"
+      - "Version scripts (-Wl,--version-script) export a controlled symbol set and localize internals, improving load time and encapsulation"
+      - "Static archives are scanned once in command-line order; circular dependencies need repeated listing or -Wl,--start-group ... --end-group"
+      - "Default symbol interposition: first definition wins for dynamic symbols — duplicate symbols across .so can silently mix implementations"
+
+  - id: "gcc-m-002"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gcc", "sanitizers", "ubsan", "asan"]
+
+    question:
+      text:
+        en: "Which sanitizers does GCC provide (`-fsanitize=address|undefined|thread|leak|memory`), why must they be built with `-g -fno-omit-frame-pointer`, which combinations are forbidden, and how do you read an AddressSanitizer report (heap-use-after-free)?"
+        ru: "Какие санитайзеры предоставляет GCC (`-fsanitize=address|undefined|thread|leak|memory`), почему их собирают с `-g -fno-omit-frame-pointer`, какие комбинации запрещены и как читать отчёт AddressSanitizer (heap-use-after-free)?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is the typical runtime/memory overhead of ASan?"
+        - "Why does UBSan sometimes disappear at -O2/-O3 in old GCC without -fsanitize-trap or careful flags?"
+        - "How do you run a test binary under ASan with error display on exit (LeakSanitizer)?"
+      ru:
+        - "Каковы типичные накладные расходы ASan по времени и памяти?"
+        - "Почему UBSan в старых GCC при -O2/-O3 иногда 'исчезает' без аккуратных флагов?"
+        - "Как запустить тестовый бинарник под ASan с проверкой утечек на выходе (LeakSanitizer)?"
+
+    expected_points:
+      - "ASan detects heap/stack/global overflows and use-after-free (with LeakSanitizer at exit); typically ~2x CPU and high memory multiplier"
+      - "UBSan detects signed overflow, invalid casts, misaligned access, etc.; runtime checks with readable reports"
+      - "TSan detects data races; MSan detects reads of uninitialized memory (Clang-centric, needs all code instrumented)"
+      - "ASan+TSan (and ASan+MSan) cannot be combined; UBSan can mix with ASan — compile all TUs with the same -fsanitize flags"
+      - "-g and -fno-omit-frame-pointer give symbolized stacks; ASan reports show allocation, free, and access stacks to pinpoint the bug"
+
+  - id: "gcc-m-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["gcc", "optimization", "pgo", "lto"]
+
+    question:
+      text:
+        en: "What do `-O1/-O2/-O3/-Os/-Ofast` actually enable in GCC? Explain inlining heuristics, auto-vectorization with `-march=native`, profile-guided optimization (`-fprofile-generate/-fprofile-use`), and why `-Ofast` changes C++ semantics."
+        ru: "Что реально включают `-O1/-O2/-O3/-Os/-Ofast` в GCC? Объясните эвристики inlining, автовекторизацию с `-march=native`, profile-guided optimization (`-fprofile-generate/-fprofile-use`) и почему `-Ofast` меняет семантику C++."
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you see whether GCC vectorized a loop (-fopt-info-vec)?"
+        - "What is the danger of -march=native in distributed CI or packages?"
+        - "Why can -Ofast break floating-point comparisons and NaN handling?"
+      ru:
+        - "Как увидеть, векторизовал ли GCC цикл (-fopt-info-vec)?"
+        - "Чем опасен -march=native в распределённом CI или в пакетах?"
+        - "Почему -Ofast может ломать сравнения floating-point и обработку NaN?"
+
+    expected_points:
+      - "-O1 basic optimizations; -O2 most balanced set (inlining, loop optimizations); -O3 adds aggressive/unrolling/vectorization; -Os favors size"
+      - "Inlining is heuristic (function size, call frequency); large inline candidates need -finline-limit or explicit attributes"
+      - "-march=native enables SIMD/ISA of the build host — reproducible only on identical CPUs; risky for CI/packaging"
+      - "PGO: build with -fprofile-generate, run a representative workload, rebuild with -fprofile-use; improves branch layout/inlining using real profiles"
+      - "-Ofast = -O3 plus -ffast-math: allows reassociation, flushing denormals, so FP results differ — violates IEEE/C++ semantics"
+      - "LTO (-flto) moves optimization to link time for cross-TU inlining/devirtualization"

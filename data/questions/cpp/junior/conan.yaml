@@ -1,0 +1,90 @@
+category: "Conan Basics"
+track: "cpp"
+level: "junior"
+
+description: "Why C++ needs a package manager, conanfile.txt, and first integration with CMake"
+
+questions:
+  - id: "conan-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["conan", "package-manager", "dependencies"]
+
+    question:
+      text:
+        en: "What is Conan and why do C++ projects need a package manager when the system already has apt/yum? What problems does it solve (versions, transitive dependencies, binary builds), and what does `conan install . --build=missing` do?"
+        ru: "Что такое Conan и зачем C++ проектам менеджер пакетов, если в системе уже есть apt/yum? Какие задачи он решает (версии, транзитивные зависимости, сборка бинарников) и что делает `conan install . --build=missing`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How does Conan differ from vcpkg and from git submodules?"
+        - "Why are system package managers unsuitable for per-project library versions?"
+        - "Where does Conan store downloaded packages?"
+      ru:
+        - "Чем Conan отличается от vcpkg и от git-подмодулей?"
+        - "Почему системные менеджеры пакетов не подходят для версий библиотек на уровне проекта?"
+        - "Где Conan хранит скачанные пакеты?"
+
+    expected_points:
+      - "Conan is a C/C++ package manager that resolves a dependency graph with exact versions and options per project"
+      - "System managers install one global version; C++ projects often need different versions per project/compiler/build type"
+      - "Conan handles transitive dependencies, ABI-compatible binary packages, and building from source when no binary matches"
+      - "conan install reads the conanfile, downloads/uses cached binaries, and generates integration files"
+      - "--build=missing compiles packages from source when no matching prebuilt binary exists"
+
+  - id: "conan-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["conan", "conanfile", "cmake", "generators"]
+
+    question:
+      text:
+        en: "Explain the sections of `conanfile.txt`: `[requires]`, `[generators]`, `[options]`, `[layout]`. How does Conan integrate with CMake using `CMakeToolchain` and `CMakeDeps`?"
+        ru: "Объясните секции `conanfile.txt`: `[requires]`, `[generators]`, `[options]`, `[layout]`. Как Conan интегрируется с CMake через `CMakeToolchain` и `CMakeDeps`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you point CMake at the generated `conan_toolchain.cmake`?"
+        - "What happens if a requirement is listed but `find_package` cannot find it?"
+        - "How do you pin a version range like `fmt/10.2.1` vs `fmt/[>=10 <11]`?"
+      ru:
+        - "Как направить CMake на сгенерированный `conan_toolchain.cmake`?"
+        - "Что произойдёт, если зависимость объявлена, но `find_package` её не находит?"
+        - "Чём отличается точная версия `fmt/10.2.1` от диапазона `fmt/[>=10 <11]`?"
+
+    expected_points:
+      - "[requires] lists dependencies as name/version (optionally with revisions)"
+      - "[generators] selects integration files: CMakeToolchain, CMakeDeps, etc."
+      - "[options] sets package options such as shared=True or build_type"
+      - "[layout] defines build/source folder layout used by conan build helpers"
+      - "CMakeToolchain generates conan_toolchain.cmake with compiler and flags settings; CMakeDeps generates Find/config files so find_package() locates dependencies"
+
+  - id: "conan-j-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["conan", "recipe", "cache", "remote"]
+
+    question:
+      text:
+        en: "What is a Conan recipe (`conanfile.py`) and how does it differ from a conanfile.txt used as a consumer? Explain the local cache, remotes, and commands like `conan new`, `conan create`, `conan upload`."
+        ru: "Что такое рецепт Conan (`conanfile.py`) и чем он отличается от conanfile.txt, используемого как потребитель? Объясните локальный кэш, удалённые репозитории (remotes) и команды `conan new`, `conan create`, `conan upload`."
+      code: null
+
+    follow_ups:
+      en:
+        - "When is conanfile.txt enough and when must you write conanfile.py?"
+        - "What does `conan create` do that `conan install` does not?"
+        - "How is ConanCenter relevant to a regular consumer?"
+      ru:
+        - "Когда достаточно conanfile.txt и когда нужно писать conanfile.py?"
+        - "Что делает `conan create`, чего не делает `conan install`?"
+        - "Как ConanCenter связан с обычным потребителем?"
+
+    expected_points:
+      - "conanfile.txt is a declarative consumer manifest; conanfile.py is a full recipe with build/package logic in Python"
+      - "Recipes declare settings, options, dependencies, and implement source/build/package/package_info methods"
+      - "conan new generates a recipe template; conan create builds the recipe and stores the resulting package in the local cache"
+      - "The local cache stores recipes and binary packages; remotes (e.g. conancenter, Artifactory) are servers for downloading/uploading packages"
+      - "conan upload publishes a local package to a remote for reuse by other projects"

@@ -1,0 +1,91 @@
+category: "Conan at Scale"
+track: "cpp"
+level: "senior"
+
+description: "Package identity and binary compatibility, cross-building, and hermetic CI"
+
+questions:
+  - id: "conan-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["conan", "package-id", "abi", "binary-compatibility"]
+
+    question:
+      text:
+        en: "What exactly makes two Conan binary packages different (`package_id()`)? Explain the default `package_id` computation over settings/options, `package_id_modes` (e.g. semver_direct_mode), `settings.rm()`/`options.rm_safe()` for header-only packages, and how an ABI break (C++ standard, compiler version, libc++) shows up as a missing binary. How do you intentionally build a 'universal' package?"
+        ru: "Что именно делает два бинарных пакета Conan разными (`package_id()`)? Объясните вычисление package_id по default из settings/options, `package_id_modes` (например semver_direct_mode), `settings.rm()`/`options.rm_safe()` для header-only пакетов и как ABI-лом (стандарт C++, версия компилятора, libc++) проявляется как отсутствующий бинарник. Как намеренно собрать 'universal' пакет?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why does compiler.cppstd enter the package_id by default in Conan 2?"
+        - "What is the _index mechanism and why does it matter for consumers with older settings?"
+        - "When would you remove settings from package_id and accept the risk?"
+      ru:
+        - "Почему compiler.cppstd попадает в package_id по умолчанию в Conan 2?"
+        - "Что такое механизм _index и зачем он нужен потребителям со старыми settings?"
+        - "Когда стоит убрать settings из package_id, приняв риск?"
+
+    expected_points:
+      - "package_id hashes settings (os/arch/compiler/compiler.version/compiler.cppstd/build_type) and non-default options; each distinct id is a separate binary"
+      - "Header-only and stable-ABI libraries erase compiler/build_type settings (settings.rm, rm_safe) so one binary serves all consumers"
+      - "package_id_modes (semver_direct_mode default: major version isolates the id; unrelated_mode: everything shares binaries) tune identity breadth"
+      - "compiler.cppstd is part of identity because C++ standard changes libstdc++/libc++ ABI and headers"
+      - "Missing binary for a new compiler = expected: either rebuild (build_type=missing), use compatible binaries via index, or declare ABI stability"
+      - "Universal packages combine rm()/options removal and versioned packaging, relying on documented ABI guarantees"
+
+  - id: "conan-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["conan", "cross-build", "tool-requires", "profiles"]
+
+    question:
+      text:
+        en: "How does Conan 2 cross-building use two profiles (host and build) with `tool_requires` and contexts? Explain how a cross toolchain package (compiler + sysroot) provides env via VirtualBuildEnv, how CMakeToolchain injects it, and the pitfalls of build-context vs host-context dependencies (a host library tool-built by a host package)."
+        ru: "Как кросс-сборка в Conan 2 использует два профиля (host и build) с `tool_requires` и контекстами? Объясните, как пакет кросс-тулчейна (компилятор + sysroot) даёт окружение через VirtualBuildEnv, как это инжектирует CMakeToolchain и в чём ловушки разделения контекстов host/build (хост-библиотека, собранные инструментом из host-пакета)."
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you declare a build-profile (e.g. gcc on Linux) while the host profile is aarch64 cross?"
+        - "What is the difference between requirements() and build_requirements()/tool_requires()?"
+        - "How do you make CMAKE_SYSTEM_NAME appear in the generated toolchain from the host profile?"
+      ru:
+        - "Как объявить build-профиль (gcc на Linux), когда host-профиль — aarch64 кросс?"
+        - "Чем requirements() отличается от build_requirements()/tool_requires()?"
+        - "Как добиться CMAKE_SYSTEM_NAME в сгенерированном toolchain из host-профиля?"
+
+    expected_points:
+      - "Conan 2 resolves a graph in two contexts: host (target binaries, run in CI under emulator? no — target artifacts) and build (tools executed on the CI machine)"
+      - "The host profile selects os/arch/compiler.cppstd for target packages; the build profile selects native compilers; tool_requires packages live in the build context"
+      - "VirtualBuildEnv generator exposes tool_requires executables/variables on PATH, picked up by CMakeToolchain (CMakeMakeProgram, CC/CXX, sysroot conf)"
+      - "Host dependencies (libraries) must match the host profile; forgetting build_requirements puts build tools into the host graph and fails"
+      - "Conf like tools.cmake.cmaketoolchain:* or profile settings propagate CMAKE_SYSTEM_NAME/PROCESSOR to the generated toolchain"
+
+  - id: "conan-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["conan", "ci", "lockfiles", "artifactory", "hermetic"]
+
+    question:
+      text:
+        en: "Design a hermetic Conan 2 CI pipeline: full lockfiles (`--lockfile-full`), revisions as the unit of reproducibility, a dedicated binary remote (Artifactory), cache reuse (`conan cache save/restore` or CI caching of ~/.conan2), and conflict policy (`conf.graph.*`, overrides). How do you guarantee the exact same dependency binaries in CI and production builds?"
+        ru: "Спроектируйте герметичный CI-конвейер на Conan 2: полные lockfiles (`--lockfile-full`), ревизии как единица воспроизводимости, выделенный бинарный remote (Artifactory), переиспользование кэша (`conan cache save/restore` или CI-кэш ~/.conan2) и политика конфликтов (`conf.graph.*`, overrides). Как гарантировать ровно те же бинарные зависимости в CI и production-сборках?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is the difference between conan lock create --lockfile-partial and a full lockfile in practice?"
+        - "Why is uploading all binaries (including build_type=Debug) usually a bad idea?"
+        - "How do you invalidate the CI cache when settings or a toolchain change?"
+      ru:
+        - "Чем на практике отличается conan lock create --lockfile-partial от полного lockfile?"
+        - "Почему выгружать все бинарники (включая build_type=Debug) обычно плохо?"
+        - "Как инвалидировать CI-кэш при изменении settings или toolchain?"
+
+    expected_points:
+      - "A committed full lockfile pins every requirement/version/revision in the graph; every CI run installs with the same --lockfile, producing identical graphs"
+      - "Revisions (recipe REV + package PREV) make package identity immutable; --update refreshes the lockfile in a controlled PR"
+      - "A dedicated remote (Artifactory) stores approved binaries; CI downloads rather than rebuilds, so dev/CI/prod share artifacts"
+      - "Cache reuse (conan cache save/restore, CI cache of the Conan home) keeps speed while lockfile+remote keep correctness"
+      - "Conflicts surface as errors by default; policy handled by aligned version requirements or explicit override/force, never --update in production"

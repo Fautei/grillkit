@@ -664,3 +664,229 @@ airflow:
     - 'What are the patterns for dynamic DAG generation in Airflow? Compare static DAGs (many files) vs dynamic generation
       from a config (JSON/YAML). Explain the risks: scheduler performance and DAG parsing time. How to handle large number
       of similar DAGs (e.g., per tenant) without overwhelming the scheduler?'
+
+cpp:
+  junior:
+    Boost Basics:
+    - What is Boost and why does C++ need it when there is a standard library? Explain the historical
+      relationship (which standard features started as Boost), and the difference between header-only
+      and compiled Boost libraries.
+    - Which Boost utilities now have standard replacements (`boost::optional`, `boost::variant`, `boost::filesystem`,
+      `boost::regex`, `boost::thread`)? When should you still prefer the Boost version over `std`, and
+      how do you migrate safely?
+    - 'Explain Boost smart pointer history and extras: `boost::scoped_ptr` vs `std::unique_ptr`, what
+      `boost::intrusive_ptr` does and where intrusive reference counting is used, and why `boost::noncopyable`
+      is obsolete.'
+    C++ Standard Library Basics:
+    - When would you choose `std::vector` vs `std::array` vs `std::deque` vs `std::list` vs `std::map`
+      vs `std::unordered_map`? Compare their access/insertion complexity and typical use cases.
+    - 'Explain iterators and the `<algorithm>` header: how `std::sort`, `std::find`, `std::count_if`,
+      and `std::copy` are used, what a range-based for loop expands to, and how lambdas are used as predicates.'
+    - What is RAII? Why are raw `new`/`delete` error-prone, and how do `std::unique_ptr` and `std::shared_ptr`
+      fix the problem? When would you use `std::make_unique`/`std::make_shared`?
+    CMake Basics:
+    - What is CMake and why is it used instead of writing a Makefile by hand? Explain the configure and
+      build steps (`cmake -S . -B build`, `cmake --build build`) and why out-of-source builds are recommended.
+    - 'Explain the key CMake commands: `project()`, `add_executable()`, `add_library()` (STATIC/SHARED/OBJECT),
+      `target_link_libraries()`, `target_include_directories()`. What is a ''target'' in CMake?'
+    - How do you control compiler flags and the build type in CMake? Explain `CMAKE_BUILD_TYPE` (Debug,
+      Release, RelWithDebInfo, MinSizeRel), cache variables, and how to pass options from the command
+      line with `-D`.
+    Clang Basics:
+    - What are Clang and LLVM, and how do they differ from GCC? Explain the frontend / optimizer / backend
+      architecture and why tools like clang-tidy and clang-format can exist.
+    - Why is Clang often praised for its error messages compared to GCC? Explain fix-it hints, diagnostic
+      groups, `-Weverything`, and `-fsyntax-only`.
+    - What is clang-format and why do teams use it? Explain the `.clang-format` file, `BasedOnStyle`,
+      and how to enforce formatting in CI (`clang-format --dry-run -Werror`, `git-clang-format`).
+    Conan Basics:
+    - What is Conan and why do C++ projects need a package manager when the system already has apt/yum?
+      What problems does it solve (versions, transitive dependencies, binary builds), and what does `conan
+      install . --build=missing` do?
+    - 'Explain the sections of `conanfile.txt`: `[requires]`, `[generators]`, `[options]`, `[layout]`.
+      How does Conan integrate with CMake using `CMakeToolchain` and `CMakeDeps`?'
+    - What is a Conan recipe (`conanfile.py`) and how does it differ from a conanfile.txt used as a consumer?
+      Explain the local cache, remotes, and commands like `conan new`, `conan create`, `conan upload`.
+    GCC Basics:
+    - 'Describe the four stages of C++ compilation in GCC: preprocessing, compiling, assembling, and linking.
+      Which flags stop the pipeline at each stage (`-E`, `-c`, `-S`)? What is a translation unit?'
+    - 'Explain common GCC flags: `-std=c++17`, `-Wall`, `-Wextra`, `-Werror`, `-g`, `-O0/-O1/-O2/-O3/-Os`,
+      and the include/library flags `-I`, `-D`, `-L`, `-l`. What is the risk of using `-Werror` in a large
+      project?'
+    - What is the difference between a static library (.a) and a dynamic/shared library (.so)? How are
+      they created with GCC/binutils, why does link order matter, and what is libstdc++?
+    OpenCV Basics:
+    - What is OpenCV? Explain the `cv::Mat` structure (rows, cols, type such as `CV_8UC3`, data pointer,
+      step) and why Mat assignment/copy is 'shallow'. Why does OpenCV use BGR instead of RGB, and how
+      do you read and write images?
+    - 'Show how to work with a Mat: extract an ROI, resize, convert color spaces, apply threshold, draw
+      shapes (rectangle, circle, putText), and access pixels (`.at<>()`, row pointers). What does `Mat::at<Vec3b>(y,
+      x)` return?'
+    - How do you read from a webcam or video file with `cv::VideoCapture`? Explain the read loop, `CAP_PROP_FPS`/`CAP_PROP_FRAME_COUNT`,
+      why `cv::waitKey(1)` is required in GUI loops, and how to write video with `cv::VideoWriter` (fourcc).
+  middle:
+    Boost Libraries in Practice:
+    - 'Explain the Boost.Asio concurrency model: `io_context`, sync vs async socket APIs, completion handlers,
+      `async_op` lifetime, and why `boost::asio::strand` serializes handlers without a mutex. What happens
+      when one `io_context` is run by several threads?'
+    - Boost predates C++11's threading standard. What does Boost.Thread / Boost.Sync still offer beyond
+      `std::thread` (thread interruption, upgradeable locks `boost::upgrade_lock`, `boost::call_once`,
+      timers)? When should you stick to std threading primitives for interoperability?
+    - Boost.Regex is usually much faster than std::regex. Explain its pluggable backends (classic Boost
+      C++ engine, RE2, Perl/PCRE via `#define BOOST_REGEX_USE_*`), the performance and safety differences
+      (RE2 linear time, no backreferences; PCRE backtracking with libraries to link), and grammar differences
+      from std::regex ECMAScript.
+    Clang Tooling:
+    - What is clang-tidy and how does it differ from compiler warnings? Explain the `.clang-tidy` file
+      (Checks, WarningsAsErrors, HeaderFilterRegex), check families such as `modernize-*`, `performance-*`,
+      `readability-*`, and how `clang-tidy -fix` works.
+    - 'Configure clang-format for a real project: which key options matter (BasedOnStyle, ColumnLimit,
+      IndentWidth, AccessModifierOffset, PointerAlignment, SortIncludes/IncludeCategories)? How do you
+      integrate it in CI and reformat only a diff?'
+    - What does `-stdlib=libc++` change for Clang on Linux, and how does libc++ differ from libstdc++
+      in ABI and debugging? Mention `_LIBCPP_HARDENING_MODE`/`_LIBCPP_ENABLE_ASSERTIONS` vs libstdc++
+      debug mode (`-D_GLIBCXX_DEBUG`) and why mixing the two static libraries breaks.
+    Conan 2 Recipes and Integration:
+    - 'Walk through a Conan 2 recipe (`conanfile.py`): `name`/`version`, `settings` vs `options`, `package_id()`,
+      `requirements()`, `layout()` with `cmake_layout`, and the `build()`/`package()`/`package_info()`
+      methods. What is the difference between settings and options?'
+    - How do the `CMakeToolchain` and `CMakeDeps` generators work in Conan 2? What does each generate,
+      why is `find_package(<Pkg>)` able to locate packages after `conan install`, and how are transitive
+      dependencies handled?
+    - 'Explain Conan 2 reproducibility features: version ranges, recipe/package revisions (RREV/PREV),
+      and lockfiles (`conan lock create`, `--lockfile`, `--update`). How do you resolve a dependency version
+      conflict in a graph?'
+    GCC Toolchain in Practice:
+    - 'Explain shared-library linking in GCC/Linux: why `-fPIC` is required for `.so`, what `soname` is,
+      how `rpath`/`runpath` and `$ORIGIN` affect runtime lookup, and how a linker version script hides
+      private symbols. Why does link order matter for static archives, and how do `--start-group/--end-group`
+      help?'
+    - Which sanitizers does GCC provide (`-fsanitize=address|undefined|thread|leak|memory`), why must
+      they be built with `-g -fno-omit-frame-pointer`, which combinations are forbidden, and how do you
+      read an AddressSanitizer report (heap-use-after-free)?
+    - What do `-O1/-O2/-O3/-Os/-Ofast` actually enable in GCC? Explain inlining heuristics, auto-vectorization
+      with `-march=native`, profile-guided optimization (`-fprofile-generate/-fprofile-use`), and why
+      `-Ofast` changes C++ semantics.
+    Modern C++ Standard Library:
+    - 'Explain move semantics: what are lvalues, rvalues, and xvalues; what `std::move` and `std::forward`
+      actually do at runtime; how to write a correct move constructor/assignment (rule of five); and what
+      state a moved-from object must be in.'
+    - 'Compare `std::unique_ptr`, `std::shared_ptr`, and `std::weak_ptr`: control block behavior, thread-safety
+      of the reference count, `enable_shared_from_this`, custom deleters, and how `weak_ptr` breaks ownership
+      cycles.'
+    - 'Show the standard tools for shared-memory concurrency: `std::thread` (join/detach pitfalls), `std::mutex`
+      with `lock_guard`/`unique_lock`/`scoped_lock`, `std::atomic`, and `std::async` with futures. What
+      is a data race and why is it undefined behavior?'
+    - 'Explain C++17/20 utility types: `std::string_view`, `std::optional`, `std::variant` + `std::visit`,
+      `std::any`, and structured bindings. Where can `string_view` dangle, and how is `variant` different
+      from a tagged union?'
+    Modern CMake:
+    - In `target_link_libraries()` and `target_include_directories()`, what is the difference between
+      `PRIVATE`, `PUBLIC`, and `INTERFACE`? How do usage requirements propagate to consumers, and why
+      are global commands like `include_directories()` considered bad practice?
+    - How do you consume a third-party library in CMake? Compare `find_package` (Config vs Module mode),
+      `FetchContent`, `add_subdirectory`, and git submodules. What are imported targets such as `Foo::Foo`?
+    - What are generator expressions (`$<...>`) and why can't ordinary variables be used instead in examples
+      like `target_compile_options(t PRIVATE $<$<CONFIG:Debug>:-fsanitize=address>)`? Explain `$<CONFIG:...>`,
+      `$<TARGET_FILE:...>`, and ALIAS targets with namespaced names.
+    OpenCV Image Processing:
+    - Compare GaussianBlur, median, and bilateral filters, and explain morphological operations (erode/dilate/open/close)
+      with structuring elements. Why is a 2D Gaussian separable into two 1D passes, and when do you pick
+      each filter?
+    - Explain the Canny edge detector (gradient, non-maximum suppression, hysteresis thresholds), Sobel/Scharr
+      gradients, and contour analysis with `findContours`/`drawContours`/`approxPolyDP`/`boundingRect`/`minAreaRect`.
+      What are Hough transforms used for?
+    - 'How do you calibrate a camera in OpenCV: chessboard/CirclesGrid detection, `calibrateCamera`, the
+      intrinsic matrix and distortion coefficients? Compare `undistort` with `initUndistortRectifyMap`
+      + `remap`, and explain `getPerspectiveTransform`/`warpPerspective` and `findHomography` with RANSAC.'
+  senior:
+    Advanced Boost:
+    - 'How does Boost.Asio use C++20 coroutines: `co_spawn`, `use_awaitable` completion tokens, `awaitable<T>`?
+      Explain the Asio cancellation model (`cancellation_type::terminal/partial/total`, per-operation
+      cancellation, composed operations like `async_read`), and how you scale an `io_context` across threads
+      safely.'
+    - 'Design cross-process shared memory with Boost.Interprocess: `managed_shared_memory`, placement-new
+      of named objects, interprocess mutexes/condition variables, `mapped_file`, and `message_queue`.
+      Why can''t you put a `std::string` or raw pointers in shared memory, and when is `boost::lockfree::queue`
+      / `spsc_queue` preferable to a mutex?'
+    - 'Modern Boost beyond the classics: Boost.JSON (value model, error_code-based parsing without exceptions),
+      Boost.Outcome (result<T> for error handling without throwing), Boost.MySQL/Redis as async Asio clients.
+      How do you consume Boost component-by-component in a real build (Conan `boost` package components,
+      vcpkg `boost-*` ports, BOOST_ALL_DYN_LINK, static vs shared), and what std-first policy do teams
+      typically adopt?'
+    Advanced C++ Standard:
+    - 'Explain the C++11 memory model: what ''happens-before'' means, the guarantees of `memory_order_seq_cst`
+      vs `acquire/release` vs `relaxed`, and give a case where `relaxed` is correct (a statistics counter).
+      What is false sharing and how do you mitigate it (`alignas(64)`)? When are atomics slower than mutexes?'
+    - How do C++20 concepts improve over SFINAE/`enable_if`? Write a concept with a requires-expression
+      (e.g. a container with `size()` and `value_type`), explain standard concepts (`std::same_as`, `std::convertible_to`,
+      `std::invocable`), and discuss where SFINAE-style techniques are still needed. Do concepts slow
+      down compilation?
+    - 'Explain advanced template techniques: variadic templates with fold expressions, CRTP for static
+      polymorphism (and when to avoid it), CTAD, and the pitfalls of perfect forwarding (forwarding an
+      rvalue twice, universal references with initializer lists, forwarding in recursive calls). How do
+      you control template instantiation cost in large projects?'
+    CMake at Scale:
+    - How does cross-compilation work in CMake using `CMAKE_TOOLCHAIN_FILE`? Explain what a toolchain
+      file defines (compilers, `CMAKE_SYSTEM_NAME`, `CMAKE_SYSTEM_PROCESSOR`, find root paths), how the
+      three configure stages use it, and how `find_package` is steered toward target libraries instead
+      of host ones.
+    - 'How do you ship a reusable library with CMake: `install(TARGETS ... EXPORT ...)`, namespaced ALIAS
+      targets, `CMakePackageConfigHelpers` (`configure_package_config_file`, `write_basic_package_version_file`),
+      and `export(... CONFIG)` so that consumers can call `find_package(MyLib)`? What differs when exporting
+      a static vs shared library?'
+    - 'A 2M-line C++ project builds slowly. What CMake and tooling techniques improve throughput: precompiled
+      headers (`target_precompile_headers`), unity builds, OBJECT vs STATIC libraries, ccache/sccache,
+      Ninja, and dependency-level parallelism? When does a superbuild with `ExternalProject` make sense
+      over `add_subdirectory`?'
+    Clang at Scale:
+    - How do C++20 modules work in Clang (named modules, partitions, header units), what build-performance
+      problem do they solve compared to `#include` and PCH, and what ecosystem pain points remain today
+      (std module support, BMI invalidation, mixed header/module TUs, ODR across builds)? When would you
+      adopt them in an existing project?
+    - 'How would you build a codebase-wide analysis or refactoring tool on Clang? Explain LibTooling vs
+      libclang, AST matchers with clang-query, and writing a custom clang-tidy check (Matcher, registerCheck).
+      Give concrete use cases: enforcing architecture rules, mechanical API migrations, finding dead flags.'
+    - 'Explain the Clang fuzzing and coverage stack: writing a libFuzzer entry point (`LLVMFuzzerTestOneInput`)
+      with `-fsanitize=fuzzer`, combining it with ASan/UBSan, interpreting a minimized reproducible crash,
+      and measuring coverage with source-based instrumentation (`-fprofile-instr-generate -fcoverage-mapping`,
+      `llvm-profdata`, `llvm-cov`). How does it differ from gcov/LLVM''s previous fuzzer flow?'
+    Conan at Scale:
+    - What exactly makes two Conan binary packages different (`package_id()`)? Explain the default `package_id`
+      computation over settings/options, `package_id_modes` (e.g. semver_direct_mode), `settings.rm()`/`options.rm_safe()`
+      for header-only packages, and how an ABI break (C++ standard, compiler version, libc++) shows up
+      as a missing binary. How do you intentionally build a 'universal' package?
+    - How does Conan 2 cross-building use two profiles (host and build) with `tool_requires` and contexts?
+      Explain how a cross toolchain package (compiler + sysroot) provides env via VirtualBuildEnv, how
+      CMakeToolchain injects it, and the pitfalls of build-context vs host-context dependencies (a host
+      library tool-built by a host package).
+    - 'Design a hermetic Conan 2 CI pipeline: full lockfiles (`--lockfile-full`), revisions as the unit
+      of reproducibility, a dedicated binary remote (Artifactory), cache reuse (`conan cache save/restore`
+      or CI caching of ~/.conan2), and conflict policy (`conf.graph.*`, overrides). How do you guarantee
+      the exact same dependency binaries in CI and production builds?'
+    GCC Internals:
+    - 'Explain the libstdc++ ABI switch `_GLIBCXX_USE_CXX11_ABI`: what changed for `std::string` and `std::list`,
+      and what happens when objects compiled with different values are linked together. How do you diagnose
+      such mismatches (nm -C, c++filt, link errors like ''undefined reference to std::__cxx11::basic_string'')?
+      What are ODR violations and how do they manifest?'
+    - 'Compare full and thin LTO (`-flto` vs `-flto=auto/thin` equivalents on GCC/Clang): what work moves
+      to link time, how devirtualization and cross-TU inlining emerge, why LTO makes incremental linking
+      and memory usage painful, and how LTO interacts with debug info and sanitizers. How do you measure
+      where compile time goes (`-ftime-report`, `-fdump-...`)? What is PGO''s dependency on representative
+      profiles?'
+    - 'A program works at `-O0` and misbehaves at `-O2`. How do you hunt the undefined behavior: strict
+      aliasing violations (why type-punning `uint32_t*` into `float*` breaks), uninitialized reads, signed
+      overflow (`-fwrapv`), and how `-fsanitize=undefined`, `-fanalyzer`, and targeted warnings (`-Wuninitialized`,
+      `-Wshadow`) help? Why is `volatile` not a concurrency or optimization fix?'
+    OpenCV at Scale:
+    - 'Walk through deploying a detection model with the OpenCV DNN module: importing an ONNX model, `blobFromImage`
+      preprocessing (scale, mean, swapRB, NCHW), `net.setPreferableBackend/Target` (OpenVINO/CUDA/OpenCL),
+      getting outputs with `forward`, decoding YOLO-style outputs, and `cv::dnn::NMSBoxes`. What are the
+      main latency traps in a real-time pipeline?'
+    - 'How do you make an OpenCV pipeline fast on multicore systems: Mat reference-counting and copy avoidance
+      (`clone` vs shared ROI pitfalls), `cv::parallel_for_` and the parallel backend (pthread/TBB), `cv::setNumThreads`,
+      UMat with OpenCL, and G-API/T-API? How do you profile where time goes, and what build options (SIMD,
+      IPP) affect throughput?'
+    - 'Explain the OpenCV 3D pipeline: stereo calibration and rectification (`stereoCalibrate`, `stereoRectify`),
+      disparity with `StereoBM`/`StereoSGBM` and converting disparity to depth (f, B), pose estimation
+      with `solvePnP` (P3P, RANSAC), and the difference between fundamental and essential matrices.'

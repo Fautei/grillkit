@@ -1,0 +1,90 @@
+category: "Advanced Boost"
+track: "cpp"
+level: "senior"
+
+description: "Asio coroutines and cancellation, interprocess/lock-free techniques, and modern Boost in a real build"
+
+questions:
+  - id: "boost-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["boost", "asio", "cpp20", "cancellation", "coroutines"]
+
+    question:
+      text:
+        en: "How does Boost.Asio use C++20 coroutines: `co_spawn`, `use_awaitable` completion tokens, `awaitable<T>`? Explain the Asio cancellation model (`cancellation_type::terminal/partial/total`, per-operation cancellation, composed operations like `async_read`), and how you scale an `io_context` across threads safely."
+        ru: "Как Boost.Asio использует корутины C++20: `co_spawn`, completion tokens `use_awaitable`, `awaitable<T>`? Объясните модель отмены Asio (`cancellation_type::terminal/partial/total`, пооперационная отмена, составные операции вроде `async_read`) и как безопасно масштабировать `io_context` на несколько потоков."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why do you still need a strand (or a single-threaded executor) even with coroutine-per-connection?"
+        - "What happens when a cancellation request is issued in the middle of an async_read composed operation?"
+        - "Why prefer one io_context per core over a single context with many threads?"
+      ru:
+        - "Зачем всё ещё нужен strand (или однопоточный executor) даже с корутиной на соединение?"
+        - "Что произойдёт, если запрос отмены придёт посреди составной async_read?"
+        - "Почему выгоднее один io_context на ядро, чем один контекст на много потоков?"
+
+    expected_points:
+      - "co_spawn launches an awaitable coroutine into an executor; use_awaitable makes async ops co-awaitable without callbacks"
+      - "awaitable<T> coroutines capture state on the heap — the shared_from_this lifetime dance largely disappears"
+      - "Cancellation: operation_cancellation/associated_cancellation_slot; terminal/partial/total types; composed operations cancel inner steps and deliver operation_aborted"
+      - "Coroutine body runs on the executor of the last await unless a strand executor is applied — per-socket strands keep shared state safe"
+      - "Scaling: one io_context per thread/core (per-core affinity, better locality, no strand needed); a multi-thread run() requires strands for any shared state"
+
+  - id: "boost-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["boost", "interprocess", "lockfree", "shared-memory"]
+
+    question:
+      text:
+        en: "Design cross-process shared memory with Boost.Interprocess: `managed_shared_memory`, placement-new of named objects, interprocess mutexes/condition variables, `mapped_file`, and `message_queue`. Why can't you put a `std::string` or raw pointers in shared memory, and when is `boost::lockfree::queue` / `spsc_queue` preferable to a mutex?"
+        ru: "Спроектируйте общую память между процессами на Boost.Interprocess: `managed_shared_memory`, placement-new именованных объектов, interprocess мьютексы/условные переменные, `mapped_file`, `message_queue`. Почему в общую память нельзя положить `std::string` или сырые указатели и когда `boost::lockfree::queue` / `spsc_queue` лучше мьютекса?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What happens to objects in shared memory if a process crashes while holding an interprocess mutex?"
+        - "How do offset_ptr and allocation from a managed_shared_memory allocator solve the mapping-address problem?"
+        - "Why is lock-free often slower than a mutex under heavy contention?"
+      ru:
+        - "Что будет с объектами в общей памяти, если процесс умрёт с захваченным interprocess-мьютексом?"
+        - "Как offset_ptr и аллокации из managed_shared_memory решают проблему разных адресов маппинга?"
+        - "Почему lock-free часто медленнее мьютекса при сильной конкуренции?"
+
+    expected_points:
+      - "managed_shared_memory provides a named heap inside shared memory: construct_with/allocate_named give durable named objects; find_or_construct locates them"
+      - "Processes may map the segment at different addresses — all pointers inside must be relative (boost::interprocess::offset_ptr) or offsets; std::string contains raw pointers and a local allocator, so it is invalid there (use shm::allocator + basic_string typedef)"
+      - "Robustness: robust_emulated/robust_mutex handle process death without permanently locked segments; classic interprocess mutex deadlocks forever on holder crash"
+      - "mapped_file persists data to a file via mmap; message_queue gives named IPC with size-bounded messages"
+      - "boost::lockfree::queue (bounded, lock-free, not wait-free) and spsc_queue (wait-free) shine for low-latency producer/consumer; under high contention atomic CAS loops and false sharing can lose to a mutex; measure"
+
+  - id: "boost-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["boost", "json", "outcome", "package-management"]
+
+    question:
+      text:
+        en: "Modern Boost beyond the classics: Boost.JSON (value model, error_code-based parsing without exceptions), Boost.Outcome (result<T> for error handling without throwing), Boost.MySQL/Redis as async Asio clients. How do you consume Boost component-by-component in a real build (Conan `boost` package components, vcpkg `boost-*` ports, BOOST_ALL_DYN_LINK, static vs shared), and what std-first policy do teams typically adopt?"
+        ru: "Современный Boost помимо классики: Boost.JSON (модель value, парсинг через error_code без исключений), Boost.Outcome (result<T> для обработки ошибок без бросков), Boost.MySQL/Redis как async-клиенты на Asio. Как подключать Boost компонент за компонентом в реальной сборке (компоненты пакета `boost` в Conan, порты `boost-*` в vcpkg, BOOST_ALL_DYN_LINK, static vs shared), и какой std-first policy обычно принимают команды?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is a value-based JSON model with string_view keys faster than DOM-with-exceptions approaches?"
+        - "What does Boost.Outcome guarantee that plain error_code does not (no exceptions, no sentinel values)?"
+        - "Why can mixing shared Boost libraries from different package managers break an application?"
+      ru:
+        - "Почему value-модель JSON со string_view-ключами быстрее DOM на исключениях?"
+        - "Что гарантирует Boost.Outcome сверх простого error_code (без исключений, без sentinel-значений)?"
+        - "Почему смешивание shared Boost-библиотек из разных пакетных менеджеров может сломать приложение?"
+
+    expected_points:
+      - "Boost.JSON (1.81+) offers a compact value model, string_view-based keys, and parsing via boost::system::error_code — fast and exception-optional; Boost.URL and Boost.Asio networking form the modern I/O stack"
+      - "Boost.Outcome's result<T> carries a value plus error info with strong guarantees: no exceptions, no sentinel values, safe in noexcept contexts"
+      - "Boost.MySQL/Redis are built on Asio — natural fit for coroutine-based services"
+      - "Granular consumption: Conan boost components (e.g. boost_asio header-only vs boost_thread compiled) and vcpkg boost-* ports let you pull only what you need; one consistent Boost version/compiler/ABI across the whole graph"
+      - "Typical policy: std for data structures/algorithms; Boost where std is absent (Asio/Beast/JSON/Interprocess); never mix Boost copies from system + Conan/vcpkg (ODR/ABI)"

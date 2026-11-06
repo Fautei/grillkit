@@ -1,0 +1,91 @@
+category: "CMake Basics"
+track: "cpp"
+level: "junior"
+
+description: "CMake fundamentals: configure/build flow, targets, and basic commands"
+
+questions:
+  - id: "cmake-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["cmake", "build-system", "configure"]
+
+    question:
+      text:
+        en: "What is CMake and why is it used instead of writing a Makefile by hand? Explain the configure and build steps (`cmake -S . -B build`, `cmake --build build`) and why out-of-source builds are recommended."
+        ru: "Что такое CMake и зачем его используют вместо самодельного Makefile? Объясните шаги configure и build (`cmake -S . -B build`, `cmake --build build`) и почему рекомендуется out-of-source сборка."
+      code: null
+
+    follow_ups:
+      en:
+        - "What does cmake_minimum_required(VERSION ...) do, and why is it placed before project()?"
+        - "Which build generators can CMake produce, and how do you select one?"
+        - "Why can you keep several configured build directories for the same source tree?"
+      ru:
+        - "Что делает cmake_minimum_required(VERSION ...) и почему он ставится до project()?"
+        - "Какие генераторы сборки умеет создавать CMake и как выбрать нужный?"
+        - "Почему для одного дерева исходников можно иметь несколько настроенных каталогов сборки?"
+
+    expected_points:
+      - "CMake is a cross-platform build system generator, not a build tool itself: it generates Makefiles, Ninja files, or IDE projects"
+      - "Declarative CMakeLists.txt is portable across OS and compilers, unlike hand-written Makefiles"
+      - "Configure step reads CMakeLists.txt, runs compiler detection, and produces the build tree"
+      - "Build step (`cmake --build build`) invokes the underlying generator to compile and link"
+      - "Out-of-source builds keep the source tree clean and allow multiple configurations (Debug/Release, different compilers) side by side"
+
+  - id: "cmake-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["cmake", "targets", "commands"]
+
+    question:
+      text:
+        en: "Explain the key CMake commands: `project()`, `add_executable()`, `add_library()` (STATIC/SHARED/OBJECT), `target_link_libraries()`, `target_include_directories()`. What is a 'target' in CMake?"
+        ru: "Объясните ключевые команды CMake: `project()`, `add_executable()`, `add_library()` (STATIC/SHARED/OBJECT), `target_link_libraries()`, `target_include_directories()`. Что такое 'target' (цель) в CMake?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is the difference between `include_directories()` and `target_include_directories()`?"
+        - "What library type is created by `add_library()` when no keyword is given?"
+        - "How do you require C++17 for one target (`target_compile_features`)?"
+      ru:
+        - "Чем `include_directories()` отличается от `target_include_directories()`?"
+        - "Какой тип библиотеки создаёт `add_library()` без ключевого слова?"
+        - "Как потребовать C++17 для одной цели (`target_compile_features`)?"
+
+    expected_points:
+      - "A target is a named build entity (executable, library, alias) that carries sources, flags, and usage requirements"
+      - "project() names the project and initializes languages/versions"
+      - "add_executable() creates a runnable target; add_library() creates STATIC, SHARED, or OBJECT libraries"
+      - "target_link_libraries() links a target against other targets or imported libraries"
+      - "target_include_directories() attaches include paths to a specific target instead of globally"
+      - "Modern CMake style configures targets, not global directory properties"
+
+  - id: "cmake-j-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["cmake", "build-types", "cache"]
+
+    question:
+      text:
+        en: "How do you control compiler flags and the build type in CMake? Explain `CMAKE_BUILD_TYPE` (Debug, Release, RelWithDebInfo, MinSizeRel), cache variables, and how to pass options from the command line with `-D`."
+        ru: "Как управлять флагами компилятора и типом сборки в CMake? Объясните `CMAKE_BUILD_TYPE` (Debug, Release, RelWithDebInfo, MinSizeRel), кэшевые переменные и передачу опций из командной строки через `-D`."
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you inspect the CMake cache and which command lists cached variables?"
+        - "What is the difference between `add_compile_options()` and `target_compile_options()`?"
+        - "Which build type should you use during development and why?"
+      ru:
+        - "Как посмотреть кэш CMake и какой command перечисляет кэшированные переменные?"
+        - "В чём разница между `add_compile_options()` и `target_compile_options()`?"
+        - "Какой тип сборки использовать при разработке и почему?"
+
+    expected_points:
+      - "CMAKE_BUILD_TYPE selects the preset optimization/debug flags (single-config generators like Makefiles/Ninja)"
+      - "Debug adds -g/-O0, Release adds -O3, RelWithDebInfo combines -O2 with debug info, MinSizeRel uses -Os"
+      - "CMake caches variables in CMakeCache.txt; `-DVAR=value` sets or overrides them at configure time"
+      - "target_compile_options() adds flags per target; add_compile_options() applies to the current directory scope"
+      - "Cache values persist between reconfigures unless changed with -D, --fresh, or by editing the cache"

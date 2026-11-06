@@ -8,6 +8,8 @@ Work in progress is accumulated under `[Unreleased]`; on release, that section b
 
 ### Added
 
+- **C++ question bank** — new `cpp` track under `data/questions/` with junior/middle/senior categories covering CMake, C++ standard library, Conan, GCC, Clang, OpenCV, and Boost; updated questions map
+
 ### Changed
 
 ### Fixed

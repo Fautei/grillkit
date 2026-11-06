@@ -1,0 +1,91 @@
+category: "CMake at Scale"
+track: "cpp"
+level: "senior"
+
+description: "Toolchain files and cross-compilation, packaging, and large-project performance"
+
+questions:
+  - id: "cmake-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["cmake", "toolchain", "cross-compilation"]
+
+    question:
+      text:
+        en: "How does cross-compilation work in CMake using `CMAKE_TOOLCHAIN_FILE`? Explain what a toolchain file defines (compilers, `CMAKE_SYSTEM_NAME`, `CMAKE_SYSTEM_PROCESSOR`, find root paths), how the three configure stages use it, and how `find_package` is steered toward target libraries instead of host ones."
+        ru: "Как работает кросс-компиляция в CMake через `CMAKE_TOOLCHAIN_FILE`? Объясните, что определяет toolchain-файл (компиляторы, `CMAKE_SYSTEM_NAME`, `CMAKE_SYSTEM_PROCESSOR`, find root paths), как три стадии configure его используют и как направить `find_package` на целевые библиотеки вместо хостовых."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why must the toolchain file be set on the first configure, and what happens if it changes later?"
+        - "What are CMAKE_FIND_ROOT_PATH_MODE_LIBRARY/PROGRAM and how do they work?"
+        - "How do CMake presets make per-target configurations reproducible?"
+      ru:
+        - "Почему toolchain-файл задают на первом configure и что происходит при его последующем изменении?"
+        - "Что такое CMAKE_FIND_ROOT_PATH_MODE_LIBRARY/PROGRAM и как они работают?"
+        - "Как CMake presets делают конфигурации под разные цели воспроизводимыми?"
+
+    expected_points:
+      - "The toolchain file sets CMAKE_C/CXX_COMPILER (often wrappers), CMAKE_SYSTEM_NAME (e.g. Linux/Windows/Generic) marking cross-compilation, and CMAKE_SYSTEM_PROCESSOR"
+      - "CMake runs configure in stages (compiler test, project, final); the toolchain is loaded before the first project() so target compilers are used for tests"
+      - "CMAKE_FIND_ROOT_PATH + FIND_ROOT_PATH_MODE_PROGRAM/LIBRARY/PACKAGE/INCLUDE restrict searches to the sysroot and skip host paths"
+      - "Changing the toolchain requires a fresh build directory because compiler detection and caches are baked in"
+      - "CMakePresets.json stores per-triplet configurations (toolchain, generator, flags) for reproducible CI/dev builds"
+
+  - id: "cmake-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["cmake", "packaging", "export", "cpack"]
+
+    question:
+      text:
+        en: "How do you ship a reusable library with CMake: `install(TARGETS ... EXPORT ...)`, namespaced ALIAS targets, `CMakePackageConfigHelpers` (`configure_package_config_file`, `write_basic_package_version_file`), and `export(... CONFIG)` so that consumers can call `find_package(MyLib)`? What differs when exporting a static vs shared library?"
+        ru: "Как поставлять переиспользуемую библиотеку средствами CMake: `install(TARGETS ... EXPORT ...)`, namespaced ALIAS-цели, `CMakePackageConfigHelpers` (`configure_package_config_file`, `write_basic_package_version_file`) и `export(... CONFIG)`, чтобы потребители вызывали `find_package(MyLib)`? Чем отличается экспорт static и shared библиотек?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What goes into FooConfigVersion.cmake and how does version compatibility work?"
+        - "Why must INTERFACE include dirs use INSTALL_INTERFACE generator expressions for installed targets?"
+        - "How do you export third-party dependencies of your config package?"
+      ru:
+        - "Что попадает в FooConfigVersion.cmake и как работает version compatibility?"
+        - "Почему INTERFACE include-директории установленного targets должны использовать INSTALL_INTERFACE?"
+        - "Как экспортировать сторонние зависимости вашего config-пакета?"
+
+    expected_points:
+      - "install(TARGETS t EXPORT MyLibTargets ...) installs artifacts and writes a targets file describing usage requirements"
+      - "write_basic_package_version_file + SameMajorVersion semantics make find_package(MyLib 1.4 REQUIRED) honor semver"
+      - "configure_package_config_file generates the entry-point FooConfig.cmake with install paths and dependency discovery"
+      - "add_library(MyLib::MyLib ALIAS MyLib) keeps internal and consumer names identical"
+      - "Static exports must carry all transitive PUBLIC deps and position-independent code; shared exports embed usage requirements but the .so must be found at runtime (RPATH/install layout)"
+
+  - id: "cmake-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["cmake", "build-performance", "presets", "pch"]
+
+    question:
+      text:
+        en: "A 2M-line C++ project builds slowly. What CMake and tooling techniques improve throughput: precompiled headers (`target_precompile_headers`), unity builds, OBJECT vs STATIC libraries, ccache/sccache, Ninja, and dependency-level parallelism? When does a superbuild with `ExternalProject` make sense over `add_subdirectory`?"
+        ru: "Проект на 2M строк C++ собирается медленно. Какие приёмы CMake и инструменты повышают пропускную способность: прекомпилированные заголовки (`target_precompile_headers`), unity-сборки, OBJECT против STATIC библиотек, ccache/sccache, Ninja, параллелизм на уровне зависимостей? Когда superbuild с `ExternalProject` уместнее, чем `add_subdirectory`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What are the trade-offs of unity builds for incremental compilation and ODR violations?"
+        - "Why do OBJECT libraries sometimes reduce link time?"
+        - "How do configure-time costs (find_package storms) differ from compile-time costs, and how do you measure each?"
+      ru:
+        - "Каковы компромиссы unity-сборок для инкрементальной компиляции и ODR-нарушений?"
+        - "Почему OBJECT-библиотеки иногда сокращают время линковки?"
+        - "Чем configure-time затраты (шторм find_package) отличаются от compile-time и как их мерить?"
+
+    expected_points:
+      - "target_precompile_headers (C++11 header units / PCH) amortizes huge transitive include trees per target"
+      - "UNITY_BUILD groups sources into fewer TUs — great for full rebuilds, worse for incremental builds and can expose ODR/nomacro bugs"
+      - "OBJECT libraries skip archive creation and can be linked directly; STATIC adds archiving overhead; INTERFACE for header-only"
+      - "Caching compilers (ccache/sccache), Ninja's dependency-aware scheduling, and parallel job pools are the highest-leverage wins"
+      - "ExternalProject/superbuild build dependencies in separate stages: use for cross-cutting toolchains, ABI isolation, or slow third-party sets; add_subdirectory for tight, same-configuration integration"
+      - "Measure: --trace-expand/time configure, cmake --build --verbose, -ftime-report per TU, before optimizing"

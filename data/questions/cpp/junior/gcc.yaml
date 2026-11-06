@@ -1,0 +1,91 @@
+category: "GCC Basics"
+track: "cpp"
+level: "junior"
+
+description: "Compilation pipeline, everyday flags, and static vs dynamic linking"
+
+questions:
+  - id: "gcc-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["gcc", "compilation", "linking"]
+
+    question:
+      text:
+        en: "Describe the four stages of C++ compilation in GCC: preprocessing, compiling, assembling, and linking. Which flags stop the pipeline at each stage (`-E`, `-c`, `-S`)? What is a translation unit?"
+        ru: "Опишите четыре этапа компиляции C++ в GCC: препроцессинг, компиляция, ассемблирование, компонукация. Какими флагами остановить конвейер на каждом этапе (`-E`, `-c`, `-S`)? Что такое translation unit?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is inside an object file (.o): symbols, sections, relocations?"
+        - "Why are #include directives 'expanded' before compilation?"
+        - "What is the difference between `gcc` and `g++`?"
+      ru:
+        - "Что находится в объектном файле (.o): символы, секции, relocation?"
+        - "Почему директивы `#include` 'разворачиваются' до компиляции?"
+        - "Чем `gcc` отличается от `g++`?"
+
+    expected_points:
+      - "Preprocessor: expands #include/#define/macros (-E produces preprocessed text)"
+      - "Compiler: translates C++ into assembly (-S produces .s; also produces .o when combined with later stage)"
+      - "Assembler: assembly into machine code object files (-c produces .o without linking)"
+      - "Linker: combines object files and libraries into an executable or shared library"
+      - "A translation unit is one .cpp file plus everything textually included into it"
+      - "g++ is the C++ driver: links libstdc++ and handles C++ semantics; gcc is the C driver"
+
+  - id: "gcc-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["gcc", "flags", "warnings", "optimization"]
+
+    question:
+      text:
+        en: "Explain common GCC flags: `-std=c++17`, `-Wall`, `-Wextra`, `-Werror`, `-g`, `-O0/-O1/-O2/-O3/-Os`, and the include/library flags `-I`, `-D`, `-L`, `-l`. What is the risk of using `-Werror` in a large project?"
+        ru: "Объясните распространённые флаги GCC: `-std=c++17`, `-Wall`, `-Wextra`, `-Werror`, `-g`, `-O0/-O1/-O2/-O3/-Os` и флаги `-I`, `-D`, `-L`, `-l`. Чем опасен `-Werror` в большом проекте?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What does -g produce and does it change generated code?"
+        - "Why do debug builds use -O0?"
+        - "How can you enable a single extra warning like -Wshadow?"
+      ru:
+        - "Что создаёт флаг -g и меняет ли он генерируемый код?"
+        - "Почему для отладочных сборок используют -O0?"
+        - "Как включить одно конкретное предупреждение вроде -Wshadow?"
+
+    expected_points:
+      - "-std selects the language standard (c++17, c++20, ...)"
+      - "-Wall enables common warnings, -Wextra adds more, -Werror turns warnings into errors"
+      - "-g emits debug information for gdb; -Werror is a risk because new compiler versions add new warnings and can break builds"
+      - "-O0 disables optimization for predictable debugging; -O1/-O2/-O3 increase optimization; -Os optimizes for size"
+      - "-I adds include search paths, -D defines macros, -L adds library search paths, -l links a named library"
+
+  - id: "gcc-j-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["gcc", "static-library", "shared-library", "linking"]
+
+    question:
+      text:
+        en: "What is the difference between a static library (.a) and a dynamic/shared library (.so)? How are they created with GCC/binutils, why does link order matter, and what is libstdc++?"
+        ru: "Чем статическая библиотека (.a) отличается от динамической (.so)? Как их создать средствами GCC/binutils, почему важен порядок линковки и что такое libstdc++?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Which one makes the final executable larger, and what gets copied?"
+        - "How does the runtime find .so files (LD_LIBRARY_PATH, system paths)?"
+        - "Why do you sometimes need to list the same library twice when linking statically?"
+      ru:
+        - "Что даёт больший исполняемый файл и что именно в него копируется?"
+        - "Как runtime находит .so (LD_LIBRARY_PATH, системные пути)?"
+        - "Почему статическую библиотеку иногда приходится перечислять в линковке дважды?"
+
+    expected_points:
+      - "Static library: archive of object files (created with ar rcs), code is copied into the final binary at link time"
+      - "Shared library: built with -shared -fPIC, resolved at runtime or load time, shared between processes"
+      - "Static linking gives self-contained binaries; dynamic linking reduces size and lets libraries be replaced independently"
+      - "Link order matters for static archives: the linker pulls symbols from libraries listed after the objects that need them"
+      - "libstdc++ is the GNU C++ standard library implementation that g++ links by default"

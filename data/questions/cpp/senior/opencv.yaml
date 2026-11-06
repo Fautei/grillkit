@@ -1,0 +1,91 @@
+category: "OpenCV at Scale"
+track: "cpp"
+level: "senior"
+
+description: "DNN deployment, performance engineering, and 3D vision"
+
+questions:
+  - id: "ocv-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["opencv", "dnn", "inference", "nms"]
+
+    question:
+      text:
+        en: "Walk through deploying a detection model with the OpenCV DNN module: importing an ONNX model, `blobFromImage` preprocessing (scale, mean, swapRB, NCHW), `net.setPreferableBackend/Target` (OpenVINO/CUDA/OpenCL), getting outputs with `forward`, decoding YOLO-style outputs, and `cv::dnn::NMSBoxes`. What are the main latency traps in a real-time pipeline?"
+        ru: "Разберите деплой модели детекции через модуль DNN OpenCV: импорт ONNX-модели, препроцессинг `blobFromImage` (scale, mean, swapRB, NCHW), `net.setPreferableBackend/Target` (OpenVINO/CUDA/OpenCL), получение выходов через `forward`, декодирование YOLO-выходов и `cv::dnn::NMSBoxes`. Какие основные ловушки задержек в реалтайм-пайплайне?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why does swapRB matter for models trained in RGB while OpenCV loads BGR?"
+        - "How do you warm up a CUDA backend and avoid the first-frame spike?"
+        - "How do OpenCV 4.5+ DNN CUDA backends differ from the old CUDA-only path (nvidia-based)?"
+      ru:
+        - "Почему swapRB важен для моделей, обученных на RGB, когда OpenCV грузит BGR?"
+        - "Как прогреть CUDA backend и избежать пика на первом кадре?"
+        - "Чем CUDA backend OpenCV 4.5+ отличается от старого CUDA-only пути (nvidia)?"
+
+    expected_points:
+      - "readNetFromONNX builds the graph; blobFromImage converts Mat to NCHW float with scale factor, mean subtraction, and BGR->RGB swap matching training"
+      - "setPreferableBackend/Target choose OPENCV (CPU), OpenVINO, CUDA, OPENCL; mismatch with available hardware silently falls back to CPU"
+      - "YOLO outputs need grid/anchor decoding, confidence thresholding, then cv::dnn::NMSBoxes to suppress overlapping boxes"
+      - "Latency traps: per-frame allocation, CPU-GPU transfers, wrong blob layout/size, cold-start graph compilation, single-threaded postprocessing"
+      - "Warm up with dummy inputs, reuse preallocated buffers, batch when possible, and profile per stage (capture, preprocess, forward, decode)"
+
+  - id: "ocv-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["opencv", "performance", "umat", "parallelism"]
+
+    question:
+      text:
+        en: "How do you make an OpenCV pipeline fast on multicore systems: Mat reference-counting and copy avoidance (`clone` vs shared ROI pitfalls), `cv::parallel_for_` and the parallel backend (pthread/TBB), `cv::setNumThreads`, UMat with OpenCL, and G-API/T-API? How do you profile where time goes, and what build options (SIMD, IPP) affect throughput?"
+        ru: "Как ускорить OpenCV-пайплайн на многоядерных системах: reference-counting у Mat и избежание копий (ловушки `clone` против разделяемого ROI), `cv::parallel_for_` и параллельный backend (pthread/TBB), `cv::setNumThreads`, UMat с OpenCL, G-API/T-API? Как профилировать, куда уходит время, и какие опции сборки (SIMD, IPP) влияют на пропускную способность?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why can a ROI plus subsequent clone be cheaper than the whole-image operation, and when does ROI sharing cause aliasing bugs?"
+        - "What happens when nested parallel regions oversubscribe cores?"
+        - "When do UMat/OpenCL paths actually beat optimized CPU code?"
+      ru:
+        - "Почему ROI + последующий clone иногда дешевле операции над всем изображением и когда разделение ROI даёт aliasing-баги?"
+        - "Что происходит при овер subscribing ядер вложенными параллельными областями?"
+        - "Когда UMat/OpenCL действительно быстрее оптимизированного CPU-кода?"
+
+    expected_points:
+      - "Mat operations are lazy: ROI/submatrix shares the buffer; clone/copyTo are the only deep copies — mutating an ROI mutates the parent"
+      - "cv::parallel_for_ splits ranges over the configured backend (pthread/TBB); cv::setNumThreads limits oversubscription in nested pipelines"
+      - "UMat moves buffers to OpenCL-accessible memory; T-API runs some ops on GPU without explicit kernels; useful on SoCs/integrated GPUs, not universally faster"
+      - "G-API builds graphs (DAGs) of operations, reducing intermediate allocations and enabling scheduling/fusion"
+      - "Build-level wins: -march flags, IPP (when enabled), aligned allocators; profile with cv::utils::logger levels, perf stats, and per-stage timing (steady_clock around stages)"
+      - "Common losses: unnecessary conversions/copies, per-frame allocations, small-image kernel launch overhead, thread contention with decoder threads"
+
+  - id: "ocv-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["opencv", "stereo", "pose", "sfm"]
+
+    question:
+      text:
+        en: "Explain the OpenCV 3D pipeline: stereo calibration and rectification (`stereoCalibrate`, `stereoRectify`), disparity with `StereoBM`/`StereoSGBM` and converting disparity to depth (f, B), pose estimation with `solvePnP` (P3P, RANSAC), and the difference between fundamental and essential matrices."
+        ru: "Объясните 3D-конвейер OpenCV: калибровка и исправление стереопары (`stereoCalibrate`, `stereoRectify`), поиск несоответствий `StereoBM`/`StereoSGBM` и перевод disparity в глубину (f, B), оценка позы через `solvePnP` (P3P, RANSAC) и различие фундаментальной и существенной матриц."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is rectification (remap via initUndistortRectifyMap) required before block matching?"
+        - "What is the minimum number of point correspondences for the essential matrix and why RANSAC?"
+        - "When would you choose StereoSGBM over StereoBM and what do its parameters control?"
+      ru:
+        - "Зачем нужно rectification (remap через initUndistortRectifyMap) перед block matching?"
+        - "Минимальное число пар точек для существенной матрицы и зачем RANSAC?"
+        - "Когда StereoSGBM предпочтительнее StereoBM и что настраивают его параметры?"
+
+    expected_points:
+      - "stereoCalibrate estimates relative rotation/translation of the pair + intrinsics; stereoRectify produces R1,R2,P1,P2,Q used by initUndistortRectifyMap and reprojectImageTo3D"
+      - "Rectified images have epipolar lines aligned to rows: matching becomes 1D along rows, enabling StereoBM (SAD windows) and StereoSGBM (semi-global dynamics path)"
+      - "depth = f * baseline / disparity; Q matrix encodes this for reprojectImageTo3D"
+      - "solvePnP: from >=4 3D-2D correspondences (P3P/EPnP/ITERATIVE) returns camera pose; solvePnPRansac handles outliers"
+      - "Fundamental matrix maps points between uncalibrated views (7-pt, homogeneous); essential matrix needs calibrated intrinsics and encodes rotation/translation direction (5-pt)"

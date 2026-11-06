@@ -13,6 +13,7 @@ _TRACK_LABELS: dict[str, str] = {
     "python": "Python",
     "database": "Database / SQL",
     "system-design": "System Design",
+    "cpp": "C++",
 }
 
 

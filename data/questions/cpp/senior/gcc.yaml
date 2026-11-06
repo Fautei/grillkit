@@ -1,0 +1,91 @@
+category: "GCC Internals"
+track: "cpp"
+level: "senior"
+
+description: "C++ ABI compatibility, LTO/PGO, and debugging optimized-code mysteries"
+
+questions:
+  - id: "gcc-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["gcc", "abi", "libstdcxx", "odr"]
+
+    question:
+      text:
+        en: "Explain the libstdc++ ABI switch `_GLIBCXX_USE_CXX11_ABI`: what changed for `std::string` and `std::list`, and what happens when objects compiled with different values are linked together. How do you diagnose such mismatches (nm -C, c++filt, link errors like 'undefined reference to std::__cxx11::basic_string')? What are ODR violations and how do they manifest?"
+        ru: "Объясните ABI-переключатель libstdc++ `_GLIBCXX_USE_CXX11_ABI`: что изменилось для `std::string` и `std::list` и что происходит при линковке объектов с разными значениями. Как диагностировать такие несовпадения (nm -C, c++filt, ошибки линковки вроде 'undefined reference to std::__cxx11::basic_string')? Что такое ODR-нарушения и как они проявляются?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why do old pre-C++11 ABI objects still link when calling functions taking const char*?"
+        - "How can you check which ABI a third-party .so was built with?"
+        - "Give a classic ODR violation with inline functions defined differently across translation units."
+      ru:
+        - "Почему старые объекты pre-C++11 ABI всё же линкуются, если функции принимают const char*?"
+        - "Как проверить, с каким ABI собран сторонний .so?"
+        - "Приведите классическое ODR-нарушение с inline-функциями, определёнными по-разному в разных TU."
+
+    expected_points:
+      - "_GLIBCXX_USE_CXX11_ABI=1 (default since GCC 5) switches std::string to small-string-optimized __cxx11 types; old ABI uses pre-C++11 types — both exist in libstdc++"
+      - "Mixing ABIs yields 'undefined reference to std::__cxx11::...' link errors or silent corruption when types with different layouts cross boundaries"
+      - "nm -C on the .so and inspecting symbol names (std::__cxx11::basic_string vs std::basic_string) reveals the ABI"
+      - "ODR violation: a class/inline function has different definitions across TUs (different macros, headers); linker picks one arbitrarily — classic heisenbug"
+      - "Prevention: single macro definitions across the build, package-level consistency (Conan/Docker base), and -fno-strict-aliasing does not fix ABI"
+
+  - id: "gcc-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["gcc", "lto", "pgo", "build-performance"]
+
+    question:
+      text:
+        en: "Compare full and thin LTO (`-flto` vs `-flto=auto/thin` equivalents on GCC/Clang): what work moves to link time, how devirtualization and cross-TU inlining emerge, why LTO makes incremental linking and memory usage painful, and how LTO interacts with debug info and sanitizers. How do you measure where compile time goes (`-ftime-report`, `-fdump-...`)? What is PGO's dependency on representative profiles?"
+        ru: "Сравните full и thin LTO (`-flto` и эквиваленты `-flto=auto/thin` в GCC/Clang): какая работа переносится на этап линковки, как появляются devirtualization и кросс-TU инлайнинг, почему LTO делает инкрементальную линковку и потребление памяти болезненными и как LTO взаимодействует с debug-информацией и санитайзерами. Как измерить, куда уходит время компиляции (`-ftime-report`, `-fdump-...`)? От чего зависит PGO относительно репрезентативных профилей?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why does ThinLTO scale better in distributed builds than full LTO?"
+        - "What happens to symbol names and debugging under LTO (-Wa,-g ... no: explain -g with LTO and gdb behavior)?"
+        - "Which sanitizer combinations are supported under LTO builds?"
+      ru:
+        - "Почему ThinLTO лучше масштабируется в распределённых сборках, чем full LTO?"
+        - "Что происходит с символами и отладкой при LTO (-g в связке с LTO, поведение gdb)?"
+        - "Какие комбинации санитайзеров поддерживаются при сборке с LTO?"
+
+    expected_points:
+      - "LTO defers GIMPLE/IR optimization to link time, enabling cross-TU inlining, constant propagation, and devirtualization from the whole-program view"
+      - "Full LTO serializes global optimization in the linker; ThinLTO partitions by module with summary-based cross-module optimization, parallelizing well"
+      - "Costs: huge link-time memory, slow full rebuilds, poorer incremental debug builds — typical trade is Release-only LTO"
+      - "Debugging under LTO works but functions are inlined/moved; -g is retained, expect surprises in stack frames; sanitizer+LTO supported but verify per GCC version"
+      - "-ftime-report and per-pass stats show where time goes; PGO only helps if the training workload reflects production paths, otherwise profiles mislead inlining"
+
+  - id: "gcc-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["gcc", "undefined-behavior", "strict-aliasing", "analyzer"]
+
+    question:
+      text:
+        en: "A program works at `-O0` and misbehaves at `-O2`. How do you hunt the undefined behavior: strict aliasing violations (why type-punning `uint32_t*` into `float*` breaks), uninitialized reads, signed overflow (`-fwrapv`), and how `-fsanitize=undefined`, `-fanalyzer`, and targeted warnings (`-Wuninitialized`, `-Wshadow`) help? Why is `volatile` not a concurrency or optimization fix?"
+        ru: "Программа работает на `-O0` и ведёт себя иначе на `-O2`. Как искать неопределённое поведение: нарушения strict aliasing (почему ломается type-punning `uint32_t*` в `float*`), чтение неинициализированных значений, знаковое переполнение (`-fwrapv`), и как помогают `-fsanitize=undefined`, `-fanalyzer` и адресные предупреждения (`-Wuninitialized`, `-Wshadow`)? Почему `volatile` — не средство конкурентности и не фикс оптимизаций?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why does memcpy/`std::bit_cast` satisfy aliasing where pointer casts do not?"
+        - "What does -fstrict-enums or -fdelete-null-pointer-checks change about optimizations?"
+        - "Give an example where reordering under -O2 exposed a data race."
+      ru:
+        - "Почему memcpy/`std::bit_cast` satisfy aliasing, а каст указателей — нет?"
+        - "Что меняют -fstrict-enums и -fdelete-null-pointer-checks в оптимизациях?"
+        - "Приведите пример, где переупорядочивание при -O2 вскрыло data race."
+
+    expected_points:
+      - "Strict aliasing: accessing an object via an incompatible pointer type is UB; compiler assumes no aliasing and reorders loads/stores; type-punning breaks this"
+      - "Safe alternatives: memcpy, unions (limited guarantees, C-only), std::bit_cast (C++20), -fno-strict-aliasing as a sledgehammer hiding the bug"
+      - "Signed overflow is UB, so -fwrapv changes codegen but is a workaround; -fsanitize=signed-integer-overflow finds it"
+      - "-fsanitize=undefined catches UB classes at runtime even at -O2 (note: sanitizer fixes may change codegen; pair with -fno-sanitize-recover)"
+      - "GCC 13+ -fanalyzer is a path-sensitive static analyzer for leaks/UAF/null-deref; warnings like -Wuninitialized fire only where dataflow proves it"
+      - "volatile prevents compiler caching of reads/writes (MMIO) but does not provide atomics/ordering — atomics/mutexes are for threads"

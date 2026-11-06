@@ -1,0 +1,90 @@
+category: "Clang Basics"
+track: "cpp"
+level: "junior"
+
+description: "Clang/LLVM architecture, diagnostics, and clang-format for teams"
+
+questions:
+  - id: "clang-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["clang", "llvm", "architecture"]
+
+    question:
+      text:
+        en: "What are Clang and LLVM, and how do they differ from GCC? Explain the frontend / optimizer / backend architecture and why tools like clang-tidy and clang-format can exist."
+        ru: "Что такое Clang и LLVM и чем они отличаются от GCC? Объясните архитектуру frontend / optimizer / backend и почему существуют инструменты вроде clang-tidy и clang-format."
+      code: null
+
+    follow_ups:
+      en:
+        - "Can Clang compile for platforms other than Linux (targets)? How?"
+        - "What is the libclang C API used for?"
+        - "Which standard library does Clang use by default on Linux, and can it use another?"
+      ru:
+        - "Может ли Clang компилировать под другие платформы (targets)? Как?"
+        - "Для чего нужен C API libclang?"
+        - "Какую стандартную библиотеку использует Clang по умолчанию в Linux и можно ли выбрать другую?"
+
+    expected_points:
+      - "Clang is the C/C++/ObjC frontend; LLVM provides the IR, middle-end optimizations, and multi-architecture backends"
+      - "GCC is a monolithic compiler; LLVM is a library-based architecture with reusable passes and tools"
+      - "Frontend builds an AST and LLVM IR; optimizer transforms IR; backend emits machine code for many targets"
+      - "Because the AST and IR are accessible as libraries, ecosystem tools (clang-tidy, clang-format, clangd, sanitizers) share the same frontend"
+      - "clang++ is a drop-in driver compatible with g++ flags; Clang supports libstdc++ or libc++ via -stdlib="
+
+  - id: "clang-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["clang", "diagnostics", "warnings"]
+
+    question:
+      text:
+        en: "Why is Clang often praised for its error messages compared to GCC? Explain fix-it hints, diagnostic groups, `-Weverything`, and `-fsyntax-only`."
+        ru: "Почему сообщения об ошибках Clang часто хвалят по сравнению с GCC? Объясните fix-it подсказки, группы диагностики, `-Weverything` и `-fsyntax-only`."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is -Weverything usually not recommended for everyday builds?"
+        - "How do you silence a specific warning: `-Wno-...`, pragmas, or attributes?"
+        - "How are template errors typically rendered differently in Clang?"
+      ru:
+        - "Почему -Weverything обычно не рекомендуют для повседневных сборок?"
+        - "Как отключить конкретное предупреждение: `-Wno-...`, pragma или атрибут?"
+        - "Как Clang обычно выводит ошибки в шаблонах иначе?"
+
+    expected_points:
+      - "Clang diagnostics are designed to be readable: source snippets with carets, notes, and suggested fixes"
+      - "Fix-it hints propose machine-applicable edits (typos, missing semicolons, wrong types)"
+      - "Warnings are organized in groups with -W names; -Weverything enables all groups including experimental ones and is too noisy for production"
+      - "-fsyntax-only parses and type-checks without code generation, giving fast feedback"
+      - "Template errors often use 'in instantiation of' notes that make instantiation chains clearer"
+
+  - id: "clang-j-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["clang", "clang-format", "ci"]
+
+    question:
+      text:
+        en: "What is clang-format and why do teams use it? Explain the `.clang-format` file, `BasedOnStyle`, and how to enforce formatting in CI (`clang-format --dry-run -Werror`, `git-clang-format`)."
+        ru: "Что такое clang-format и зачем его используют команды? Объясните файл `.clang-format`, `BasedOnStyle` и как требовать форматирования в CI (`clang-format --dry-run -Werror`, `git-clang-format`)."
+      code: null
+
+    follow_ups:
+      en:
+        - "Which built-in styles ship with clang-format (LLVM, Google, Chromium, Mozilla, WebKit, GNU)?"
+        - "What is the advantage of formatting only changed lines with git-clang-format?"
+        - "How does deterministic formatting help code review?"
+      ru:
+        - "Какие встроенные стили есть в clang-format (LLVM, Google, Chromium, Mozilla, WebKit, GNU)?"
+        - "В чём преимущество форматирования только изменённых строк через git-clang-format?"
+        - "Как детерминированное форматирование помогает code review?"
+
+    expected_points:
+      - "clang-format reformats C++ source deterministically from a configuration file"
+      - ".clang-format lives in the repo root; BasedOnStyle picks a preset (LLVM, Google, ...) that individual options override"
+      - "CI checks with clang-format --dry-run -Werror or git-clang-format so formatting cannot be argued in review"
+      - "Formatting only changed lines avoids huge diff noise when adopting a style"
+      - "Benefit: review diffs show logic changes, not style debates; one style enforced automatically"

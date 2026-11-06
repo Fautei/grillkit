@@ -1,0 +1,90 @@
+category: "Modern CMake"
+track: "cpp"
+level: "middle"
+
+description: "Target-based usage requirements, third-party dependencies, and generator expressions"
+
+questions:
+  - id: "cmake-m-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cmake", "targets", "usage-requirements"]
+
+    question:
+      text:
+        en: "In `target_link_libraries()` and `target_include_directories()`, what is the difference between `PRIVATE`, `PUBLIC`, and `INTERFACE`? How do usage requirements propagate to consumers, and why are global commands like `include_directories()` considered bad practice?"
+        ru: "В `target_link_libraries()` и `target_include_directories()` — в чём разница `PRIVATE`, `PUBLIC` и `INTERFACE`? Как usage requirements распространяются на потребителей и почему глобальные команды вроде `include_directories()` считаются плохой практикой?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Which keyword would you use for the include directory of a header-only library?"
+        - "What does PRIVATE mean for the link line of a STATIC library from the consumer's point of view?"
+        - "How does target_compile_definitions differ in propagation?"
+      ru:
+        - "Какое ключевое слово выбрать для include-директории header-only библиотеки?"
+        - "Что означает PRIVATE для линковки STATIC библиотеки с точки зрения потребителя?"
+        - "Чем отличается распространение target_compile_definitions?"
+
+    expected_points:
+      - "PRIVATE: used when building the target only (not propagated to consumers)"
+      - "INTERFACE: not used to build the target itself, but propagated to consumers (typical for header-only libs)"
+      - "PUBLIC: used when building the target and propagated to consumers (headers expose the dependency)"
+      - "Usage requirements (includes, defines, link libraries) travel through the target graph via target_* commands"
+      - "Global commands pollute every target in the directory scope, hide dependencies, and break reuse; INTERFACE targets + target_* replace them"
+
+  - id: "cmake-m-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cmake", "find-package", "fetchcontent", "dependencies"]
+
+    question:
+      text:
+        en: "How do you consume a third-party library in CMake? Compare `find_package` (Config vs Module mode), `FetchContent`, `add_subdirectory`, and git submodules. What are imported targets such as `Foo::Foo`?"
+        ru: "Как подключить стороннюю библиотеку в CMake? Сравните `find_package` (Config против Module mode), `FetchContent`, `add_subdirectory` и git-подмодули. Что такое imported targets вроде `Foo::Foo`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What file does find_package(Foo CONFIG) look for and where?"
+        - "When is FetchContent preferable to a system-installed dependency?"
+        - "How do you require an exact component set: find_package(Boost REQUIRED COMPONENTS ...)"
+      ru:
+        - "Какой файл ищет find_package(Foo CONFIG) и где?"
+        - "Когда FetchContent предпочтительнее системно установленной зависимости?"
+        - "Как потребовать конкретный набор компонентов: find_package(Boost REQUIRED COMPONENTS ...)"
+
+    expected_points:
+      - "find_package in Config mode loads FooConfig.cmake shipped/installed by the package; Module mode uses FindFoo.cmake scripts from CMake"
+      - "Well-written packages provide namespaced imported targets (Foo::Foo) carrying usage requirements"
+      - "add_subdirectory builds the dependency as part of the same project; simple but couples build settings and version"
+      - "FetchContent downloads and adds sources at configure time, good for pinning dependencies in CI; git submodules pin sources outside CMake"
+      - "Choice depends on ecosystem: installed system packages vs vendored source vs package managers (Conan/vcpkg) providing config files"
+
+  - id: "cmake-m-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cmake", "generator-expressions", "alias-targets"]
+
+    question:
+      text:
+        en: "What are generator expressions (`$<...>`) and why can't ordinary variables be used instead in examples like `target_compile_options(t PRIVATE $<$<CONFIG:Debug>:-fsanitize=address>)`? Explain `$<CONFIG:...>`, `$<TARGET_FILE:...>`, and ALIAS targets with namespaced names."
+        ru: "Что такое generator expressions (`$<...>`) и почему обычные переменные не подходят в примере `target_compile_options(t PRIVATE $<$<CONFIG:Debug>:-fsanitize=address>)`? Объясните `$<CONFIG:...>`, `$<TARGET_FILE:...>` и ALIAS-цели с namespaced именами."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why are generator expressions evaluated at generate time rather than configure time?"
+        - "How do you test 'target exists' inside a generator expression?"
+        - "Why should INTERFACE include dirs usually use `$<BUILD_INTERFACE:...>` and `$<INSTALL_INTERFACE:...>`?"
+      ru:
+        - "Почему generator expressions вычисляются на generate-этапе, а не на configure?"
+        - "Как проверить 'существование цели' внутри generator expression?"
+        - "Почему для INTERFACE include обычно используют `$<BUILD_INTERFACE:...>` и `$<INSTALL_INTERFACE:...>`?"
+
+    expected_points:
+      - "Generator expressions are evaluated during generation, after configure, when multi-config or per-target info is final"
+      - "They enable per-configuration, per-target, per-platform conditions that configure-time variables cannot express"
+      - "$<CONFIG:Debug> selects content only for that configuration; $<TARGET_FILE:t> expands to the built artifact path"
+      - "add_library(Foo::Bar ALIAS Foo) gives stable namespaced names for consumers and internal targets"
+      - "BUILD_INTERFACE vs INSTALL_INTERFACE separates build-tree paths from installed layout for exported targets"

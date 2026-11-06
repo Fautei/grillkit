@@ -790,6 +790,7 @@ Current top-level **tracks** under `data/questions/` (each has `junior` / `middl
 | **kubernetes** | Fundamentals through production |
 | **observability** | Prometheus, Grafana, Loki |
 | **airflow** | Scheduling, executors, TaskFlow, operations |
+| **cpp** | CMake, std/Modern C++, Conan, GCC, Clang, OpenCV, Boost |
 
 `shared/questions.py` discovers theory tracks and categories from the filesystem (`questions_map.yaml` is metadata only). `shared/coding.py` mirrors the layout under `data/coding/`. Setup uses `GET /setup/options?track=…` and `GET /setup/coding-options?track=…` for cascaded form updates.
 

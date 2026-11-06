@@ -1,0 +1,119 @@
+category: "Modern C++ Standard Library"
+track: "cpp"
+level: "middle"
+
+description: "Move semantics, smart pointers, concurrency basics, and C++17/20 utilities"
+
+questions:
+  - id: "std-m-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["move-semantics", "rvalue", "forwarding"]
+
+    question:
+      text:
+        en: "Explain move semantics: what are lvalues, rvalues, and xvalues; what `std::move` and `std::forward` actually do at runtime; how to write a correct move constructor/assignment (rule of five); and what state a moved-from object must be in."
+        ru: "Объясните семантику перемещения: что такое lvalue, rvalue и xvalue; что реально делают `std::move` и `std::forward` во время выполнения; как корректно написать move-конструктор и move-присваивание (rule of five); в каком состоянии должен находиться перемещённый объект."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is it usually useless to return a local variable with std::move?"
+        - "When can moving be slower than copying?"
+        - "Why must a moved-from object remain valid but unspecified?"
+      ru:
+        - "Почему возвращать локальную переменную через std::move обычно бессмысленно?"
+        - "Когда перемещение может быть медленнее копирования?"
+        - "Почему перемещённый объект должен оставаться валидным, но неопределённым?"
+
+    expected_points:
+      - "std::move performs no moving: it is an unconditional cast to xvalue (rvalue reference) enabling move overloads"
+      - "std::forward preserves the value category in generic code (perfect forwarding via reference collapsing)"
+      - "Rule of five: define destructor, copy ctor/assign, move ctor/assign; noexcept on move operations matters for vector reallocation"
+      - "Moved-from objects must be destructible and assignable (valid but unspecified state)"
+      - "NRVO usually beats returning with std::move; move only helps for types that own heap resources"
+
+  - id: "std-m-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["smart-pointers", "memory", "ownership"]
+
+    question:
+      text:
+        en: "Compare `std::unique_ptr`, `std::shared_ptr`, and `std::weak_ptr`: control block behavior, thread-safety of the reference count, `enable_shared_from_this`, custom deleters, and how `weak_ptr` breaks ownership cycles."
+        ru: "Сравните `std::unique_ptr`, `std::shared_ptr` и `std::weak_ptr`: поведение control block, потокобезопасность счётчика ссылок, `enable_shared_from_this`, кастомные deleters и то, как `weak_ptr` разрывает циклы владения."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why must you never construct two shared_ptr from the same raw pointer?"
+        - "Is it safe to read and write the same object through copies of a shared_ptr from two threads?"
+        - "When would you prefer unique_ptr with a custom deleter over shared_ptr?"
+      ru:
+        - "Почему нельзя строить два shared_ptr из одного сырого указателя?"
+        - "Безопасно ли читать и писать сам объект через копии shared_ptr из двух потоков?"
+        - "Когда лучше unique_ptr с кастомным deleter, чем shared_ptr?"
+
+    expected_points:
+      - "unique_ptr: exclusive ownership, no control block, zero overhead; movable, not copyable"
+      - "shared_ptr: reference-counted control block (strong + weak counts, stored deleters); copies are cheap-ish (atomic refcount ops)"
+      - "Reference counts are thread-safe, but the pointed-to object is not: concurrent mutation of the object is a data race"
+      - "weak_ptr observes an object without owning it; lock() obtains a shared_ptr; used to break cycles and for observers"
+      - "enable_shared_from_this hands out shared aliases only when one already exists; two shared_ptr over one raw pointer cause double free"
+      - "Custom deleters (make_unique + lambda deleter, FILE* deleter) let unique_ptr manage non-new resources"
+
+  - id: "std-m-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["concurrency", "threads", "mutex", "atomics"]
+
+    question:
+      text:
+        en: "Show the standard tools for shared-memory concurrency: `std::thread` (join/detach pitfalls), `std::mutex` with `lock_guard`/`unique_lock`/`scoped_lock`, `std::atomic`, and `std::async` with futures. What is a data race and why is it undefined behavior?"
+        ru: "Назовите стандартные инструменты конкурентности с общей памятью: `std::thread` (ловушки join/detach), `std::mutex` с `lock_guard`/`unique_lock`/`scoped_lock`, `std::atomic`, `std::async` с futures. Что такое data race и почему это неопределённое поведение?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why must a std::thread be joined or detached before destruction?"
+        - "When do you need unique_lock instead of lock_guard?"
+        - "Why is `i++` on a plain int in two threads undefined behavior even if it 'looks atomic'?"
+      ru:
+        - "Почему std::thread обязан быть join'нут или detach'нут до деструктора?"
+        - "Когда нужен unique_lock вместо lock_guard?"
+        - "Почему `i++` на обычном int в двух потоках — UB, даже если 'выглядит атомарно'?"
+
+    expected_points:
+      - "std::thread destructor calls std::terminate if joinable; detach() loses control — RAII wrappers (jthread in C++20) help"
+      - "lock_guard/scoped_lock are RAII scopes; unique_lock allows deferred locking, unlocking, condition_variable::wait"
+      - "scoped_lock (C++17) locks multiple mutexes deadlock-free; use it instead of manual ordering"
+      - "std::atomic provides race-free operations with defined memory ordering; plain concurrent read/write is UB"
+      - "std::async + std::future give task-level parallelism with deferred/eager policies and exception propagation"
+
+  - id: "std-m-004"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["cpp17", "cpp20", "string-view", "optional", "variant"]
+
+    question:
+      text:
+        en: "Explain C++17/20 utility types: `std::string_view`, `std::optional`, `std::variant` + `std::visit`, `std::any`, and structured bindings. Where can `string_view` dangle, and how is `variant` different from a tagged union?"
+        ru: "Объясните utility-типы C++17/20: `std::string_view`, `std::optional`, `std::variant` + `std::visit`, `std::any`, structured bindings. Где `string_view` может 'повиснуть' и чем `variant` отличается от tagged union?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is returning string_view of a temporary or local std::string dangerous?"
+        - "What happens when std::get is called with the wrong alternative of a variant?"
+        - "When is std::any preferable to variant, and what is the cost?"
+      ru:
+        - "Почему опасно возвращать string_view от временного или локального std::string?"
+        - "Что будет, если вызвать std::get не с тем вариантом variant?"
+        - "Когда std::any лучше variant и чем он дороже?"
+
+    expected_points:
+      - "string_view is a non-owning (ptr, size) pair; it dangles when the referred string is destroyed (locals, temporaries, some substr usage)"
+      - "optional<T> expresses 'maybe no value' without sentinel values; supports in-place construction and has_value"
+      - "variant is a type-safe tagged union with fixed alternatives; visit applies overload sets; wrong std::get throws"
+      - "any is type-erased storage for any copyable type, lookup by type at runtime, with possible heap allocation"
+      - "Structured bindings destructure pairs, tuples, and aggregates: auto [k, v] = *map_it;"

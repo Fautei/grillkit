@@ -1,0 +1,90 @@
+category: "Clang Tooling"
+track: "cpp"
+level: "middle"
+
+description: "clang-tidy, clang-format configuration, and standard library choices"
+
+questions:
+  - id: "clang-m-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["clang", "clang-tidy", "static-analysis"]
+
+    question:
+      text:
+        en: "What is clang-tidy and how does it differ from compiler warnings? Explain the `.clang-tidy` file (Checks, WarningsAsErrors, HeaderFilterRegex), check families such as `modernize-*`, `performance-*`, `readability-*`, and how `clang-tidy -fix` works."
+        ru: "Что такое clang-tidy и чем он отличается от предупреждений компилятора? Объясните файл `.clang-tidy` (Checks, WarningsAsErrors, HeaderFilterRegex), семейства проверок `modernize-*`, `performance-*`, `readability-*` и работу `clang-tidy -fix`."
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you feed clang-tidy the same flags the build uses (compile_commands.json)?"
+        - "Why are header-only projects configured with HeaderFilterRegex?"
+        - "Give an example of a modernize- check that rewrites code automatically."
+      ru:
+        - "Как дать clang-tidy те же флаги, что у сборки (compile_commands.json)?"
+        - "Зачем в header-only проектах настраивают HeaderFilterRegex?"
+        - "Приведите пример modernize- проверки, которая сама переписывает код."
+
+    expected_points:
+      - "clang-tidy is a linting/AST-based analyzer: it applies named checks beyond compiler diagnostics (style, performance, API misuse)"
+      - "Checks use the full AST, so it can suggest and apply refactoring (e.g. modernize-use-nullptr, performance-unnecessary-value-param)"
+      - ".clang-tidy sets Checks allow/deny lists, WarningsAsErrors to gate CI, HeaderFilterRegex to analyze project headers"
+      - "Run over a compilation database: cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON, then clang-tidy $(cat compile_commands.json)"
+      - "-fix applies machine-applicable fixes; review diffs because some fixes change semantics subtly"
+
+  - id: "clang-m-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["clang", "clang-format", "include-ordering"]
+
+    question:
+      text:
+        en: "Configure clang-format for a real project: which key options matter (BasedOnStyle, ColumnLimit, IndentWidth, AccessModifierOffset, PointerAlignment, SortIncludes/IncludeCategories)? How do you integrate it in CI and reformat only a diff?"
+        ru: "Настройте clang-format для реального проекта: какие опции важны (BasedOnStyle, ColumnLimit, IndentWidth, AccessModifierOffset, PointerAlignment, SortIncludes/IncludeCategories)? Как интегрировать в CI и переформатировать только diff?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you prevent reformatting of a table-like block (clang-format off/on)?"
+        - "What is the role of .clang-format-ignore or -fallback-style?"
+        - "How do include categories encode project vs third-party vs standard headers?"
+      ru:
+        - "Как запретить переформатирование табличного блока (clang-format off/on)?"
+        - "За что отвечают .clang-format-ignore и -fallback-style?"
+        - "Как IncludeCategories кодируют заголовки проекта, сторонние и стандартные?"
+
+    expected_points:
+      - "BasedOnStyle picks a preset; explicit keys override it; the file must be committed for determinism"
+      - "ColumnLimit wraps code; AccessModifierOffset controls public/private indentation; PointerAlignment fixes int* p vs int *p"
+      - "IncludeCategories/SortIncludes group and sort includes (std, third-party, project) consistently"
+      - "CI runs git-clang-format --diff or clang-format --dry-run -Werror; clang-format-diff handles patches"
+      - "// clang-format off / on guards regions where custom layout matters (ASCII tables, matrices)"
+
+  - id: "clang-m-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["clang", "libcxx", "stdlib", "abi"]
+
+    question:
+      text:
+        en: "What does `-stdlib=libc++` change for Clang on Linux, and how does libc++ differ from libstdc++ in ABI and debugging? Mention `_LIBCPP_HARDENING_MODE`/`_LIBCPP_ENABLE_ASSERTIONS` vs libstdc++ debug mode (`-D_GLIBCXX_DEBUG`) and why mixing the two static libraries breaks."
+        ru: "Что меняет `-stdlib=libc++` для Clang в Linux и чем libc++ отличается от libstdc++ по ABI и отладке? Упомяните `_LIBCPP_HARDENING_MODE`/`_LIBCPP_ENABLE_ASSERTIONS` против debug-режима libstdc++ (`-D_GLIBCXX_DEBUG`) и почему смешивание этих статических библиотек ломает сборку."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why must libc++-specific hardening macros be defined consistently across a codebase?"
+        - "How do you tell which stdlib a binary uses (ldd, nm on std:: symbols)?"
+        - "Which standard library does Android NDK and Xcode use, and why?"
+      ru:
+        - "Почему макросы hardening libc++ нужно определять одинаково во всей кодовой базе?"
+        - "Как определить, какую stdlib использует бинарник (ldd, nm по символам std::)?"
+        - "Какую стандартную библиотеку используют Android NDK и Xcode и почему?"
+
+    expected_points:
+      - "-stdlib selects the C++ standard library implementation: libstdc++ (GCC default) or libc++ (LLVM); Clang supports both"
+      - "libc++ and libstdc++ C++ symbols have incompatible ABIs: mixing objects built against different ones fails at link or corrupts at runtime"
+      - "libc++ hardening/assertions (_LIBCPP_HARDENING_MODE, older _LIBCPP_ENABLE_* flags) add checked containers/iterators when enabled consistently"
+      - "libstdc++ debug mode (-D_GLIBCXX_DEBUG) changes iterator/container debug types and is also an ABI switch — never mix TUs"
+      - "Android NDK uses libc++ exclusively; Apple platforms ship libc++ as the system one — relevant for cross-platform teams"

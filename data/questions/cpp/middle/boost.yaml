@@ -1,0 +1,90 @@
+category: "Boost Libraries in Practice"
+track: "cpp"
+level: "middle"
+
+description: "Asio async model, Boost threading, and regex backends"
+
+questions:
+  - id: "boost-m-001"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["boost", "asio", "async", "io-context"]
+
+    question:
+      text:
+        en: "Explain the Boost.Asio concurrency model: `io_context`, sync vs async socket APIs, completion handlers, `async_op` lifetime, and why `boost::asio::strand` serializes handlers without a mutex. What happens when one `io_context` is run by several threads?"
+        ru: "Объясните модель конкурентности Boost.Asio: `io_context`, синхронный и асинхронный API сокетов, completion handlers, время жизни `async_op` и почему `boost::asio::strand` сериализует обработчики без мьютекса. Что происходит, когда один `io_context` запускают несколько потоков?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why must you keep the buffer and completion handler alive until the handler runs?"
+        - "What does io_context::run() do when there is no work, and how does an executor_work_guard keep it alive?"
+        - "Give the classic shared_from_this pattern for async member functions."
+      ru:
+        - "Почему нужно держать буфер и completion handler живыми до срабатывания handler?"
+        - "Что делает io_context::run(), когда работы нет, и как executor_work_guard удерживает его?"
+        - "Покажите классический shared_from_this-паттерн для async-методов."
+
+    expected_points:
+      - "io_context is the event queue/execution context: async operations post completion handlers executed by run()/poll()/restart()"
+      - "Sync API blocks the thread; async API (async_read_some) returns immediately and completes when data/timeout arrives"
+      - "Buffers, handler objects, and endpoint state must outlive the operation — capture shared_from_this, not raw this"
+      - "A strand guarantees handlers never execute concurrently and in order, avoiding data races without mutexes"
+      - "Running one io_context from many threads means handlers may run concurrently on different threads — use a strand for shared state"
+
+  - id: "boost-m-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["boost", "thread", "mutex", "sync"]
+
+    question:
+      text:
+        en: "Boost predates C++11's threading standard. What does Boost.Thread / Boost.Sync still offer beyond `std::thread` (thread interruption, upgradeable locks `boost::upgrade_lock`, `boost::call_once`, timers)? When should you stick to std threading primitives for interoperability?"
+        ru: "Boost появился раньше стандартных потоков C++11. Что Boost.Thread / Boost.Sync дают сверх `std::thread` (интеррупция потока, upgradeable locks `boost::upgrade_lock`, `boost::call_once`, таймеры)? Когда стоит держаться std-примитивов ради совместимости?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How does boost thread interruption differ from std::thread's inability to cancel?"
+        - "What is the read-to-write upgrade race (deadlock) and how do upgrade_locks address it?"
+        - "Why must Boost.Thread be compiled while std::thread usually is not?"
+      ru:
+        - "Чем interruptible-поток Boost отличается от невозможности отмены std::thread?"
+        - "Что такое гонка/deadlock при upgrade read-лока и как его закрывает upgrade_lock?"
+        - "Почему Boost.Thread нужно компилировать, а std::thread обычно нет?"
+
+    expected_points:
+      - "Boost.Thread was the pre-C++11 proposal base (N2320 lineage); std::thread covers the basics"
+      - "Boost extras: thread interruption (interruption_point, try_to_join semantics), boost::call_once, boost::timer, and Sync's upgrade_lock/upgradable_mutex for safe shared→unique lock upgrade"
+      - "upgradable_mutex prevents the classic deadlock when two shared owners both try to lock exclusive"
+      - "std and Boost mutex types are different ABIs — do not mix them guarding the same data"
+      - "For code crossing library boundaries prefer std::thread/std::mutex; use Boost when you specifically need interruption or upgradeable locks"
+
+  - id: "boost-m-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["boost", "regex", "re2", "pcre"]
+
+    question:
+      text:
+        en: "Boost.Regex is usually much faster than std::regex. Explain its pluggable backends (classic Boost C++ engine, RE2, Perl/PCRE via `#define BOOST_REGEX_USE_*`), the performance and safety differences (RE2 linear time, no backreferences; PCRE backtracking with libraries to link), and grammar differences from std::regex ECMAScript."
+        ru: "Boost.Regex обычно намного быстрее std::regex. Объясните подключаемые backends (классический движок Boost C++, RE2, Perl/PCRE через `#define BOOST_REGEX_USE_*`), различия по производительности и безопасности (RE2 — линейное время без backreferences; PCRE — backtracking, требует линковки библиотеки) и отличия грамматики от ECMAScript в std::regex."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why can exponential backtracking in std::regex/PCRE become a security problem (ReDoS)?"
+        - "How do you compile a regex once for a hot loop with Boost?"
+        - "Which Boost.Regex Unicode support relies on ICU?"
+      ru:
+        - "Почему экспоненциальный backtracking в std::regex/PCRE может быть проблемой безопасности (ReDoS)?"
+        - "Как в Boost скомпилировать регулярку один раз для горячего цикла?"
+        - "Какая Unicode-поддержка Boost.Regex опирается на ICU?"
+
+    expected_points:
+      - "std::regex implementations are typically slow (ECMAScript engine, heavy templates, no optimization investment)"
+      - "Boost.Regex backends: classic (Perl-like, header+compiled), RE2 (linear-time, guaranteed no ReDoS, no backreferences/lookaround), PCRE (fast, external library, full backtracking)"
+      - "Backend is chosen by defining BOOST_REGEX_USE_RE2/BOOST_REGEX_USE_CPP_LOCALE etc. or by building Boost with the backend"
+      - "Compile pattern once outside loops; regex_traits/ICU for full Unicode properties"
+      - "RE2 is the right default when correctness under adversarial input matters; PCRE when backreferences are required"

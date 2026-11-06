@@ -1,0 +1,90 @@
+category: "C++ Standard Library Basics"
+track: "cpp"
+level: "junior"
+
+description: "Containers, iterators, algorithms, and introductory RAII/smart pointers"
+
+questions:
+  - id: "std-j-001"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["stl", "containers", "complexity"]
+
+    question:
+      text:
+        en: "When would you choose `std::vector` vs `std::array` vs `std::deque` vs `std::list` vs `std::map` vs `std::unordered_map`? Compare their access/insertion complexity and typical use cases."
+        ru: "Когда выбирать `std::vector` против `std::array`, `std::deque`, `std::list`, `std::map` и `std::unordered_map`? Сравните сложность доступа/вставки и типичные сценарии использования."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is `std::vector` usually faster than `std::list` even with O(1) splice?"
+        - "What is the worst case for `std::unordered_map`, and what triggers it?"
+        - "How does `reserve()` help when filling a vector in a loop?"
+      ru:
+        - "Почему `std::vector` обычно быстрее `std::list`, даже у list splice за O(1)?"
+        - "Каков худший случай у `std::unordered_map` и что его вызывает?"
+        - "Чем помогает `reserve()` при заполнении vector в цикле?"
+
+    expected_points:
+      - "std::array: fixed size, stack storage, no allocation"
+      - "std::vector: contiguous memory, O(1) random access, amortized O(1) push_back, cache-friendly default choice"
+      - "std::deque: O(1) insertion at both ends, O(1) indexing with slightly worse locality"
+      - "std::list: O(1) insert/splice anywhere with iterators stable, but poor cache locality and per-node overhead"
+      - "std::map: ordered keys, O(log n) operations; std::unordered_map: average O(1) lookup, O(n) worst case, requires hashable keys"
+
+  - id: "std-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["stl", "algorithms", "iterators", "lambda"]
+
+    question:
+      text:
+        en: "Explain iterators and the `<algorithm>` header: how `std::sort`, `std::find`, `std::count_if`, and `std::copy` are used, what a range-based for loop expands to, and how lambdas are used as predicates."
+        ru: "Объясните итераторы и заголовок `<algorithm>`: как используются `std::sort`, `std::find`, `std::count_if`, `std::copy`, во что разворачивается range-based for и как применять лямбды как предикаты."
+      code: null
+
+    follow_ups:
+      en:
+        - "What is the difference between `std::find` and `std::find_if`?"
+        - "Why do standard algorithms take iterator ranges instead of containers?"
+        - "When should you prefer an algorithm like `std::any_of` over a hand-written loop?"
+      ru:
+        - "Чем `std::find` отличается от `std::find_if`?"
+        - "Почему алгоритмы принимают диапазон итераторов, а не контейнер?"
+        - "Когда лучше использовать алгоритм вроде `std::any_of`, чем писать цикл вручную?"
+
+    expected_points:
+      - "Iterators generalize pointers; algorithms operate on [first, last) ranges and work with any container"
+      - "Range-based for expands to begin()/end() iteration over the container"
+      - "std::sort sorts random-access ranges in O(n log n); std::find does linear search; count_if and any_of take unary predicates"
+      - "Lambdas such as `[](const T& x){ return x.id == 5; }` are the idiomatic predicates since C++11"
+      - "Algorithms express intent better than manual loops and enable compiler optimizations"
+
+  - id: "std-j-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["raii", "smart-pointers", "memory"]
+
+    question:
+      text:
+        en: "What is RAII? Why are raw `new`/`delete` error-prone, and how do `std::unique_ptr` and `std::shared_ptr` fix the problem? When would you use `std::make_unique`/`std::make_shared`?"
+        ru: "Что такое RAII? Почему сырые `new`/`delete` опасны и как `std::unique_ptr` и `std::shared_ptr` решают эту проблему? Когда использовать `std::make_unique`/`std::make_shared`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why can an exception thrown between `new` and a function call leak memory (pre-C++17 evaluation-order issues)?"
+        - "What does `std::unique_ptr` prohibit that `std::shared_ptr` allows?"
+        - "What is the 'rule of zero'?"
+      ru:
+        - "Почему исключение, брошенное между `new` и вызовом функции, приводит к утечке (проблемы порядка вычисления до C++17)?"
+        - "Что запрещает `std::unique_ptr`, что разрешает `std::shared_ptr`?"
+        - "Что такое 'rule of zero'?"
+
+    expected_points:
+      - "RAII ties resource lifetime to object lifetime: the destructor releases the resource when the scope exits"
+      - "Raw new/delete leak on exceptions, early returns, and double-free bugs"
+      - "std::unique_ptr models exclusive ownership, zero-overhead, non-copyable, movable"
+      - "std::shared_ptr models shared ownership with a reference-counted control block"
+      - "make_unique/make_shared are preferred: exception-safe and (for make_shared) a single allocation for object and control block"

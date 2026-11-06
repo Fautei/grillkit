@@ -1,0 +1,90 @@
+category: "Boost Basics"
+track: "cpp"
+level: "junior"
+
+description: "What Boost is, its relationship to the standard library, and first utility libraries"
+
+questions:
+  - id: "boost-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["boost", "standard-library", "libraries"]
+
+    question:
+      text:
+        en: "What is Boost and why does C++ need it when there is a standard library? Explain the historical relationship (which standard features started as Boost), and the difference between header-only and compiled Boost libraries."
+        ru: "Что такое Boost и зачем он нужен в C++, если есть стандартная библиотека? Объясните историческую связь (какие стандартные возможности начинались как Boost) и разницу между header-only и компилируемыми библиотеками Boost."
+      code: null
+
+    follow_ups:
+      en:
+        - "Name Boost libraries that were later adopted into the C++ standard."
+        - "How do you build the compiled libraries (b2/bjam: toolset, variant, link=static|shared)?"
+        - "Why do many Boost libraries have no ABI issues while compiled ones do?"
+      ru:
+        - "Назовите библиотеки Boost, позже вошедшие в стандарт C++."
+        - "Как собрать компилируемые библиотеки (b2/bjam: toolset, variant, link=static|shared)?"
+        - "Почему у многих Boost-библиотек нет проблем с ABI, а у компилируемых они есть?"
+
+    expected_points:
+      - "Boost is a peer-reviewed, portable collection of C++ libraries with a permissive license; it serves as an informal testing ground for the standard"
+      - "Standard features that started as Boost: smart pointers, thread, regex, chrono, filesystem, optional, any, variant, tuple, unordered containers"
+      - "Many Boost libraries are header-only (regex is not, Asio mostly header-only, thread is compiled): no build needed, but slower compiles"
+      - "Compiled libraries (thread, filesystem <C++17, program_options, chrono in old versions) must be built with b2 and linked"
+      - "Boost evolves independently and faster than ISO C++; some areas never standardized (Asio, Beast, Interprocess)"
+
+  - id: "boost-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["boost", "optional", "filesystem", "migration"]
+
+    question:
+      text:
+        en: "Which Boost utilities now have standard replacements (`boost::optional`, `boost::variant`, `boost::filesystem`, `boost::regex`, `boost::thread`)? When should you still prefer the Boost version over `std`, and how do you migrate safely?"
+        ru: "У каких utility-библиотек Boost теперь есть стандартные замены (`boost::optional`, `boost::variant`, `boost::filesystem`, `boost::regex`, `boost::thread`)? Когда всё же стоит выбрать Boost-версию вместо `std` и как безопасно мигрировать?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What advantages does boost::variant2 / modern Boost.Optional have over std::variant/std::optional?"
+        - "Why is boost::regex often faster than std::regex, and which backends exist?"
+        - "What happened to boost::filesystem once C++17's std::filesystem arrived?"
+      ru:
+        - "Какие преимущества boost::variant2 / современных Boost.Optional перед std::variant/std::optional?"
+        - "Почему boost::regex часто быстрее std::regex и какие backends у него есть?"
+        - "Что произошло с boost::filesystem после появления std::filesystem в C++17?"
+
+    expected_points:
+      - "std::optional/variant/filesystem/regex/thread directly supersede boost::optional/variant/filesystem/regex/thread — use std in new code"
+      - "boost::filesystem was deprecated and removed from Boost in favor of std::filesystem"
+      - "Boost can still win: regex backends (RE2, PCRE) with real performance, Boost.Variant2 move semantics, Boost.Any2 type erasure"
+      - "Areas std lacks: Asio (networking), Beast (HTTP/WebSocket), Interprocess, program_options, Geometry"
+      - "Migration is usually a namespace swap when APIs are close; verify semantics (path behavior, iterator invalidation) before mass replacement"
+
+  - id: "boost-j-003"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["boost", "smart-pointers", "intrusive-ptr"]
+
+    question:
+      text:
+        en: "Explain Boost smart pointer history and extras: `boost::scoped_ptr` vs `std::unique_ptr`, what `boost::intrusive_ptr` does and where intrusive reference counting is used, and why `boost::noncopyable` is obsolete."
+        ru: "Объясните историю и особенности умных указателей Boost: `boost::scoped_ptr` против `std::unique_ptr`, что делает `boost::intrusive_ptr` и где применяется intrusive reference counting, и почему `boost::noncopyable` устарел."
+      code: null
+
+    follow_ups:
+      en:
+        - "What must an object implement for intrusive_ptr to manage it?"
+        - "What was boost::shared_array and what replaced it?"
+        - "Why does intrusive_ptr avoid a control block, and what is the cost?"
+      ru:
+        - "Что должен реализовать объект, чтобы intrusive_ptr им управлял?"
+        - "Чем был boost::shared_array и чем он заменён?"
+        - "Почему intrusive_ptr не создаёт control block и чем это обернулось?"
+
+    expected_points:
+      - "boost::scoped_ptr was a non-movable non-owning-scope pointer; std::unique_ptr is its standard, movable replacement (scoped_ptr removed from Boost)"
+      - "boost::intrusive_ptr stores the reference count inside the object via add_ref/release hooks — no separate control block, saves allocation and memory"
+      - "Intrusive refcounting is used where objects are pool-allocated or count must be visible to the object itself (COM-style, graphics resources, nodes)"
+      - "Cost: the object must support the counter API and cannot be used without it; external refcounting is safer by default"
+      - "boost::noncopyable was a base with private copy ops; C++11 `= delete` made it unnecessary"

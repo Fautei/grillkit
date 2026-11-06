@@ -1,0 +1,90 @@
+category: "OpenCV Basics"
+track: "cpp"
+level: "junior"
+
+description: "cv::Mat, image I/O, basic operations, and video capture"
+
+questions:
+  - id: "ocv-j-001"
+    type: "knowledge"
+    difficulty: 1
+    tags: ["opencv", "mat", "image-io"]
+
+    question:
+      text:
+        en: "What is OpenCV? Explain the `cv::Mat` structure (rows, cols, type such as `CV_8UC3`, data pointer, step) and why Mat assignment/copy is 'shallow'. Why does OpenCV use BGR instead of RGB, and how do you read and write images?"
+        ru: "Что такое OpenCV? Объясните структуру `cv::Mat` (rows, cols, тип вроде `CV_8UC3`, указатель data, step) и почему присваивание/копия Mat 'поверхностные'. Почему OpenCV использует BGR вместо RGB и как читать и записывать изображения?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you force an independent copy of a Mat?"
+        - "What does cvtColor with COLOR_BGR2GRAY do to channels?"
+        - "How is reference counting implemented and what happens when the last Mat goes out of scope?"
+      ru:
+        - "Как получить независимую копию Mat?"
+        - "Что делает cvtColor с COLOR_BGR2GRAY с каналами?"
+        - "Как реализован подсчёт ссылок и что происходит, когда последний Mat выходит из области видимости?"
+
+    expected_points:
+      - "OpenCV is a computer-vision library with C++ API; cv::Mat is the core image/matrix container"
+      - "Mat = header (size, type like CV_8UC3 = 8-bit unsigned, 3 channels) + ref-counted data buffer with row step"
+      - "Assignment and copy constructors share the same data (shallow copy, ref counting); clone() or copyTo() make deep copies"
+      - "Legacy convention loads images as BGR order, not RGB; conversion via cv::cvtColor"
+      - "Image I/O: cv::imread (with flags like IMREAD_COLOR/GRAYSCALE), cv::imshow + cv::waitKey, cv::imwrite"
+
+  - id: "ocv-j-002"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["opencv", "roi", "drawing", "pixel-access"]
+
+    question:
+      text:
+        en: "Show how to work with a Mat: extract an ROI, resize, convert color spaces, apply threshold, draw shapes (rectangle, circle, putText), and access pixels (`.at<>()`, row pointers). What does `Mat::at<Vec3b>(y, x)` return?"
+        ru: "Покажите работу с Mat: выделение ROI, изменение размера, смена цветового пространства, threshold, рисование (rectangle, circle, putText) и доступ к пикселям (`.at<>()`, указатели строк). Что возвращает `Mat::at<Vec3b>(y, x)`?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What happens when you draw onto an ROI of a Mat?"
+        - "Why is per-pixel .at<>() slower than pointer iteration for large loops?"
+        - "What is addWeighted used for?"
+      ru:
+        - "Что произойдёт при рисовании на ROI изображения?"
+        - "Почему поэлементный .at<>() медленнее обхода через указатели в больших циклах?"
+        - "Для чего нужен addWeighted?"
+
+    expected_points:
+      - "ROI via submatrix/Rect or row/col ranges; the ROI shares data with the parent Mat"
+      - "cv::resize (INTER_LINEAR/INTER_AREA), cv::cvtColor, cv::threshold (binary/OTSU) are basic building blocks"
+      - "Drawing: cv::rectangle, cv::circle, cv::line, cv::putText modify the image in place"
+      - "Pixel access: mat.at<Vec3b>(row, col) returns a proxy/reference to the 3-channel pixel; row pointers via mat.ptr<Vec3b>(y) are faster for full scans"
+      - "at<> performs bounds checks only with CV_TM_CHECK... (no checks by default in release); index order is (row=y, col=x)"
+
+  - id: "ocv-j-003"
+    type: "knowledge"
+    difficulty: 2
+    tags: ["opencv", "video-capture", "videowriter"]
+
+    question:
+      text:
+        en: "How do you read from a webcam or video file with `cv::VideoCapture`? Explain the read loop, `CAP_PROP_FPS`/`CAP_PROP_FRAME_COUNT`, why `cv::waitKey(1)` is required in GUI loops, and how to write video with `cv::VideoWriter` (fourcc)."
+        ru: "Как читать с веб-камеры или из видеофайла через `cv::VideoCapture`? Объясните цикл чтения, `CAP_PROP_FPS`/`CAP_PROP_FRAME_COUNT`, зачем нужен `cv::waitKey(1)` в GUI-циклах и как писать видео `cv::VideoWriter` (fourcc)."
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you select a different camera backend (V4L2, GStreamer, DSHOW)?"
+        - "What happens to waitKey and displayed windows if you forget to process GUI events?"
+        - "How do you check whether read() succeeded?"
+      ru:
+        - "Как выбрать другой backend камеры (V4L2, GStreamer, DSHOW)?"
+        - "Что случается с waitKey и окнами, если не обрабатывать GUI-события?"
+        - "Как проверить, что read() прошёл успешно?"
+
+    expected_points:
+      - "VideoCapture opens an index (0 = default webcam) or a file path; isOpened() validates"
+      - "read(frame) returns false at end of video or on error; typical loop is while (cap.read(frame))"
+      - "CAP_PROP_FPS/FRAME_COUNT/POS let you control timing and seek"
+      - "cv::waitKey processes GUI events; without it namedWindow/imshow freezes and key handling does not work"
+      - "VideoWriter requires fourcc codec code (e.g. 'mp4v', 'MJPG'), fps, and frame size matching the frames written"

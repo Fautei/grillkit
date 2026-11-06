@@ -1,0 +1,90 @@
+category: "OpenCV Image Processing"
+track: "cpp"
+level: "middle"
+
+description: "Filters and morphology, edges/contours, calibration and geometric transforms"
+
+questions:
+  - id: "ocv-m-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["opencv", "filtering", "morphology"]
+
+    question:
+      text:
+        en: "Compare GaussianBlur, median, and bilateral filters, and explain morphological operations (erode/dilate/open/close) with structuring elements. Why is a 2D Gaussian separable into two 1D passes, and when do you pick each filter?"
+        ru: "Сравните GaussianBlur, медианный и bilateral фильтры, объясните морфологические операции (erode/dilate/open/close) со структурирующими элементами. Почему 2D гауссиан сепарабелен в два 1D прохода и когда какой фильтр выбирают?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why does the bilateral filter preserve edges?"
+        - "What does opening then closing remove (salt-and-pepper vs small gaps)?"
+        - "How does kernel size relate to sigma for a Gaussian?"
+      ru:
+        - "Почему bilateral filter сохраняет границы?"
+        - "Что убирают сначала opening, потом closing (salt-and-pepper против разрывов)?"
+        - "Как размер ядра соотносится с sigma у гауссиана?"
+
+    expected_points:
+      - "GaussianBlur: weighted linear low-pass; good general denoising; separable — O(w+h) instead of O(w·h) per pixel"
+      - "median filter: order statistic, excellent for salt-and-pepper noise, kills outliers without blurring edges as much"
+      - "bilateral: weights combine spatial and intensity distance, smoothing flat regions while preserving edges; slow (O(n) per pixel, edge-preserving)"
+      - "erode shrinks bright regions, dilate grows them; opening = erode+dilate (removes small bright noise), closing = dilate+erode (fills small holes)"
+      - "Structuring element shape/size sets the granularity; cross vs rectangle behaves differently for thin structures"
+
+  - id: "ocv-m-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["opencv", "edges", "contours", "hough"]
+
+    question:
+      text:
+        en: "Explain the Canny edge detector (gradient, non-maximum suppression, hysteresis thresholds), Sobel/Scharr gradients, and contour analysis with `findContours`/`drawContours`/`approxPolyDP`/`boundingRect`/`minAreaRect`. What are Hough transforms used for?"
+        ru: "Объясните детектор границ Canny (градиент, non-maximum suppression, двойной порог hysteresis), градиенты Sobel/Scharr и анализ контуров через `findContours`/`drawContours`/`approxPolyDP`/`boundingRect`/`minAreaRect`. Для чего нужны преобразования Хафа?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why does Canny use two thresholds (hysteresis)?"
+        - "What retrieval modes of findContours distinguish hierarchy and nesting?"
+        - "How does minAreaRect differ from boundingRect for a rotated object?"
+      ru:
+        - "Почему Canny использует два порога (гистерезис)?"
+        - "Какие режимы findContours различают иерархию и вложенность контуров?"
+        - "Чем minAreaRect отличается от boundingRect для повёрнутого объекта?"
+
+    expected_points:
+      - "Canny: grayscale + Gaussian smoothing, Sobel gradient magnitude/direction, non-maximum suppression, hysteresis with two thresholds linking strong/weak edges"
+      - "Sobel (3x3) and Scharr (better rotational symmetry) compute dx/dy; orientation = atan2(dy, dx)"
+      - "findContours returns contour polylines + hierarchy; RETR_TREE vs RETR_EXTERNAL control nesting; CHAIN_APPROX_SIMPLE compresses segments"
+      - "approxPolyDP (Douglas-Peucker) simplifies polygons; boundingRect is axis-aligned, minAreaRect is the smallest rotated rectangle"
+      - "Hough transforms vote for lines (HoughLinesP) and circles (HoughCircles) in edge images"
+
+  - id: "ocv-m-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["opencv", "calibration", "homography", "geometry"]
+
+    question:
+      text:
+        en: "How do you calibrate a camera in OpenCV: chessboard/CirclesGrid detection, `calibrateCamera`, the intrinsic matrix and distortion coefficients? Compare `undistort` with `initUndistortRectifyMap` + `remap`, and explain `getPerspectiveTransform`/`warpPerspective` and `findHomography` with RANSAC."
+        ru: "Как откалибровать камеру в OpenCV: детекция chessboard/CirclesGrid, `calibrateCamera`, внутренняя матрица и коэффициенты дисторсии. Сравните `undistort` с `initUndistortRectifyMap` + `remap` и объясните `getPerspectiveTransform`/`warpPerspective` и `findHomography` с RANSAC."
+      code: null
+
+    follow_ups:
+      en:
+        - "What are radial and tangential distortion coefficients (k1..k3, p1, p2)?"
+        - "Why is remap with a precomputed map faster per frame than undistort?"
+        - "How many point correspondings does a homography need, and why RANSAC?"
+      ru:
+        - "Что такое коэффициенты радиальной и тангенциальной дисторсии (k1..k3, p1, p2)?"
+        - "Почему remap с предвычисленной картой быстрее на кадр, чем undistort?"
+        - "Сколько пар точек нужно гомографии и зачем RANSAC?"
+
+    expected_points:
+      - "Detect corners with findChessboardCorners + cornerSubPix; collect object points (3D grid) and image points"
+      - "calibrateCamera returns cameraMatrix (fx, fy, cx, cy) and distortion coefficients (k1, k2, p1, p2, k3) by minimizing reprojection error"
+      - "undistort recomputes mapping every call; initUndistortRectifyMap + remap builds maps once and is much faster for video"
+      - "getPerspectiveTransform (4 correspondences) + warpPerspective for document/plate rectification"
+      - "findHomography needs >=4 points and uses RANSAC to reject outliers/matches that are not coplanar"

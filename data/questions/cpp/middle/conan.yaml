@@ -1,0 +1,90 @@
+category: "Conan 2 Recipes and Integration"
+track: "cpp"
+level: "middle"
+
+description: "conanfile.py anatomy, CMakeToolchain/CMakeDeps, versions, revisions, and lockfiles"
+
+questions:
+  - id: "conan-m-001"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["conan", "recipe", "package-id", "settings-options"]
+
+    question:
+      text:
+        en: "Walk through a Conan 2 recipe (`conanfile.py`): `name`/`version`, `settings` vs `options`, `package_id()`, `requirements()`, `layout()` with `cmake_layout`, and the `build()`/`package()`/`package_info()` methods. What is the difference between settings and options?"
+        ru: "Разберите рецепт Conan 2 (`conanfile.py`): `name`/`version`, `settings` против `options`, `package_id()`, `requirements()`, `layout()` с `cmake_layout`, методы `build()`/`package()`/`package_info()`. Чем settings отличаются от options?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is header-only library treated specially in package_id?"
+        - "What goes into self.cpp_info in package_info()?"
+        - "How does a wrong settings declaration break binary compatibility?"
+      ru:
+        - "Почему header-only библиотеки особо обрабатываются в package_id?"
+        - "Что попадает в self.cpp_info в package_info()?"
+        - "Как некорректно объявленные settings ломают бинарную совместимость?"
+
+    expected_points:
+      - "settings are project-wide (os, arch, compiler, build_type) chosen by the user; options are per-package switches declared by the recipe (shared, fPIC)"
+      - "package_id() defines which settings/options produce different binaries; header-only recipes usually erase compiler/build_type settings"
+      - "requirements() declares host dependencies; build_requirements/tool_requires declares build-time tools"
+      - "layout(cmake_layout) standardizes build folders and lets self.build helper run CMake with the toolchain"
+      - "package() copies artifacts to self.package_folder; package_info() declares cpp_info (libs, defines, cmake file names) consumed by generators"
+
+  - id: "conan-m-002"
+    type: "knowledge"
+    difficulty: 3
+    tags: ["conan", "cmake", "generators", "find-package"]
+
+    question:
+      text:
+        en: "How do the `CMakeToolchain` and `CMakeDeps` generators work in Conan 2? What does each generate, why is `find_package(<Pkg>)` able to locate packages after `conan install`, and how are transitive dependencies handled?"
+        ru: "Как работают генераторы `CMakeToolchain` и `CMakeDeps` в Conan 2? Что генерирует каждый из них, почему после `conan install` работает `find_package(<Pkg>)` и как обрабатываются транзитивные зависимости?"
+      code: null
+
+    follow_ups:
+      en:
+        - "How do you pass custom CMake variables or presets via CMakeToolchain?"
+        - "What happens if you forget CMakeDeps and run find_package?"
+        - "How does the dependency 'visibility' (public/private) affect generated CMake files?"
+      ru:
+        - "Как передать кастомные CMake-переменные или пресеты через CMakeToolchain?"
+        - "Что произойдёт, если забыть CMakeDeps и вызвать find_package?"
+        - "Как 'видимость' зависимости (public/private) влияет на генерируемые CMake-файлы?"
+
+    expected_points:
+      - "CMakeToolchain generates conan_toolchain.cmake (compiler, flags, definitions, paths) and CMakePresets; used via cmake --toolchain or -DCMAKE_TOOLCHAIN_FILE"
+      - "CMakeDeps generates per-package config files (FooConfig.cmake, target definitions) so find_package(Foo) resolves to Conan packages"
+      - "Without CMakeDeps, find_package may silently pick a system library or fail with 'package not found'"
+      - "Conan models dependency visibility: public deps propagate to consumers (interface targets), private deps stay hidden"
+      - "cpp_info.set_property('cmake_file_name'/'cmake_target_name') controls generated find-package names and targets like fmt::fmt"
+
+  - id: "conan-m-003"
+    type: "knowledge"
+    difficulty: 4
+    tags: ["conan", "revisions", "lockfiles", "version-ranges"]
+
+    question:
+      text:
+        en: "Explain Conan 2 reproducibility features: version ranges, recipe/package revisions (RREV/PREV), and lockfiles (`conan lock create`, `--lockfile`, `--update`). How do you resolve a dependency version conflict in a graph?"
+        ru: "Объясните средства воспроизводимости Conan 2: диапазоны версий, ревизии рецептов/пакетов (RREV/PREV) и lockfiles (`conan lock create`, `--lockfile`, `--update`). Как разрешить конфликт версий зависимостей в графе?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is the difference between a partial and a full lockfile?"
+        - "Why do revisions make binary packages unambiguous where plain version 'latest' did not?"
+        - "How does [conf] differ from options?"
+      ru:
+        - "Чем partial lockfile отличается от full lockfile?"
+        - "Почему ревизии сделали бинарные пакеты однозначными, в отличие от версии 'latest'?"
+        - "Чем [conf] отличается от options?"
+
+    expected_points:
+      - "Version ranges like fmt/[>=10 <11] resolve at install time; without pins the graph can silently change between machines"
+      - "Revisions (recipe REV and package PREV) timestamp exact artifacts, so 'latest' is no longer ambiguous"
+      - "conan lock create produces a lockfile pinning the full graph; subsequent installs with --lockfile are reproducible; --update refreshes it"
+      - "Conflicts between different version requirements fail by default; fix by aligning requirements or using override/force in the graph"
+      - "Lockfiles make CI builds hermetic: the same graph and binaries on every run"

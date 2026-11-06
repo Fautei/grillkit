@@ -1,0 +1,92 @@
+category: "Advanced C++ Standard"
+track: "cpp"
+level: "senior"
+
+description: "C++ memory model, concepts, and template techniques"
+
+questions:
+  - id: "std-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["memory-model", "atomics", "concurrency", "fence"]
+
+    question:
+      text:
+        en: "Explain the C++11 memory model: what 'happens-before' means, the guarantees of `memory_order_seq_cst` vs `acquire/release` vs `relaxed`, and give a case where `relaxed` is correct (a statistics counter). What is false sharing and how do you mitigate it (`alignas(64)`)? When are atomics slower than mutexes?"
+        ru: "Объясните модель памяти C++11: что значит 'happens-before', гарантии `memory_order_seq_cst` против `acquire/release` и `relaxed`, и приведите случай, где `relaxed` корректен (счётчик статистики). Что такое false sharing и как с ним бороться (`alignas(64)`)? Когда атомы медленнее мьютексов?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why is a release store paired with an acquire load sufficient to publish data?"
+        - "What does a seq_cst fence (std::atomic_thread_fence) do differently from relaxed operations?"
+        - "Show a double-checked-locking bug fixed with correct ordering."
+      ru:
+        - "Почему пары release-store + acquire-load достаточно для публикации данных?"
+        - "Что делает seq_cst fence (std::atomic_thread_fence) иначе, чем relaxed-операции?"
+        - "Покажите баг double-checked-locking и его исправление правильным порядком."
+
+    expected_points:
+      - "The standard defines happens-before ordering; data races (unordered conflicting accesses where at least one writes) are UB"
+      - "seq_cst: single total order across all seq_cst operations; acquire/release: synchronizes-with pairs publishing prior writes; relaxed: atomicity only, no ordering"
+      - "Relaxed is fine when the value alone is meaningful (counters, flags polled without dependent data)"
+      - "Publishing data with a relaxed flag publication is a classic bug; needs release/acquire"
+      - "False sharing: cores ping-pong cache lines holding independent hot fields; pad with alignas(hardware_destructive_interference_size)"
+      - "Uncontended atomics are cache-lock operations; under heavy contention mutexes (with futex sleep) beat spinning atomics"
+
+  - id: "std-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["concepts", "type-traits", "templates", "cpp20"]
+
+    question:
+      text:
+        en: "How do C++20 concepts improve over SFINAE/`enable_if`? Write a concept with a requires-expression (e.g. a container with `size()` and `value_type`), explain standard concepts (`std::same_as`, `std::convertible_to`, `std::invocable`), and discuss where SFINAE-style techniques are still needed. Do concepts slow down compilation?"
+        ru: "Чем концепты C++20 лучше SFINAE/`enable_if`? Напишите концепт с requires-выражением (например контейнер с `size()` и `value_type`), объясните стандартные концепты (`std::same_as`, `std::convertible_to`, `std::invocable`) и скажите, где SFINAE-приёмы всё ещё нужны. Замедляют ли концепты компиляцию?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is the difference between a concept-constrained parameter and a `requires` clause on a function?"
+        - "How do constrained templates change error messages?"
+        - "What is subsumption and why can two logically equivalent constraints be ordered?"
+      ru:
+        - "Чем отличается концепт-ограниченный параметр от `requires`-предложения на функции?"
+        - "Как ограниченные шаблоны меняют сообщения об ошибках?"
+        - "Что такое subsumption и почему два логически эквивалентных ограничения могут упорядочиваться?"
+
+    expected_points:
+      - "Concepts are named, reusable constraints evaluated at compile time; substitution failure becomes an explicit 'does not satisfy' diagnostic"
+      - "requires-expression checks expressions: `requires T t { t.size(); }` plus nested requirements like typename T::value_type"
+      - "Error messages point at the unsatisfied constraint instead of deep enable_if noise; overloads ranked by subsumption"
+      - "Standard concepts cover types/relations/callables: same_as, convertible_to, invocable, ranges concepts"
+      - "SFINAE is still needed in libraries targeting C++14/17 and for detecting non-instantiable constructs concepts cannot express directly"
+      - "Concepts do not reduce template instantiation cost much; they mainly improve diagnostics and interface documentation"
+
+  - id: "std-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["templates", "crtp", "variadic", "ctad"]
+
+    question:
+      text:
+        en: "Explain advanced template techniques: variadic templates with fold expressions, CRTP for static polymorphism (and when to avoid it), CTAD, and the pitfalls of perfect forwarding (forwarding an rvalue twice, universal references with initializer lists, forwarding in recursive calls). How do you control template instantiation cost in large projects?"
+        ru: "Объясните продвинутые шаблонные приёмы: вариативные шаблоны со fold-выражениями, CRTP для статического полиморфизма (и когда его стоит избегать), CTAD и ловушки идеальной пересылки (повторный forward rvalue, universal references с initializer list, пересылка в рекурсии). Как контролировать стоимость инстанциации шаблонов в больших проектах?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why can std::forward<T>(x) be called only once per use of x?"
+        - "How does CRTP compare to virtual dispatch in performance and compile time?"
+        - "What techniques (extern template, explicit instantiation, type-erasure) cut compile times?"
+      ru:
+        - "Почему std::forward<T>(x) для одного x можно использовать только один раз?"
+        - "Как CRTP соотносится с виртуальным диспетчеризмом по производительности и времени компиляции?"
+        - "Какие приёмы (extern template, явная инстанциация, type-erasure) сокращают время компиляции?"
+
+    expected_points:
+      - "Variadic templates expand with ...; C++17 fold expressions ((args + ...), (args && ... && ...)) replace recursion helpers"
+      - "CRTP: base casts `static_cast<Derived*>(this)` for static polymorphism — devirtualization/inlining, but code bloat, long errors, and misuse with value slicing; avoid when runtime polymorphism is needed"
+      - "After forwarding once the moved-from argument should not be forwarded again; T&& deducing from a braced-init-list fails"
+      - "CTAD deduces class template arguments from constructors (implicit or deduction guides)"
+      - "Instantiation cost control: extern template declarations + explicit instantiation, minimize includes, precompiled headers, type-erased hot paths (std::function, custom erased wrappers)"

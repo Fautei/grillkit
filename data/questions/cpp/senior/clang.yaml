@@ -1,0 +1,90 @@
+category: "Clang at Scale"
+track: "cpp"
+level: "senior"
+
+description: "C++20 modules, LibTooling and custom checks, fuzzing and coverage"
+
+questions:
+  - id: "clang-s-001"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["clang", "cpp20-modules", "build-performance"]
+
+    question:
+      text:
+        en: "How do C++20 modules work in Clang (named modules, partitions, header units), what build-performance problem do they solve compared to `#include` and PCH, and what ecosystem pain points remain today (std module support, BMI invalidation, mixed header/module TUs, ODR across builds)? When would you adopt them in an existing project?"
+        ru: "Как работают модули C++20 в Clang (named modules, partitions, header units), какую проблему производительности сборки они решают по сравнению с `#include` и PCH и какие болевые точки экосистемы остаются (поддержка std-модуля, инвалидация BMI, смешанные header/module TU, ODR между сборками)? Когда их стоит внедрять в существующий проект?"
+      code: null
+
+    follow_ups:
+      en:
+        - "What is a BMI (module interface) and when does it get rebuilt?"
+        - "How do header units differ from named modules in migration ergonomics?"
+        - "Why does `import std;` require a specially built std module?"
+      ru:
+        - "Что такое BMI (module interface) и когда он пересобирается?"
+        - "Чем header units отличаются от named modules по эргономике миграции?"
+        - "Почему `import std;` требует специально собранного std-модуля?"
+
+    expected_points:
+      - "Modules compile an interface once into a BMI and import it into consumers, eliminating textual re-parsing of huge transitive include trees"
+      - "Unlike PCH, modules are semantically isolated: no macro leakage, real encapsulation, and consistent ODR within a module"
+      - "Header units (#include as import) ease migration but keep textual semantics partially"
+      - "Pain points: BMI invalidation and hashing differences across toolchains, std module build support (clang's std module, libstdc++ experimental), mixed module/header targets, build-system support (CMake still maturing)"
+      - "Adopt for new leaf components with big headers first; expect toolchain/build-system friction until std support and CMake coverage stabilize"
+
+  - id: "clang-s-002"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["clang", "libtooling", "ast-matchers", "refactoring"]
+
+    question:
+      text:
+        en: "How would you build a codebase-wide analysis or refactoring tool on Clang? Explain LibTooling vs libclang, AST matchers with clang-query, and writing a custom clang-tidy check (Matcher, registerCheck). Give concrete use cases: enforcing architecture rules, mechanical API migrations, finding dead flags."
+        ru: "Как построить tool для анализа или рефакторинга всей кодовой базы на Clang? Объясните LibTooling против libclang, AST matchers с clang-query и написание собственной clang-tidy проверки (Matcher, registerCheck). Приведите конкретные сценарии: контроль архитектуры, механическая миграция API, поиск мёртвых флагов."
+      code: null
+
+    follow_ups:
+      en:
+        - "Why do clang-tidy checks use matchers instead of walking Stmt trees manually?"
+        - "How do you run a LibTooling tool over a large codebase (tool wrapper + compilation database)?"
+        - "What limitations do AST tools have for macros and preprocessor-heavy code?"
+      ru:
+        - "Почему clang-tidy проверки используют matchers, а не обход Stmt-деревьев вручную?"
+        - "Как запустить LibTooling-инструмент на большой кодовой базе (tool wrapper + compilation database)?"
+        - "Каковы ограничения AST-инструментов для макросов и препроцессорного кода?"
+
+    expected_points:
+      - "LibTooling parses sources exactly like the compiler (with compilation database) and exposes full AST; libclang is a C API for indexing/parsing, less rich for analysis"
+      - "AST matchers declaratively select nodes (cxxMemberCallExpr, unless(inAnyHeader)); clang-query iterates matcher development"
+      - "Custom clang-tidy check: subclass ClangTidyCheck, bind a matcher in registerMatchers, emit named diagnostics, registerCheck via module — ships in CI via .clang-tidy"
+      - "Use cases: layer/dependency rules (only X may call Y), API migration with auto-fixes (old callback -> new), finding unused feature flags, banned symbol detection"
+      - "Caveats: macro expansion confuses matchers, and tools must understand target/platform defines; run over the real compile database for fidelity"
+
+  - id: "clang-s-003"
+    type: "knowledge"
+    difficulty: 5
+    tags: ["clang", "libfuzzer", "coverage", "asan"]
+
+    question:
+      text:
+        en: "Explain the Clang fuzzing and coverage stack: writing a libFuzzer entry point (`LLVMFuzzerTestOneInput`) with `-fsanitize=fuzzer`, combining it with ASan/UBSan, interpreting a minimized reproducible crash, and measuring coverage with source-based instrumentation (`-fprofile-instr-generate -fcoverage-mapping`, `llvm-profdata`, `llvm-cov`). How does it differ from gcov/LLVM's previous fuzzer flow?"
+        ru: "Объясните стек фаззинга и покрытия в Clang: точка входа libFuzzer (`LLVMFuzzerTestOneInput`) со `-fsanitize=fuzzer`, комбинация с ASan/UBSan, интерпретация минимизированного воспроизводимого краша и измерение покрытия source-based инструментацией (`-fprofile-instr-generate -fcoverage-mapping`, `llvm-profdata`, `llvm-cov`). Чем это отличается от gcov и прежнего фаззер-потока LLVM?"
+      code: null
+
+    follow_ups:
+      en:
+        - "Why should a fuzz target parse its input instead of calling syscalls, and how does that speed up fuzzing?"
+        - "How do you seed libFuzzer with a corpus and dictionaries for structured formats?"
+        - "Why does source-based coverage beat gcov line coverage on accuracy and speed?"
+      ru:
+        - "Почему fuzz target должен парсить вход, а не дёргать syscall, и как это ускоряет фаззинг?"
+        - "Как дать libFuzzer corpus-затравку и словари для структурированных форматов?"
+        - "Почему source-based покрытие точнее и быстрее построчного gcov?"
+
+    expected_points:
+      - "libFuzzer is an in-process coverage-guided fuzzer: link the target with -fsanitize=fuzzer, LLVMFuzzerTestOneInput processes raw bytes deterministically"
+      - "Instrumentation (SanitizerCoverage) feeds edge counters back to mutate inputs toward new coverage; crash inputs minimize to reproducible files"
+      - "Combining -fsanitize=fuzzer,address,undefined turns crashes into precise ASan/UBSan reports inside the fuzz loop"
+      - "Source-based coverage instruments at source level with counters/branches; llvm-profdata merges profiles, llvm-cov reports line/region/branch coverage per file"
+      - "Difference from gcov: gcov is GCC line-oriented and slow on large binaries; libFuzzer replaced the old standalone AFL-style LLVM flow with an integrated, in-process approach"
