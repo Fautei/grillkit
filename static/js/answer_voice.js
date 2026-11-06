@@ -2,9 +2,17 @@
     "use strict";
 
     var grammarCache = {};
+    var liveAssistConfig = { interviewId: null, voiceEnabled: false };
 
     function initAnswerAssist() {
         var alertsHost = document.getElementById("interview-alerts");
+
+        var composer = document.getElementById("answer-section");
+        if (composer) {
+            liveAssistConfig.interviewId = composer.dataset.interviewId || null;
+            liveAssistConfig.voiceEnabled =
+                composer.dataset.questionVoiceEnabled === "true";
+        }
 
         function showVoiceAlert(message, level) {
             if (!alertsHost) {
@@ -313,7 +321,66 @@
             });
         }
 
+        function escapeHtml(text) {
+            var div = document.createElement("div");
+            div.textContent = text || "";
+            return div.innerHTML;
+        }
+
+        function buildAnswerBubbleHtml(answerText, answerId) {
+            var interviewId = liveAssistConfig.interviewId;
+            if (!answerId || !interviewId) {
+                return (
+                    '<div class="chat-bubble answer-bubble"><strong>You:</strong> ' +
+                    escapeHtml(answerText) +
+                    "</div>"
+                );
+            }
+            var playHtml = liveAssistConfig.voiceEnabled
+                ? '<button type="button" class="btn btn-sm btn-outline btn-answer-play"' +
+                  ' data-interview-id="' + escapeHtml(interviewId) + '"' +
+                  ' data-answer-id="' + escapeHtml(String(answerId)) + '"' +
+                  ' aria-label="Play answer" title="Play answer"' +
+                  ' aria-pressed="false">Play</button>'
+                : "";
+            return (
+                '<div class="chat-bubble answer-bubble">' +
+                '<div class="answer-play-row"><strong>You:</strong>' +
+                playHtml +
+                "</div>" +
+                '<span class="answer-grammar" data-answer-id="' +
+                escapeHtml(String(answerId)) +
+                '" data-interview-id="' +
+                escapeHtml(interviewId) +
+                '">' +
+                escapeHtml(answerText) +
+                "</span></div>"
+            );
+        }
+
+        function replaceAnswerBubbleHtml(messageDiv, answerText, answerId) {
+            if (!messageDiv) {
+                return;
+            }
+            messageDiv.innerHTML = buildAnswerBubbleHtml(answerText, answerId);
+            bindAnswerPlayButtons(messageDiv);
+        }
+
+        function analyzeLastAnswerGrammar() {
+            var messages = document.querySelectorAll(".chat-message.answer");
+            for (var i = messages.length - 1; i >= 0; i -= 1) {
+                var span = messages[i].querySelector(".answer-grammar");
+                if (span && span.dataset.grammarApplied !== "true") {
+                    applyGrammarToSpan(span);
+                    return;
+                }
+            }
+        }
+
         window.grillkitBindAnswerPlayButtons = bindAnswerPlayButtons;
+        window.grillkitBuildAnswerBubbleHtml = buildAnswerBubbleHtml;
+        window.grillkitReplaceAnswerBubbleHtml = replaceAnswerBubbleHtml;
+        window.grillkitAnalyzeLastAnswerGrammar = analyzeLastAnswerGrammar;
 
         bindAnswerPlayButtons(document);
         observeAnswerSpans();

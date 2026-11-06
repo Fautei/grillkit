@@ -28,6 +28,7 @@
         let captureGeneration = 0;
         let pcmChunks = [];
         let pendingAnswerBubble = null;
+        let pendingAnswerId = null;
 
         recordBtn.addEventListener("click", function () {
             startRecording().catch(function (err) {
@@ -121,6 +122,7 @@
             cleanupAudio();
             pcmChunks = [];
             pendingAnswerBubble = null;
+            pendingAnswerId = null;
             setRecordingUi(false);
             setComposerEnabled(true);
         }
@@ -150,6 +152,10 @@
                     ? window.grillkitGetSubmissionContext()
                     : null;
             const questionId = context && context.questionId;
+            pendingAnswerId =
+                context && context.answerId != null && context.answerId !== ""
+                    ? context.answerId
+                    : null;
             if (!questionId) {
                 setRecordingUi(false);
                 setComposerEnabled(true);
@@ -276,12 +282,21 @@
                 }
                 return;
             }
-            const bubble = pendingAnswerBubble.querySelector(".answer-bubble");
-            if (bubble) {
-                bubble.innerHTML =
-                    "<strong>You:</strong> " + escapeHtml(text || "");
+            if (typeof window.grillkitReplaceAnswerBubbleHtml === "function") {
+                window.grillkitReplaceAnswerBubbleHtml(
+                    pendingAnswerBubble,
+                    text || "",
+                    pendingAnswerId
+                );
+            } else {
+                const bubble = pendingAnswerBubble.querySelector(".answer-bubble");
+                if (bubble) {
+                    bubble.innerHTML =
+                        "<strong>You:</strong> " + escapeHtml(text || "");
+                }
             }
             pendingAnswerBubble = null;
+            pendingAnswerId = null;
         }
 
         function resetAfterFailure() {
@@ -291,6 +306,7 @@
                 window.isSubmitting = false;
             }
             pendingAnswerBubble = null;
+            pendingAnswerId = null;
             setRecordingUi(false);
             setComposerEnabled(true);
         }

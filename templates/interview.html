@@ -240,6 +240,7 @@ window.grillkitCodingBootstrap = {
     let ws = null;
     let reconnectTimer = null;
     let currentQuestionId = {{ (current_question.question_id if current_question else "") | tojson }};
+    let currentAnswerId = {{ (current_answer_id if current_answer_id is not none else "") | tojson }};
     const questionCount = {{ interview.question_count }};
     const questionTimerEnabled = {{ question_timer_enabled | tojson }};
     const interviewLocale = {{ interview.locale | tojson }};
@@ -436,6 +437,9 @@ window.grillkitCodingBootstrap = {
             case 'feedback':
                 clearEvaluationWatchdog();
                 showEvaluating(false);
+                if (window.grillkitAnalyzeLastAnswerGrammar) {
+                    window.grillkitAnalyzeLastAnswerGrammar();
+                }
                 if (data.timed_out) {
                     showTimeoutBubble(data.feedback);
                 }
@@ -558,8 +562,13 @@ window.grillkitCodingBootstrap = {
         const chatContainer = document.getElementById('chat-container');
         const answerDiv = document.createElement('div');
         answerDiv.className = 'chat-message answer';
-        answerDiv.innerHTML = '<div class="chat-bubble answer-bubble"><strong>You:</strong> ' + escapeHtml(answerText) + '</div>';
+        answerDiv.innerHTML = window.grillkitBuildAnswerBubbleHtml
+            ? window.grillkitBuildAnswerBubbleHtml(answerText, currentAnswerId)
+            : '<div class="chat-bubble answer-bubble"><strong>You:</strong> ' + escapeHtml(answerText) + '</div>';
         chatContainer.appendChild(answerDiv);
+        if (window.grillkitBindAnswerPlayButtons) {
+            window.grillkitBindAnswerPlayButtons(answerDiv);
+        }
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
@@ -654,6 +663,7 @@ window.grillkitCodingBootstrap = {
             });
 
             currentQuestionId = data.question_id;
+            currentAnswerId = data.follow_up_answer_id != null ? data.follow_up_answer_id : "";
             currentRound = data.round + 1;
             isSubmitting = false;
             window.isSubmitting = false;
@@ -668,6 +678,7 @@ window.grillkitCodingBootstrap = {
             appendQuestionMessage(nq);
 
             currentQuestionId = nq.question_id;
+            currentAnswerId = nq.id != null ? nq.id : "";
             currentRound = nq.round != null ? nq.round : 0;
             updateProgressDisplay(nq.order);
             isSubmitting = false;
@@ -680,6 +691,7 @@ window.grillkitCodingBootstrap = {
         } else {
             updateProgressDisplay(null);
             stopQuestionTimer();
+            currentAnswerId = "";
             isSubmitting = false;
             window.isSubmitting = false;
             if (window.grillkitSessionPhaseNav && window.grillkitSessionPhaseNav.hasPendingCodingPhase()) {
@@ -739,7 +751,7 @@ window.grillkitCodingBootstrap = {
 
     window.grillkitHandleInterviewEvent = handleWsMessage;
     window.grillkitGetSubmissionContext = function () {
-        return { questionId: currentQuestionId, round: currentRound };
+        return { questionId: currentQuestionId, round: currentRound, answerId: currentAnswerId };
     };
     window.grillkitSetSubmitting = function (value) {
         isSubmitting = value;
